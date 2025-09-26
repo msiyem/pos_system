@@ -1,0 +1,73 @@
+[
+  {
+    "id": 1,
+    "image": "images/product/Anker-Nano-30W-USB-C-Adapter-iPhone-15-Series-A2337-1.webp",
+    "title": "Anker Nano 30W USB-C Adapter",
+    "type": "Charger",
+    "price": 299
+  },
+  {
+    "id": 2,
+    "image": "images/product/Baseus-GoPlay-1-Max-3.5mm-Jack-Gaming-Wired-Headphone-1.png",
+    "title": "Baseus GoPlay-1 Max-3.5mm Jack Gaming Wired Headphone",
+    "type": "HeadPhone",
+    "price": 399
+  },
+  {
+    "id": 3,
+    "image": "images/product/Hoco-EQ17-ANCENC-TWS-1.png",
+    "title": "Hoco EQ17 ANCENC TWS 1",
+    "type": "TWS",
+    "price": 499
+  },
+  {
+    "id": 4,
+    "image": "images/product/Hoco-J101B-22.5W-30000mAh-Fast-Charging-Power-Bank-600x600.webp",
+    "title": "Hoco J101B 22.5W 30000mAh Fast Charging Power Bank",
+    "type": "Power Bank",
+    "price": 399
+  },
+  {
+    "id": 5,
+    "image": "images/product/Hoco-Q39-Eminete-22.5WPD20W-20000mAh-Power-Bank-600x600.webp",
+    "title": "Hoco Q39 Eminete 22.5WPD20W 20000mAh Power Bank",
+    "type": "Power Bank",
+    "price": 349
+  },
+  {
+    "id": 6,
+    "image": "images/product/Hoco-Y31-Bluetooth-Calling-Smart-Watch-1-250x250.webp",
+    "title": "Hoco Y31 Bluetooth Calling Smart Watch",
+    "type": "Smart Watch",
+    "price": 399
+  },
+  {
+    "id": 7,
+    "image": "images/product/Logitech-M196-Bluetooth-Mouse-1-250x250.png",
+    "title": "Logitech M196 Bluetooth Mouse",
+    "type": "Bluetooth Mouse",
+    "price": 399
+  },
+  {
+    "id": 8,
+    "image": "images/product/Oraimo-Watch-5R-OSW-820-Smart-Watch-1-250x250.webp",
+    "title": "Oraimo Watch 5R OSW-820 Smart Watch",
+    "type": "Smart Watch",
+    "price": 399
+  },
+  {
+    "id": 9,
+    "image": "images/product/Planet-Wireless-Smart-Charger-Alarm-Clock-Bluetooth-Speaker-1-500x500.jpg",
+    "title": "Planet Wireless Smart Charger Alarm nClock Bluetooth Speaker",
+    "type": "Bluetooth Speaker",
+    "price": 399
+  },
+  {
+    "id": 10,
+    "image": "images/product/Xiaomi-C500-Pro-Smart-Camera-600x600.webp",
+    "title": "Xiaomi C500 Pro Smart Camera",
+    "type": "Smart Camera",
+    "price": 399
+  }
+]
+]
