@@ -4,7 +4,7 @@ import { DayPicker } from "react-day-picker";   // ✅ correct import
 import "react-day-picker/dist/style.css";
 import { Calendar as CalendarIcon } from "lucide-react";
 
-export default function DatePicker() {
+export default function DatePicker({button_text}) {
   const [date, setDate] = useState();
   const [open, setOpen] = useState(false);
 
@@ -13,15 +13,15 @@ export default function DatePicker() {
       {/* Button */}
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 border rounded-lg shadow-sm bg-white hover:bg-gray-50 transition"
+        className="flex items-center gap-2 px-4 py-1 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-50 transition"
       >
         <CalendarIcon className="w-4 h-4 text-gray-500" />
-        {date ? format(date, "PPP") : "Start Date"}
+        {date ? format(date, "PPP") : button_text}
       </button>
 
       {/* Dropdown calendar */}
       {open && (
-        <div className="absolute mt-2 z-50 bg-white border rounded-xl shadow-lg p-2">
+        <div className="absolute mt-2 z-50 bg-white border border-gray-200 rounded-2xl shadow-lg p-1 ">
           <DayPicker
             mode="single"
             selected={date}
@@ -29,7 +29,7 @@ export default function DatePicker() {
               setDate(selected);
               setOpen(false);
             }}
-            className="rounded-md"
+            className=""
           />
         </div>
       )}

@@ -12,7 +12,7 @@ import C500 from '../assets/products/Xiaomi-C500-Pro-Smart-Camera-600x600.webp';
 import Pagination from '../ui/pagination';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ShoppingCart } from 'lucide-react';
+import { Check, ShoppingCart } from 'lucide-react';
 import ShoppingCard from '../component/shoppingCard';
 
 export default function Products() {
@@ -112,7 +112,9 @@ export default function Products() {
   const [card, setCart] = useState([]);
   const [openCategory, setOpenCategory] = useState(false);
   const [openStock, setOpenStock] = useState(false);
-  const [stockfilter, setStockfilter] = useState('');
+  const [stockfilter, setStockfilter] = useState('all');
+  const [checkCategory, setCheckCategory] = useState('all');
+
   const useCategoryRef = useRef(null);
   const useStockRef = useRef(null);
 
@@ -225,29 +227,40 @@ export default function Products() {
                   openStock ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
                 }`}
               >
-                <div className="bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm sm:text-base p-1">
+                <div className="bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm sm:text-base p-1 text-nowrap">
                   <div
                     onClick={() => {
                       setStockfilter('in');
-                      setOpenCategory(false);
+                      
                     }}
-                    className="cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50 hover:shadow"
+                    className="flex items-center gap-2 cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50 hover:shadow"
                   >
+                    <Check
+                        className={`w-4 h-4 ${stockfilter=='in' ? 'text-red-500/90' : 'text-white'}`}
+                      />
                     In Stock
                   </div>
                   <div
                     onClick={() => {
                       setStockfilter('out');
-                      setOpenCategory(false);
+                      
                     }}
-                    className="cursor-pointer m-1 border-b border-gray-300 pb-1  px-1 hover:bg-gray-50 hover:shadow"
+                    className="flex items-center gap-2 cursor-pointer m-1 border-b border-gray-300 pb-1  px-1 hover:bg-gray-50 hover:shadow"
                   >
+                    <Check
+                        className={`w-4 h-4 ${stockfilter=='out' ? 'text-red-500/90' : 'text-white'}`}
+                      />
                     Out of Stock
                   </div>
                   <span
-                    className="cursor-pointer  pb-1 m-1  px-1 hover:bg-gray-50 hover:shadow"
-                    onClick={() => navigate(0)}
+                    className="flex items-center gap-2 cursor-pointer  pb-1 m-1  px-1 hover:bg-gray-50 hover:shadow"
+                    onClick={() => {navigate(0)
+                      setStockfilter('all');
+                    }}
                   >
+                    <Check
+                        className={`w-4 h-4 ${stockfilter=='all' ? 'text-red-500/90' : 'text-white'}`}
+                      />
                     All
                   </span>
                 </div>
@@ -261,37 +274,58 @@ export default function Products() {
               >
                 Category
               </button>
+
               {/* Dropdown category */}
+
               <div
-                className={`absolute mt-2 right-0 shadow-2xl
+                className={`absolute mt-2 right-0 shadow-2xl 
             transform origin-top-right transition-all duration-300 ease-in-out ${
               openCategory ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
             }`}
               >
-                <div className="bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm sm:text-base ">
-                  {category.map((c) => (
+                <div className="bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm sm:text-base text-nowrap ">
+                  {category.map((c, value) => (
                     <span
                       key={c}
-                      className="cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50 hover:shadow"
-                      onClick={() => setsearch(c.toLowerCase())}
+                      className="flex items-center gap-2 cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50 hover:shadow"
+                      onClick={() => {
+                        setsearch(c.toLowerCase());
+                        setCheckCategory(value);
+                        setOpenCategory(false);
+                      }}
                     >
+                      <Check
+                        className={`w-4 h-4 ${checkCategory == value ? 'text-red-500/90' : 'text-white'}`}
+                      />
                       {c}
                     </span>
                   ))}
                   <span
-                    className="cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50"
-                    onClick={() => setsearch('other')}
+                    className="flex items-center gap-2 cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50"
+                    onClick={() => {setsearch('other')
+                      setCheckCategory('other');
+                      setOpenCategory(false);
+                    }}
                   >
+                    <Check
+                        className={`w-4 h-4 ${checkCategory == 'other' ? 'text-red-500/90' : 'text-white'}`}
+                      />
                     Other
                   </span>
                   <span
-                    className="cursor-pointer  pb-1 m-1 px-1 hover:bg-gray-50"
-                    onClick={() => navigate(0)}
+                    className="flex items-center gap-2 cursor-pointer  pb-1 m-1 px-1 hover:bg-gray-50"
+                    onClick={() => {navigate(0)
+                      setCheckCategory('all');
+                    }}
                   >
+                    <Check
+                        className={`w-4 h-4 ${checkCategory == 'all' ? 'text-red-500/90' : 'text-white'}`}
+                      />
                     All
                   </span>
                 </div>
               </div>
+
             </div>
           </div>
         </div>

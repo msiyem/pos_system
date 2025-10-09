@@ -4,10 +4,10 @@ import BackButton from '../ui/backButton';
 export default function AddProduct() {
   return (
     <div className="relative bg-gray-100 w-full min-h-screen flex justify-center items-center">
-      <div className='absolute top-10 left-3'>
+      <div className='absolute top-10 left-5'>
         <BackButton/>
       </div>
-      <div className="flex flex-col gap-5 sm:gap-15 bg-white m-3 p-2 ring-0 rounded-lg w-full max-w-[800px] mt-5">
+      <div className="flex flex-col gap-5 sm:gap-15 bg-white m-3 p-5 shadow-2xl ring-0 rounded-lg w-full max-w-[1000px] mt-5">
         <div className="flex flex-col gap-2">
           <span className="text-[20px] sm:text-[24px] font-serif font-semibold">
             Add New Product

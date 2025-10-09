@@ -1,11 +1,7 @@
-import { useState } from 'react';
-
-export default function Pagination({ totalPages = 15 }) {
-  const [currentPage, setCurrentPage] = useState(2);
-
+export default function Pagination({ currentPage, totalPages = 1, onPageChange }) {
   const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+      onPageChange(page);
     }
   };
 
@@ -39,7 +35,7 @@ export default function Pagination({ totalPages = 15 }) {
       {/* Page Numbers */}
       {pages.map((p, index) =>
         p === '...' ? (
-          <span key={index} className="px-3 py-1">
+          <span key={index} className="px-3 py-1 select-none">
             ...
           </span>
         ) : (
@@ -48,7 +44,7 @@ export default function Pagination({ totalPages = 15 }) {
             onClick={() => goToPage(p)}
             className={`px-3 py-1 rounded-md border ${
               currentPage === p
-                ? 'bg-pink-600 text-white font-medium'
+                ? 'bg-red-500 text-white font-medium'
                 : 'border-gray-300 text-gray-600 hover:bg-gray-100'
             }`}
           >
