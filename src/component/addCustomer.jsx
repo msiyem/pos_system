@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import InputText from '../ui/inputText';
 import InputRadio from '../ui/radio';
+import BackButton from '../ui/backButton';
 
 export default function AddCustomer() {
   const [formData, setFormData] = useState({
@@ -31,18 +32,27 @@ export default function AddCustomer() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Phone validation
-    if (formData.phone.length !== 11) {
-      alert('❌ Phone number must be exactly 11 digits!');
+    // Gender validation
+    if (!formData.gender) {
+      alert('Error! Please select a gender!');
       return;
     }
 
-    if (formData.alt_phone && formData.alt_phone.length !== 11) {
-      alert('❌ Alternative phone must be exactly 11 digits!');
+    // Phone validation
+    if (formData.phone.length !== 11) {
+      alert('Error! Phone number must be exactly 11 digits!');
       return;
     }
+
+    //Alternative phone validation
+    if (formData.alt_phone && formData.alt_phone.length !== 11) {
+      alert('Error! Alternative phone must be exactly 11 digits!');
+      return;
+    }
+
+    //Whatsapp number validation
     if (formData.whatsapp && formData.whatsapp.length !== 11) {
-      alert('❌ Whatsapp number must be exactly 11 digits!');
+      alert('Error! Whatsapp number must be exactly 11 digits!');
       return;
     }
 
@@ -79,7 +89,7 @@ export default function AddCustomer() {
       if (!res.ok) throw new Error('Failed to add customer!');
 
       const data = await res.json();
-      alert('✅ Customer added successfully! ID: ' + data.id);
+      alert('Customer added successfully! ID: ' + data.id);
 
       // Reset form
       setFormData({
@@ -101,7 +111,7 @@ export default function AddCustomer() {
       });
     } catch (err) {
       console.error(err);
-      alert('❌ Error adding customer');
+      alert('Error adding customer');
     }
   };
 
@@ -125,10 +135,12 @@ export default function AddCustomer() {
           />
 
           {/* Gender Radio */}
-          <div className="flex gap-5 items-center">
-            <label className="font-semibold text-gray-700 w-[10ch]">Gender</label>
-            <label className="font-semibold text-gray-700">:</label>
-            <div className="flex gap-6">
+          <div className="flex gap-2 items-center w-full">
+            <div className='w-[18ch] flex justify-between'>
+              <span className="font-semibold text-gray-700 mb-1 text-nowrap">Gender</span>
+              <label className="font-semibold text-gray-700 mr-[5px]">:</label>
+            </div>
+            <div className="flex justify-between w-full px-5 pl-0">
               <InputRadio
                 formData={formData}
                 title="Male"
@@ -154,14 +166,67 @@ export default function AddCustomer() {
           </div>
 
           {/* Address Inputs */}
-          <InputText title="Division" type="text" name="division" formData={formData} handleChange={handleChange} />
-          <InputText title="District" type="text" name="district" formData={formData} handleChange={handleChange} />
-          <InputText title="City" type="text" name="city" formData={formData} handleChange={handleChange} />
-          <InputText title="Area" type="text" name="area" formData={formData} handleChange={handleChange} />
-          <InputText title="Post Code" type="text" name="post_code" formData={formData} handleChange={handleChange} />
-          <InputText title="Sector" type="text" name="sector" formData={formData} handleChange={handleChange} />
-          <InputText title="Road" type="text" name="road" formData={formData} handleChange={handleChange} />
-          <InputText title="House" type="text" name="house" formData={formData} handleChange={handleChange} />
+          <InputText
+            title="Division"
+            type="text"
+            name="division"
+            formData={formData}
+            handleChange={handleChange}
+            required
+          />
+          <InputText
+            title="District"
+            type="text"
+            name="district"
+            formData={formData}
+            handleChange={handleChange}
+            required
+          />
+          <InputText
+            title="City"
+            type="text"
+            name="city"
+            formData={formData}
+            handleChange={handleChange}
+            required
+          />
+          <InputText
+            title="Area"
+            type="text"
+            name="area"
+            formData={formData}
+            handleChange={handleChange}
+            required
+          />
+          <InputText
+            title="Post Code"
+            type="text"
+            name="post_code"
+            formData={formData}
+            handleChange={handleChange}
+            required
+          />
+          <InputText
+            title="Sector"
+            type="text"
+            name="sector"
+            formData={formData}
+            handleChange={handleChange}
+          />
+          <InputText
+            title="Road"
+            type="text"
+            name="road"
+            formData={formData}
+            handleChange={handleChange}
+          />
+          <InputText
+            title="House"
+            type="text"
+            name="house"
+            formData={formData}
+            handleChange={handleChange}
+          />
 
           {/* Contact Inputs */}
           <InputText
@@ -199,7 +264,10 @@ export default function AddCustomer() {
             required
           />
 
-          <div className="w-full flex justify-end">
+          <div className="w-full flex justify-between px-2">
+            <div className='text-blue-800'>
+              <BackButton/>
+            </div>
             <button
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600"

@@ -31,13 +31,18 @@ export default function MyRoute() {
         setTotal(res.total);
         setPage(res.page);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        alert('Failed to load customers.Please try again later.');
+      });
   };
 
   useEffect(() => {
-    fetchCustomers(page, search);
-  }, [page,search]);
-
+    const delayDebounce = setTimeout(() => {
+      fetchCustomers(page, search);
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [page, search]);
 
   return (
     <Routes>
@@ -65,12 +70,16 @@ export default function MyRoute() {
       />
       <Route
         path="/customer/:id"
-        element={<CustomerHistory users={customers} />}
+        element={
+          <CustomerHistory
+            users={customers}
+            fetchCustomers={fetchCustomers}
+            page={page}
+            search={search}
+          />
+        }
       />
-      <Route 
-        path='/customers/add'
-        element={<AddCustomer/>}
-      />
+      <Route path="/customers/add" element={<AddCustomer />} />
       <Route path="/supplier" element={<Supplier />} />
       <Route path="/reports" element={<Reports />} />
       <Route path="/selling" element={<Selling />} />

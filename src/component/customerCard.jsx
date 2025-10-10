@@ -4,6 +4,7 @@ import {
   Mail,
   MapPinHouse,
   MessageCircleMore,
+  PhoneCall,
   Trash2,
   UserRound,
 } from 'lucide-react';
@@ -11,10 +12,21 @@ import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import DeleteCustomerButton from './deleteCustomer';
 
-export default function Customer({ id , name, gmail, address, lastVisit, dues,fetchCustomers,page,search}) {
+export default function Customer({
+  id,
+  name,
+  gmail,
+  address,
+  phone,
+  lastVisit,
+  dues,
+  fetchCustomers,
+  page,
+  search,
+}) {
   const profileRef = useRef(null);
   const [open, setOpen] = useState(false);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   useEffect(() => {
     function handleProfileRef(e) {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -25,18 +37,24 @@ export default function Customer({ id , name, gmail, address, lastVisit, dues,fe
     return () => {
       document.removeEventListener('mousedown', handleProfileRef);
     };
-  },[open]);
+  }, [open]);
   return (
     <div className=" h-[180px]  ring-0 border border-red-500 flex flex-[1_1_300px] rounded-xl p-5 hover:shadow-lg">
       <div className="w-full h-full  flex flex-col gap-1">
         <div className="flex justify-between">
-          <div className="text-lg font-semibold mb-1">{name}</div>
+          <div className="flex items-center  gap-3">
+            <div className="text-[13px] border mt-[2px] px-1 self-start border-gray-300 rounded-lg shadow ">
+              ID : {id}
+            </div>
+            <div className="text-lg font-semibold mb-1 font-mono">{name}</div>
+          </div>
+
           <div ref={profileRef} className="relative">
             <button
               onClick={() => setOpen(!open)}
               className=" hover:shadow shadow-amber-500/40 p-0.5 cursor-pointer ring-0 rounded-md "
             >
-              <Ellipsis className="" />
+              <Ellipsis className="p-0.5" />
             </button>
             {/* Dropdown */}
             <div
@@ -46,12 +64,13 @@ export default function Customer({ id , name, gmail, address, lastVisit, dues,fe
             }`}
             >
               <div className="border border-gray-300 rounded-lg flex flex-col space-y-1 z-50 bg-white">
-                <button 
-                onClick={()=>{
-                  if(id) navigate(`/customer/${id}`);
-                  else alert("customer id not found!");
-                }}
-                className="border-b flex gap-2 items-center border-gray-300 m-1 p-1 text-center cursor-pointer hover:bg-gray-50 hover:shadow mt-0">
+                <button
+                  onClick={() => {
+                    if (id) navigate(`/customer/${id}`);
+                    else alert('customer id not found!');
+                  }}
+                  className="border-b flex gap-2 items-center border-gray-300 m-1 p-1 text-center cursor-pointer hover:bg-gray-50 hover:shadow mt-0"
+                >
                   <UserRound className="h-4 w-4" />
                   <span className="">Profile</span>
                 </button>
@@ -60,8 +79,9 @@ export default function Customer({ id , name, gmail, address, lastVisit, dues,fe
                   <span>Message</span>
                 </button>
                 <DeleteCustomerButton
-                customerId={id}
-                onDeleted={()=>fetchCustomers(page,search)}/>
+                  customerId={id}
+                  onDeleted={() => fetchCustomers(page, search)}
+                />
               </div>
             </div>
           </div>
@@ -76,6 +96,12 @@ export default function Customer({ id , name, gmail, address, lastVisit, dues,fe
             {address}
           </span>
         </div>
+
+        <div className="flex items-center gap-2 text-gray-600 text-[15px] mb-2">
+          <PhoneCall className="h-3.5 w-3.5" />
+          <span>{phone}</span>
+        </div>
+
         <div className="flex justify-between mt-auto text-[12px]">
           <div className="border border-gray-300 rounded-md px-1 self-start">
             Last Visit: {lastVisit || null}

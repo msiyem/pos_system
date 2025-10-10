@@ -3,27 +3,41 @@ import {
   Calendar,
   CalendarCheck,
   Check,
+  Delete,
   EllipsisVertical,
   History,
+  IdCard,
   Mail,
   MessageCircle,
   Phone,
   PhoneCall,
   Search,
+  Shield,
   ShieldCheck,
+  ShieldUser,
   ShoppingBag,
+  SquarePen,
+  Trash2,
   User,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import DateButton from './dateButton';
+import DeleteCustomerButton from './deleteCustomer';
 
-export default function CustomerHistory({ users }) {
+export default function CustomerHistory({
+  users,
+  fetchCustomers,
+  page,
+  search,
+}) {
   const { id } = useParams();
   const customer = users.find((c) => c.id === parseInt(id));
   const [activeTab, setActiveTab] = useState('info');
   const [type, setType] = useState('All');
   const [openTypes, setOpenType] = useState(false);
+  const [openElipse, setOpenElipse] = useState(false);
+  const navigate = useNavigate();
   if (!customer) {
     return (
       <div className="p-10 text-center text-gray-500">
@@ -44,22 +58,55 @@ export default function CustomerHistory({ users }) {
           <div className="flex justify-between w-full">
             <div className="flex gap-3">
               <span className="text-[24px] font-bold">{customer.name}</span>
-              {customer.verify?(<div className="flex items-center bg-green-100 rounded-lg px-2 pr-3 gap-2 flex-shrink-0 self-center">
-                <ShieldCheck className="h-3 w-3" />
-                <span className="text-[12px] font-medium text-gray-600">
-                  Verified
-                </span>
-              </div>):(<div className="flex items-center bg-red-100 rounded-lg px-2 pr-3 gap-2 flex-shrink-0 self-center">
-                <ShieldCheck className="h-3 w-3" />
-                <span className="text-[12px] font-medium text-gray-600">
-                  Not Verified
-                </span>
-              </div>)}
+              {customer.verify ? (
+                <div className="flex items-center bg-green-100 rounded-lg px-2 pr-3 gap-2 flex-shrink-0 self-center">
+                  <ShieldCheck className="h-3 w-3" />
+                  <span className="text-[12px] font-medium text-gray-600">
+                    Verified
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center bg-red-100 rounded-lg px-2 pr-3 gap-2 flex-shrink-0 self-center">
+                  <ShieldCheck className="h-3 w-3" />
+                  <span className="text-[12px] font-medium text-gray-600">
+                    Not Verified
+                  </span>
+                </div>
+              )}
               <div className="flex items-center bg-gray-100 shadow text-[14px] rounded-xl px-2 pr-3 gap-2 flex-shrink-0 self-center">
                 <span>Gender: {customer.gender} </span>
               </div>
             </div>
-            <EllipsisVertical className="h-5 w-5" />
+            <div className="relative">
+              <button
+                className="cursor-pointer p-1"
+                onClick={() => setOpenElipse(!openElipse)}
+              >
+                <EllipsisVertical className="h-5 w-5" />
+              </button>
+              {/* Dropdown ellipsis  */}
+              <div
+                className={`absolute mt-0 right-3 z-20
+                transform origin-top-right transition-all duration-300 ease-out ${
+                  openElipse ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                }`}
+              >
+                <div className="bg-white border border-gray-300 shadow rounded-xl flex flex-col p-1">
+                  <div className="flex items-center gap-2 hover:bg-gray-50 hover:shadow p-2 mx-1 py-1.5 cursor-pointer rounded-0 border-b border-b-gray-300 text-blue-600 ">
+                    <SquarePen className="h-4 w-4" />
+                    <span className="">Edit</span>
+                  </div>
+                  <div 
+                  onClick={()=>navigate(-1)}
+                  className="text-[#e51e5a]">
+                    <DeleteCustomerButton
+                      customerId={id}
+                      onDeleted={() => fetchCustomers(page, search)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="text-gray-600 flex gap-6 text-[12px] sm:text-sm">
@@ -73,11 +120,16 @@ export default function CustomerHistory({ users }) {
             </div>
           </div>
 
-          <div className=" text-[#e51e5a] text-[12px] font-semibold border border-gray-300 flex items-center w-fit rounded-lg px-2 py-1 gap-1">
-            <BookmarkMinus className="h-3 w-3 " />
-            <span>Due: {customer.debt}</span>
+          <div className="flex justify-between items-center gap-3">
+            <div className=" text-[#e51e5a] text-[12px] font-semibold border border-gray-300 flex items-center w-fit rounded-lg px-2 py-1 gap-1">
+              <BookmarkMinus className="h-3 w-3 " />
+              <span>Due: {customer.debt}</span>
+            </div>
+            <div className="text-[12px] font-semibold text-gray-800 border border-[#e51e5a]/15 px-2 py-1   rounded-lg shadow flex items-center gap-[1px]">
+              <ShieldUser className="h-3.5 w-3.5" />
+              ID : {id}
+            </div>
           </div>
-          
         </div>
       </div>
 
@@ -224,7 +276,6 @@ export default function CustomerHistory({ users }) {
                     </th>
                     <td>{customer.division}</td>
                   </tr>
-                  
                 </tbody>
               </table>
             </div>
@@ -285,7 +336,7 @@ export default function CustomerHistory({ users }) {
               <div>
                 <DateButton button_text={'End Date'} />
               </div>
-              <div className='relative'>
+              <div className="relative">
                 <div
                   className="cursor-pointer py-0.5 flex items-center gap-2 border border-gray-300 w-fit px-3 rounded-lg shadow hover:bg-gray-50"
                   onClick={() => setOpenType(!openTypes)}
@@ -300,39 +351,55 @@ export default function CustomerHistory({ users }) {
                     openTypes ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
                   }`}
                 >
-                  <div className='flex flex-col border border-gray-200 shadow-xl rounded-xl p-1 bg-white'
-                  onClick={()=>setOpenType(false)}>
-                    <div 
-                    onClick={()=>setType('All')}
-                    className='flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg'>
-                      <Check className={`h-3 w-3  ${type==='All'?'text-black':'text-white'}`} />
-                      <span >All</span>
+                  <div
+                    className="flex flex-col border border-gray-200 shadow-xl rounded-xl p-1 bg-white"
+                    onClick={() => setOpenType(false)}
+                  >
+                    <div
+                      onClick={() => setType('All')}
+                      className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                    >
+                      <Check
+                        className={`h-3 w-3  ${type === 'All' ? 'text-black' : 'text-white'}`}
+                      />
+                      <span>All</span>
                     </div>
-                    <div 
-                    onClick={()=>setType('Purchased')}
-                    className='flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg'>
-                      <Check className={`h-3 w-3  ${type==='Purchased'?'text-black':'text-white'}`} />
-                      <span >Purchased</span>
+                    <div
+                      onClick={() => setType('Purchased')}
+                      className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                    >
+                      <Check
+                        className={`h-3 w-3  ${type === 'Purchased' ? 'text-black' : 'text-white'}`}
+                      />
+                      <span>Purchased</span>
                     </div>
-                    <div 
-                    onClick={()=>setType('Payment')}
-                    className='flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg'>
-                      <Check className={`h-3 w-3  ${type==='Payment'?'text-black':'text-white'}`} />
-                      <span >Payment</span>
+                    <div
+                      onClick={() => setType('Payment')}
+                      className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                    >
+                      <Check
+                        className={`h-3 w-3  ${type === 'Payment' ? 'text-black' : 'text-white'}`}
+                      />
+                      <span>Payment</span>
                     </div>
-                    <div 
-                    onClick={()=>setType('DuePayment')}
-                    className='flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg'>
-                      <Check className={`h-3 w-3  ${type==='DuePayment'?'text-black':'text-white'}`} />
-                      <span >DuePayment</span>
+                    <div
+                      onClick={() => setType('DuePayment')}
+                      className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                    >
+                      <Check
+                        className={`h-3 w-3  ${type === 'DuePayment' ? 'text-black' : 'text-white'}`}
+                      />
+                      <span>DuePayment</span>
                     </div>
-                    <div 
-                    onClick={()=>setType('Refund')}
-                    className='flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg'>
-                      <Check className={`h-3 w-3  ${type==='Refund'?'text-black':'text-white'}`} />
-                      <span >Refund</span>
+                    <div
+                      onClick={() => setType('Refund')}
+                      className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                    >
+                      <Check
+                        className={`h-3 w-3  ${type === 'Refund' ? 'text-black' : 'text-white'}`}
+                      />
+                      <span>Refund</span>
                     </div>
-                    
                   </div>
                 </div>
               </div>
