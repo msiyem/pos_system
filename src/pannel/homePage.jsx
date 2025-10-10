@@ -14,7 +14,7 @@ export default function HomePage() {
   const homeRef = useRef(null);
   useEffect(()=>{
     const handleResize=()=>{
-      if(window.innerWidth<780){
+      if(window.innerWidth<820){
       setOpen(false);
       setSmallDive(true);
     }else{
@@ -55,7 +55,7 @@ export default function HomePage() {
         {open && (
           <motion.div
             initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 250, opacity: 1 }}
+            animate={{ width: 220, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.35, ease: "easeInOut" }}
             className="bg-[rgb(250,250,250)] h-full flex flex-col px-1 z-20"
@@ -81,7 +81,7 @@ export default function HomePage() {
           if(isSmallDevice && open) setOpen(false);
         }}
         
-        animate={{ width: open ? "calc(100% - 250px)" : "100%" }}
+        animate={{ width: open ? "calc(100% - 220px)" : "100%" }}
         transition={{ duration: 0.35, ease: "easeInOut" }}
       >
         <div className="flex justify-between p-3 border-b border-gray-200/80">
