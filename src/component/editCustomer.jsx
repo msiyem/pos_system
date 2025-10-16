@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import InputText from '../ui/inputText';
 import InputRadio from '../ui/radio';
 import BackButton from '../ui/backButton';
+import { useNavigate, useParams } from 'react-router';
 
-export default function AddCustomer() {
+export default function EditCustomer() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const customerId = parseInt(id);
   const [formData, setFormData] = useState({
     name: '',
     gender: '',
-    birthday: '',
     division: '',
     district: '',
     city: '',
@@ -20,7 +23,45 @@ export default function AddCustomer() {
     alt_phone: '',
     whatsapp: '',
     email: '',
+    status: '',
+    verify:'',
   });
+  useEffect(() => {
+    async function fetchCustomer() {
+      try {
+        const res = await fetch(
+          `http://localhost:3000/customers/${customerId}/details`
+        );
+        const data = await res.json();
+        if (res.ok && data) {
+          setFormData({
+            name: data.name,
+            gender: data.gender,
+            division: data.division,
+            district: data.district,
+            city: data.city,
+            area: data.area,
+            post_code: data.post_code,
+            sector: data.sector,
+            road: data.road,
+            house: data.house,
+            phone: data.phone,
+            alt_phone: data.alt_phone,
+            whatsapp: data.whatsapp,
+            email: data.email,
+            status: data.status,
+            verify: data.verify,
+          });
+        } else {
+          alert('❌ Customer not found!');
+        }
+      } catch (err) {
+        console.log(err);
+        alert('❌ Error fetching customer details');
+      }
+    }
+    fetchCustomer();
+  }, [customerId]);
 
   const handleChange = (e) => {
     setFormData({
@@ -37,7 +78,6 @@ export default function AddCustomer() {
       alert('❌Error! Please select a gender!');
       return;
     }
-
 
     // Phone validation
     if (formData.phone.length !== 11) {
@@ -61,7 +101,7 @@ export default function AddCustomer() {
     const payload = {
       name: formData.name,
       gender: formData.gender,
-      birthday: formData.birthday,
+      status: formData.status,
       address: {
         division: formData.division,
         district: formData.district,
@@ -77,38 +117,41 @@ export default function AddCustomer() {
         alt_phone: formData.alt_phone,
         whatsapp: formData.whatsapp,
         email: formData.email,
+        verify: formData.verify==='1'?1: 0,
       },
     };
 
     try {
-      const res = await fetch('http://localhost:3000/customers', {
-        method: 'POST',
+      const res = await fetch(`http://localhost:3000/customers/${customerId}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error('❌Failed to add customer!');
-
+      if (!res.ok) throw new Error('❌Failed to Update customer!');
       const data = await res.json();
-      alert('✅Customer added successfully! ID: ' + data.id);
+
+      alert('✅Customer Updated Successfully!');
+      navigate(-1);
 
       // Reset form
       setFormData({
-        name: '',
-        gender: '',
-        birthday: '',
-        division: '',
-        district: '',
-        city: '',
-        area: '',
-        post_code: '',
-        sector: '',
-        road: '',
-        house: '',
-        phone: '',
-        alt_phone: '',
-        whatsapp: '',
-        email: '',
+        name: data.name,
+        gender: data.gender,
+        division: data.division,
+        district: data.district,
+        city: data.city,
+        area: data.area,
+        post_code: data.post_code,
+        sector: data.sector,
+        road: data.road,
+        house: data.house,
+        phone: data.phone,
+        alt_phone: data.alt_phone,
+        whatsapp: data.whatsapp,
+        email: data.email,
+        status: data.status,
+        verify: data.verify,
       });
     } catch (err) {
       console.error(err);
@@ -120,7 +163,7 @@ export default function AddCustomer() {
     <div className="bg-gray-100 overflow-y-auto w-full min-h-screen flex justify-center">
       <div className="bg-white m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl">
         <div className="text-[28px] mb-10 font-semibold font-serif flex justify-center">
-          Add Customer
+          Edit Customer
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -137,8 +180,10 @@ export default function AddCustomer() {
 
           {/* Gender Radio */}
           <div className="flex gap-2 items-center w-full">
-            <div className='w-[18ch] flex justify-between'>
-              <span className="font-semibold text-gray-700 mb-1 text-nowrap">Gender</span>
+            <div className="w-[18ch] flex justify-between">
+              <span className="font-semibold text-gray-700 mb-1 text-nowrap">
+                Gender
+              </span>
               <label className="font-semibold text-gray-700 mr-[5px]">:</label>
             </div>
             <div className="flex justify-between w-full px-5 pl-0">
@@ -264,22 +309,76 @@ export default function AddCustomer() {
             handleChange={handleChange}
             required
           />
+          {/* Status Radio  */}
+          <div className="flex gap-2 items-center w-full">
+            <div className="w-[18ch] flex justify-between">
+              <span className="font-semibold text-gray-700 mb-1 text-nowrap">
+                Status
+              </span>
+              <label className="font-semibold text-gray-700 mr-[5px]">:</label>
+            </div>
+            <div className="flex justify-between w-full px-5 pl-0">
+              <InputRadio
+                formData={formData}
+                title="Active"
+                name="status"
+                value="active"
+                handleChange={handleChange}
+              />
+              <InputRadio
+                formData={formData}
+                title="Inactive"
+                name="status"
+                value="inactive"
+                handleChange={handleChange}
+              />
+              <InputRadio
+                formData={formData}
+                title="Banned"
+                name="status"
+                value="banned"
+                handleChange={handleChange}
+              />
+            </div>
+          </div>
 
-          
+          {/* Verify Radio */}
+          <div className="flex gap-2 items-center w-full">
+            <div className="w-[18ch] flex justify-between">
+              <span className="font-semibold text-gray-700 mb-1 text-nowrap">
+                Verified
+              </span>
+              <label className="font-semibold text-gray-700 mr-[5px]">:</label>
+            </div>
+            <div className="flex justify-between w-full px-5 pl-0">
+              <InputRadio
+                formData={formData}
+                title="Yes"
+                name="verify"
+                value="1"
+                handleChange={handleChange}
+              />
+              <InputRadio
+                formData={formData}
+                title="No"
+                name="verify"
+                value="0"
+                handleChange={handleChange}
+              />
+            </div>
+          </div>
 
           <div className="w-full flex justify-between px-2">
-            <div className='text-blue-600'>
-              <BackButton/>
+            <div className="text-blue-800">
+              <BackButton />
             </div>
             <button
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600"
             >
-              Add Customer
+              Update Customer
             </button>
           </div>
-          
-
         </form>
       </div>
     </div>

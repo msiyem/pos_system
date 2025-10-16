@@ -20,30 +20,47 @@ import {
   Trash2,
   User,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import DateButton from './dateButton';
 import DeleteCustomerButton from './deleteCustomer';
 
 export default function CustomerHistory({
-  users,
   fetchCustomers,
   page,
   search,
 }) {
   const { id } = useParams();
-  const customer = users.find((c) => c.id === parseInt(id));
+  const [customer, setCustomer] = useState({});
+  // const customer = users.find((c) => c.id === parseInt(id));
   const [activeTab, setActiveTab] = useState('info');
   const [type, setType] = useState('All');
   const [openTypes, setOpenType] = useState(false);
   const [openElipse, setOpenElipse] = useState(false);
   const navigate = useNavigate();
-  if (!customer) {
-    return (
-      <div className="p-10 text-center text-gray-500">
-        Loading customer data...
-      </div>
-    );
+  const customerId = parseInt(id);
+
+  useEffect(() => {
+    async function fetchCustomer() {
+      try {
+        const res = await fetch(
+          `http://localhost:3000/customers/${customerId}/details`
+        );
+        const data = await res.json();
+        setCustomer(data);
+        if (!res.ok) {
+          alert('❌ Customer not found!');
+        }
+      } catch (err) {
+        console.log(err);
+        alert('❌ Error fetching customer details');
+      }
+    }
+    fetchCustomer();
+  }, [customerId]);
+
+  if (!customer || Object.keys(customer).length === 0) {
+    return <div>Loading customer data...</div>;
   }
 
   return (
@@ -92,13 +109,14 @@ export default function CustomerHistory({
                 }`}
               >
                 <div className="bg-white border border-gray-300 shadow rounded-xl flex flex-col p-1">
-                  <div className="flex items-center gap-2 hover:bg-gray-50 hover:shadow p-2 mx-1 py-1.5 cursor-pointer rounded-0 border-b border-b-gray-300 text-blue-600 ">
+                  <div
+                    onClick={() => navigate('edit')}
+                    className="flex items-center gap-2 hover:bg-gray-50 hover:shadow p-2 mx-1 py-1.5 cursor-pointer rounded-0 border-b border-b-gray-300 text-blue-600 "
+                  >
                     <SquarePen className="h-4 w-4" />
                     <span className="">Edit</span>
                   </div>
-                  <div 
-                  onClick={()=>navigate(-1)}
-                  className="text-[#e51e5a]">
+                  <div onClick={() => navigate(-1)} className="text-[#e51e5a]">
                     <DeleteCustomerButton
                       customerId={id}
                       onDeleted={() => fetchCustomers(page, search)}

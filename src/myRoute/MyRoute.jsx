@@ -12,6 +12,7 @@ import AddProduct from '../pannel/addProduct';
 import CustomerHistory from '../component/customerProfile';
 import { useEffect, useState } from 'react';
 import AddCustomer from '../component/addCustomer';
+import EditCustomer from '../component/editCustomer';
 
 export default function MyRoute() {
   const [customers, setCustomers] = useState([]);
@@ -80,6 +81,8 @@ export default function MyRoute() {
         }
       />
       <Route path="/customers/add" element={<AddCustomer />} />
+      <Route path="/customer/:id/edit" element={<EditCustomer />} />
+
       <Route path="/supplier" element={<Supplier />} />
       <Route path="/reports" element={<Reports />} />
       <Route path="/selling" element={<Selling />} />
