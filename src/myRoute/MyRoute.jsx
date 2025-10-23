@@ -16,15 +16,21 @@ import EditCustomer from '../component/editCustomer';
 
 export default function MyRoute() {
   const [customers, setCustomers] = useState([]);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [limit] = useState(9);
-  const [search, setSearch] = useState('');
+  const [cus_page, setPage] = useState(1);
+  const [cus_total, setTotal] = useState(0);
+  const [cus_limit] = useState(9);
+  const [cus_search, setSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [p_page, setP_page] = useState(1);
+  const [p_total, setP_total] = useState(0);
+  const [p_limit] = useState(8);
+  const [p_search, setP_search] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const fetchCustomers = (pageNumber = 1, searchTerm = '') => {
     fetch(
-      `http://localhost:3000/customers?page=${pageNumber}&limit=${limit}&search=${searchTerm}`
+      `http://localhost:3000/customers?page=${pageNumber}&limit=${cus_limit}&search=${searchTerm}`
     )
       .then((res) => res.json())
       .then((res) => {
@@ -40,27 +46,66 @@ export default function MyRoute() {
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      fetchCustomers(page, search);
+      fetchCustomers(cus_page, cus_search);
     }, 500);
     return () => clearTimeout(delayDebounce);
-  }, [page, search]);
+  }, [cus_page, cus_search]);
+
+  const fetchProducts = (pageNumber = 1, searchTerm = '') => {
+    fetch(
+      `http://localhost:3000/products?page=${pageNumber || 1}&limit=${p_limit}&search=${searchTerm}`
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        setProducts(res.data);
+        setP_total(res.total);
+        setP_page(res.page);
+      })
+      .catch((err) => {
+        console.error(err);
+        alert('Failed to load product. please try again later.');
+      });
+  };
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      fetchProducts(p_page, p_search);
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [p_page, p_search]);
 
   return (
     <Routes>
       <Route path="" element={<Deshboard />} />
       <Route path="/deshboard" element={<Deshboard />} />
       <Route path="/pos" element={<Pos />} />
-      <Route path="/product" element={<Product />} />
+      <Route
+        path="/product"
+        element={
+          <Product
+            products={products}
+            page={p_page}
+            total={p_total}
+            limit={p_limit}
+            search={p_search}
+            selectedProduct={selectedProduct}
+            setPage={setP_page}
+            setsearch={setP_search}
+            setSelectedProduct={setSelectedProduct}
+            fetchProducts={fetchProducts}
+          />
+        }
+      />
       <Route path="/product/add" element={<AddProduct />} />
       <Route
         path="/customers"
         element={
           <Customers
             users={customers}
-            page={page}
-            total={total}
-            limit={limit}
-            search={search}
+            page={cus_page}
+            total={cus_total}
+            limit={cus_limit}
+            search={cus_search}
             selectedCustomer={selectedCustomer}
             setPage={setPage}
             setSearch={setSearch}
@@ -75,8 +120,8 @@ export default function MyRoute() {
           <CustomerHistory
             users={customers}
             fetchCustomers={fetchCustomers}
-            page={page}
-            search={search}
+            page={cus_page}
+            search={cus_search}
           />
         }
       />

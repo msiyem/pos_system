@@ -15,90 +15,101 @@ import { useNavigate } from 'react-router';
 import { Check, ShoppingCart } from 'lucide-react';
 import ShoppingCard from '../component/shoppingCard';
 
-export default function Products() {
+export default function Products({
+  products,
+  page,
+  total,
+  limit,
+  search,
+  setPage,
+  setsearch,
+  fetchProducts,
+}) {
   const navigate = useNavigate();
-  const items = [
-    {
-      id: 1,
-      image: Nano,
-      title: 'Anker Nano 30W USB-C Adapter',
-      type: 'Charger',
-      price: 299,
-      quantity: 25,
-    },
-    {
-      id: 2,
-      image: GoPlay1,
-      title: 'Baseus GoPlay-1 Max-3.5mm Jack Gaming Wired Headphone',
-      type: 'HeadPhone',
-      price: 399,
-      quantity: 0,
-    },
-    {
-      id: 3,
-      image: EQ17,
-      title: 'Hoco EQ17 ANCENC TWS',
-      type: 'TWS',
-      price: 499,
-      quantity: 30,
-    },
-    {
-      id: 4,
-      image: J101B,
-      title: 'Hoco J101B 22.5W 30000mAh Fast Charging Power Bank',
-      type: 'Power Bank',
-      price: 399,
-      quantity: 10,
-    },
-    {
-      id: 5,
-      image: Q39,
-      title: 'Hoco Q39 Eminete 22.5WPD20W 20000mAh Power Bank',
-      type: 'Power Bank',
-      price: 349,
-      quantity: 18,
-    },
-    {
-      id: 6,
-      image: Y31,
-      title: 'Hoco Y31 Bluetooth Calling Smart Watch',
-      type: 'Smart Watch',
-      price: 399,
-      quantity: 22,
-    },
-    {
-      id: 7,
-      image: M196,
-      title: 'Logitech M196 Bluetooth Mouse',
-      type: 'Bluetooth Mouse',
-      price: 399,
-      quantity: 12,
-    },
-    {
-      id: 8,
-      image: OSW,
-      title: 'Oraimo Watch 5R OSW-820 Smart Watch',
-      type: 'Smart Watch',
-      price: 399,
-      quantity: 17,
-    },
-    {
-      id: 9,
-      image: Planet,
-      title: 'Planet Wireless Smart Charger Alarm Clock Bluetooth Speaker',
-      type: 'Bluetooth Speaker',
-      price: 399,
-      quantity: 14,
-    },
-    {
-      id: 10,
-      image: C500,
-      title: 'Xiaomi C500 Pro Smart Camera',
-      type: 'Smart Camera',
-      price: 399,
-      quantity: 20,
-    },
-  ];
+  const totalPages = Math.ceil(total / limit);
+  // const items = [
+  //   {
+  //     id: 1,
+  //     image: Nano,
+  //     title: 'Anker Nano 30W USB-C Adapter',
+  //     type: 'Charger',
+  //     price: 299,
+  //     quantity: 25,
+  //   },
+  //   {
+  //     id: 2,
+  //     image: GoPlay1,
+  //     title: 'Baseus GoPlay-1 Max-3.5mm Jack Gaming Wired Headphone',
+  //     type: 'HeadPhone',
+  //     price: 399,
+  //     quantity: 0,
+  //   },
+  //   {
+  //     id: 3,
+  //     image: EQ17,
+  //     title: 'Hoco EQ17 ANCENC TWS',
+  //     type: 'TWS',
+  //     price: 499,
+  //     quantity: 30,
+  //   },
+  //   {
+  //     id: 4,
+  //     image: J101B,
+  //     title: 'Hoco J101B 22.5W 30000mAh Fast Charging Power Bank',
+  //     type: 'Power Bank',
+  //     price: 399,
+  //     quantity: 10,
+  //   },
+  //   {
+  //     id: 5,
+  //     image: Q39,
+  //     title: 'Hoco Q39 Eminete 22.5WPD20W 20000mAh Power Bank',
+  //     type: 'Power Bank',
+  //     price: 349,
+  //     quantity: 18,
+  //   },
+  //   {
+  //     id: 6,
+  //     image: Y31,
+  //     title: 'Hoco Y31 Bluetooth Calling Smart Watch',
+  //     type: 'Smart Watch',
+  //     price: 399,
+  //     quantity: 22,
+  //   },
+  //   {
+  //     id: 7,
+  //     image: M196,
+  //     title: 'Logitech M196 Bluetooth Mouse',
+  //     type: 'Bluetooth Mouse',
+  //     price: 399,
+  //     quantity: 12,
+  //   },
+  //   {
+  //     id: 8,
+  //     image: OSW,
+  //     title: 'Oraimo Watch 5R OSW-820 Smart Watch',
+  //     type: 'Smart Watch',
+  //     price: 399,
+  //     quantity: 17,
+  //   },
+  //   {
+  //     id: 9,
+  //     image: Planet,
+  //     title: 'Planet Wireless Smart Charger Alarm Clock Bluetooth Speaker',
+  //     type: 'Bluetooth Speaker',
+  //     price: 399,
+  //     quantity: 14,
+  //   },
+  //   {
+  //     id: 10,
+  //     image: C500,
+  //     title: 'Xiaomi C500 Pro Smart Camera',
+  //     type: 'Smart Camera',
+  //     price: 399,
+  //     quantity: 20,
+  //   },
+  // ];
+
   const category = [
     'Charger',
     'HeadPhone',
@@ -108,7 +119,7 @@ export default function Products() {
     'Mouse',
   ];
 
-  const [search, setsearch] = useState('');
+  // const [search, setsearch] = useState('');
   const [card, setCart] = useState([]);
   const [openCategory, setOpenCategory] = useState(false);
   const [openStock, setOpenStock] = useState(false);
@@ -117,6 +128,11 @@ export default function Products() {
 
   const useCategoryRef = useRef(null);
   const useStockRef = useRef(null);
+
+  const handleSearchChange = (e) => {
+    setsearch(e.target.value);
+    (setPage(1), fetchProducts(1, e.target.value));
+  };
 
   useEffect(() => {
     const funCategory = (e) => {
@@ -141,24 +157,26 @@ export default function Products() {
     return () => document.removeEventListener('mousedown', funStock);
   }, [openStock]);
 
-  const filterItems = items.filter((item) => {
-    if (stockfilter === 'in' && !item.quantity) return false;
-    if (stockfilter === 'out' && item.quantity) return false;
+  // const filterItems =
+  //   products ||
+  //   [].filter((item) => {
+  //     if (stockfilter === 'in' && !item.quantity) return false;
+  //     if (stockfilter === 'out' && item.quantity) return false;
 
-    if (search == 'other') {
-      return !category
-        .map((c) => c.toLowerCase())
-        .includes(item.type.toLowerCase());
-    }
-    if (category.map((c) => c.toLowerCase()).includes(search.toLowerCase())) {
-      return item.type.toLowerCase().includes(search.toLowerCase());
-    }
+  //     if (search == 'other') {
+  //       return !category
+  //         .map((c) => c.toLowerCase())
+  //         .includes(item.type.toLowerCase());
+  //     }
+  //     if (category.map((c) => c.toLowerCase()).includes(search.toLowerCase())) {
+  //       return item.type.toLowerCase().includes(search.toLowerCase());
+  //     }
 
-    return (
-      item.title.toLowerCase().includes(search.toLowerCase()) ||
-      item.type.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  //     return (
+  //       item.title.toLowerCase().includes(search.toLowerCase()) ||
+  //       item.type.toLowerCase().includes(search.toLowerCase())
+  //     );
+  //   });
 
   const handleAddToCard = (item) => {
     setCart((prevCard) => {
@@ -208,7 +226,7 @@ export default function Products() {
               type="text"
               placeholder="Search products...."
               value={search}
-              onChange={(e) => setsearch(e.target.value)}
+              onChange={handleSearchChange}
               className="w-[18ch] p-1 px-2 ring-1 hover:bg-white ring-gray-300 rounded-lg shadow outline-0  focus:ring-gray-400 cursor-text "
             />
           </div>
@@ -222,7 +240,7 @@ export default function Products() {
               </button>
               {/* Dropdown Stock */}
               <div
-                className={`absolute mt-2 left-0 shadow-2xl
+                className={`absolute mt-2 right-0 shadow-2xl
                 transform origin-top-right transition-all duration-300 ease-in-out ${
                   openStock ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
                 }`}
@@ -231,36 +249,35 @@ export default function Products() {
                   <div
                     onClick={() => {
                       setStockfilter('in');
-                      
                     }}
                     className="flex items-center gap-2 cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50 hover:shadow"
                   >
                     <Check
-                        className={`w-4 h-4 ${stockfilter=='in' ? 'text-red-500/90' : 'text-white'}`}
-                      />
+                      className={`w-4 h-4 ${stockfilter == 'in' ? 'text-red-500/90' : 'text-white'}`}
+                    />
                     In Stock
                   </div>
                   <div
                     onClick={() => {
                       setStockfilter('out');
-                      
                     }}
                     className="flex items-center gap-2 cursor-pointer m-1 border-b border-gray-300 pb-1  px-1 hover:bg-gray-50 hover:shadow"
                   >
                     <Check
-                        className={`w-4 h-4 ${stockfilter=='out' ? 'text-red-500/90' : 'text-white'}`}
-                      />
+                      className={`w-4 h-4 ${stockfilter == 'out' ? 'text-red-500/90' : 'text-white'}`}
+                    />
                     Out of Stock
                   </div>
                   <span
                     className="flex items-center gap-2 cursor-pointer  pb-1 m-1  px-1 hover:bg-gray-50 hover:shadow"
-                    onClick={() => {navigate(0)
+                    onClick={() => {
+                      navigate(0);
                       setStockfilter('all');
                     }}
                   >
                     <Check
-                        className={`w-4 h-4 ${stockfilter=='all' ? 'text-red-500/90' : 'text-white'}`}
-                      />
+                      className={`w-4 h-4 ${stockfilter == 'all' ? 'text-red-500/90' : 'text-white'}`}
+                    />
                     All
                   </span>
                 </div>
@@ -302,49 +319,58 @@ export default function Products() {
                   ))}
                   <span
                     className="flex items-center gap-2 cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50"
-                    onClick={() => {setsearch('other')
+                    onClick={() => {
+                      setsearch('other');
                       setCheckCategory('other');
                       setOpenCategory(false);
                     }}
                   >
                     <Check
-                        className={`w-4 h-4 ${checkCategory == 'other' ? 'text-red-500/90' : 'text-white'}`}
-                      />
+                      className={`w-4 h-4 ${checkCategory == 'other' ? 'text-red-500/90' : 'text-white'}`}
+                    />
                     Other
                   </span>
                   <span
                     className="flex items-center gap-2 cursor-pointer  pb-1 m-1 px-1 hover:bg-gray-50"
-                    onClick={() => {navigate(0)
+                    onClick={() => {
+                      navigate(0);
                       setCheckCategory('all');
                     }}
                   >
                     <Check
-                        className={`w-4 h-4 ${checkCategory == 'all' ? 'text-red-500/90' : 'text-white'}`}
-                      />
+                      className={`w-4 h-4 ${checkCategory == 'all' ? 'text-red-500/90' : 'text-white'}`}
+                    />
                     All
                   </span>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
       </div>
       <div className="mx-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filterItems.map((item) => (
+        {products.map((product) => (
           <Product
-            id={item.id}
-            image={item.image}
-            title={item.title}
-            price={item.price}
-            type={item.type}
-            quantity={item.quantity}
-            onAddToCard={() => handleAddToCard(item)}
+            key={product.id}
+            id={product.id}
+            image={product.image_url}
+            title={product.name}
+            price={product.price}
+            type={product.category_name}
+            quantity={product.stock}
+            onAddToCard={() => handleAddToCard(product)}
           />
         ))}
       </div>
-      <div className="mb-3">
-        <Pagination totalPages={15} />
+      <div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(newPage) => {
+            setPage(newPage);
+            fetchProducts(newPage, search);
+          }}
+        />
       </div>
     </div>
   );

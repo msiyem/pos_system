@@ -117,9 +117,9 @@ export default function AddCustomer() {
   };
 
   return (
-    <div className="bg-gray-100 overflow-y-auto w-full min-h-screen flex justify-center">
-      <div className="bg-white m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl">
-        <div className="text-[28px] mb-10 font-semibold font-serif flex justify-center">
+    <div className="bg-gray-100 overflow-y-auto w-full min-h-screen flex justify-center text-[#030006]">
+      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#f3eafe] ">
+        <div className="text-[28px] mb-10 font-semibold font-serif flex justify-center ">
           Add Customer
         </div>
 
@@ -138,31 +138,39 @@ export default function AddCustomer() {
           {/* Gender Radio */}
           <div className="flex gap-2 items-center w-full">
             <div className='w-[18ch] flex justify-between'>
-              <span className="font-semibold text-gray-700 mb-1 text-nowrap">Gender</span>
-              <label className="font-semibold text-gray-700 mr-[5px]">:</label>
+              <span className="font-semibold  mb-1 text-nowrap">Gender</span>
+              <label className="font-semibold  mr-[5px]">:</label>
             </div>
             <div className="flex justify-between w-full px-5 pl-0">
-              <InputRadio
+              <div className='hover:scale-105 cursor-pointer'>
+                <InputRadio
                 formData={formData}
                 title="Male"
                 name="gender"
                 value="male"
                 handleChange={handleChange}
               />
-              <InputRadio
+              </div>
+              
+              <div className='hover:scale-105'>
+                <InputRadio
                 formData={formData}
                 title="Female"
                 name="gender"
                 value="female"
                 handleChange={handleChange}
               />
-              <InputRadio
+              </div>
+              
+              <div className='hover:scale-105'>
+                <InputRadio
                 formData={formData}
                 title="Other"
                 name="gender"
                 value="other"
                 handleChange={handleChange}
               />
+              </div>
             </div>
           </div>
 
@@ -267,13 +275,13 @@ export default function AddCustomer() {
 
           
 
-          <div className="w-full flex justify-between px-2">
-            <div className='text-blue-600'>
+          <div className="w-full flex justify-between px-2 ">
+            <div className='text-[#623e8a]/92 hover:text-[#623e8a] hover:scale-105'>
               <BackButton/>
             </div>
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600"
+              className="bg-[#623e8a]/90 text-white px-4 py-2 rounded-xl hover:bg-[#623e8a] cursor-pointer hover:scale-105"
             >
               Add Customer
             </button>

@@ -160,8 +160,8 @@ export default function EditCustomer() {
   };
 
   return (
-    <div className="bg-gray-100 overflow-y-auto w-full min-h-screen flex justify-center">
-      <div className="bg-white m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl">
+    <div className="bg-gray-100 overflow-y-auto w-full min-h-screen flex justify-center text-[#020003]">
+      <div className="bg-[#f3eafe] m-5 mb-10 p-5 w-full max-w-[1000px] rounded-xl shadow">
         <div className="text-[28px] mb-10 font-semibold font-serif flex justify-center">
           Edit Customer
         </div>
@@ -181,33 +181,41 @@ export default function EditCustomer() {
           {/* Gender Radio */}
           <div className="flex gap-2 items-center w-full">
             <div className="w-[18ch] flex justify-between">
-              <span className="font-semibold text-gray-700 mb-1 text-nowrap">
+              <span className="font-semibold mb-1 text-nowrap">
                 Gender
               </span>
-              <label className="font-semibold text-gray-700 mr-[5px]">:</label>
+              <label className="font-semibold  mr-[5px]">:</label>
             </div>
             <div className="flex justify-between w-full px-5 pl-0">
-              <InputRadio
+              <div className='hover:scale-105'>
+                <InputRadio
                 formData={formData}
                 title="Male"
                 name="gender"
                 value="male"
                 handleChange={handleChange}
               />
-              <InputRadio
+              </div>
+              
+              <div className='hover:scale-105'>
+                <InputRadio
                 formData={formData}
                 title="Female"
                 name="gender"
                 value="female"
                 handleChange={handleChange}
               />
-              <InputRadio
+              </div>
+              
+              <div className='hover:scale-105'>
+                <InputRadio
                 formData={formData}
                 title="Other"
                 name="gender"
                 value="other"
                 handleChange={handleChange}
               />
+              </div>
             </div>
           </div>
 
@@ -312,10 +320,10 @@ export default function EditCustomer() {
           {/* Status Radio  */}
           <div className="flex gap-2 items-center w-full">
             <div className="w-[18ch] flex justify-between">
-              <span className="font-semibold text-gray-700 mb-1 text-nowrap">
+              <span className="font-semibold  mb-1 text-nowrap">
                 Status
               </span>
-              <label className="font-semibold text-gray-700 mr-[5px]">:</label>
+              <label className="font-semibold  mr-[5px]">:</label>
             </div>
             <div className="flex justify-between w-full px-5 pl-0">
               <InputRadio
@@ -345,10 +353,10 @@ export default function EditCustomer() {
           {/* Verify Radio */}
           <div className="flex gap-2 items-center w-full">
             <div className="w-[18ch] flex justify-between">
-              <span className="font-semibold text-gray-700 mb-1 text-nowrap">
+              <span className="font-semibold  mb-1 text-nowrap">
                 Verified
               </span>
-              <label className="font-semibold text-gray-700 mr-[5px]">:</label>
+              <label className="font-semibold  mr-[5px]">:</label>
             </div>
             <div className="flex justify-between w-full px-5 pl-0">
               <InputRadio
@@ -369,12 +377,12 @@ export default function EditCustomer() {
           </div>
 
           <div className="w-full flex justify-between px-2">
-            <div className="text-blue-800">
+            <div className="text-[#2e1747]/80 hover:text-[#2e1747] hover:scale-105 in-focus:shadow-[#2e1747]">
               <BackButton />
             </div>
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600"
+              className="bg-[#623e8a]/80 text-white px-4 py-2 rounded-xl hover:bg-[#623e8a] hover:scale-104 cursor-pointer"
             >
               Update Customer
             </button>
