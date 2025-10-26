@@ -8,7 +8,7 @@ import Reports from '../pannel/reports';
 import Selling from '../pannel/selling';
 import Shopkeeper from '../pannel/supplier';
 import Error from '../error';
-import AddProduct from '../pannel/addProduct';
+import AddProduct from '../component/addProduct';
 import CustomerHistory from '../component/customerProfile';
 import { useEffect, useState } from 'react';
 import AddCustomer from '../component/addCustomer';

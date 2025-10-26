@@ -27,89 +27,7 @@ export default function Products({
 }) {
   const navigate = useNavigate();
   const totalPages = Math.ceil(total / limit);
-  // const items = [
-  //   {
-  //     id: 1,
-  //     image: Nano,
-  //     title: 'Anker Nano 30W USB-C Adapter',
-  //     type: 'Charger',
-  //     price: 299,
-  //     quantity: 25,
-  //   },
-  //   {
-  //     id: 2,
-  //     image: GoPlay1,
-  //     title: 'Baseus GoPlay-1 Max-3.5mm Jack Gaming Wired Headphone',
-  //     type: 'HeadPhone',
-  //     price: 399,
-  //     quantity: 0,
-  //   },
-  //   {
-  //     id: 3,
-  //     image: EQ17,
-  //     title: 'Hoco EQ17 ANCENC TWS',
-  //     type: 'TWS',
-  //     price: 499,
-  //     quantity: 30,
-  //   },
-  //   {
-  //     id: 4,
-  //     image: J101B,
-  //     title: 'Hoco J101B 22.5W 30000mAh Fast Charging Power Bank',
-  //     type: 'Power Bank',
-  //     price: 399,
-  //     quantity: 10,
-  //   },
-  //   {
-  //     id: 5,
-  //     image: Q39,
-  //     title: 'Hoco Q39 Eminete 22.5WPD20W 20000mAh Power Bank',
-  //     type: 'Power Bank',
-  //     price: 349,
-  //     quantity: 18,
-  //   },
-  //   {
-  //     id: 6,
-  //     image: Y31,
-  //     title: 'Hoco Y31 Bluetooth Calling Smart Watch',
-  //     type: 'Smart Watch',
-  //     price: 399,
-  //     quantity: 22,
-  //   },
-  //   {
-  //     id: 7,
-  //     image: M196,
-  //     title: 'Logitech M196 Bluetooth Mouse',
-  //     type: 'Bluetooth Mouse',
-  //     price: 399,
-  //     quantity: 12,
-  //   },
-  //   {
-  //     id: 8,
-  //     image: OSW,
-  //     title: 'Oraimo Watch 5R OSW-820 Smart Watch',
-  //     type: 'Smart Watch',
-  //     price: 399,
-  //     quantity: 17,
-  //   },
-  //   {
-  //     id: 9,
-  //     image: Planet,
-  //     title: 'Planet Wireless Smart Charger Alarm Clock Bluetooth Speaker',
-  //     type: 'Bluetooth Speaker',
-  //     price: 399,
-  //     quantity: 14,
-  //   },
-  //   {
-  //     id: 10,
-  //     image: C500,
-  //     title: 'Xiaomi C500 Pro Smart Camera',
-  //     type: 'Smart Camera',
-  //     price: 399,
-  //     quantity: 20,
-  //   },
-  // ];
-
+  
   const category = [
     'Charger',
     'HeadPhone',
@@ -157,33 +75,14 @@ export default function Products({
     return () => document.removeEventListener('mousedown', funStock);
   }, [openStock]);
 
-  // const filterItems =
-  //   products ||
-  //   [].filter((item) => {
-  //     if (stockfilter === 'in' && !item.quantity) return false;
-  //     if (stockfilter === 'out' && item.quantity) return false;
 
-  //     if (search == 'other') {
-  //       return !category
-  //         .map((c) => c.toLowerCase())
-  //         .includes(item.type.toLowerCase());
-  //     }
-  //     if (category.map((c) => c.toLowerCase()).includes(search.toLowerCase())) {
-  //       return item.type.toLowerCase().includes(search.toLowerCase());
-  //     }
-
-  //     return (
-  //       item.title.toLowerCase().includes(search.toLowerCase()) ||
-  //       item.type.toLowerCase().includes(search.toLowerCase())
-  //     );
-  //   });
 
   const handleAddToCard = (item) => {
     setCart((prevCard) => {
-      const existing = prevCard.find((p) => p.id == item.id); // age thekei ace ki na check
+      const existing = prevCard.find((p) => p.id === item.id); // age thekei ace ki na check
       if (existing) {
         return prevCard.map((p) =>
-          p.id == item.id ? { ...p, count: p.count + 1 } : p
+          p.id === item.id ? { ...p, count: p.count + 1 } : p
         );
       } else {
         return [...prevCard, { ...item, count: 1 }]; // count add kora hoice

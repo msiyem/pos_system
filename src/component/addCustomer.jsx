@@ -34,26 +34,26 @@ export default function AddCustomer() {
 
     // Gender validation
     if (!formData.gender) {
-      alert('❌Error! Please select a gender!');
+      alert('Error! Please select a gender!');
       return;
     }
 
 
     // Phone validation
     if (formData.phone.length !== 11) {
-      alert('❌Error! Phone number must be exactly 11 digits!');
+      alert('Error! Phone number must be exactly 11 digits!');
       return;
     }
 
     //Alternative phone validation
     if (formData.alt_phone && formData.alt_phone.length !== 11) {
-      alert('❌Error! Alternative phone must be exactly 11 digits!');
+      alert('Error! Alternative phone must be exactly 11 digits!');
       return;
     }
 
     //Whatsapp number validation
     if (formData.whatsapp && formData.whatsapp.length !== 11) {
-      alert('❌Error! Whatsapp number must be exactly 11 digits!');
+      alert('Error! Whatsapp number must be exactly 11 digits!');
       return;
     }
 
@@ -90,7 +90,7 @@ export default function AddCustomer() {
       if (!res.ok) throw new Error('❌Failed to add customer!');
 
       const data = await res.json();
-      alert('✅Customer added successfully! ID: ' + data.id);
+      alert('Customer added successfully! ID: ' + data.id);
 
       // Reset form
       setFormData({

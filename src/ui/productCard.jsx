@@ -21,7 +21,7 @@ export default function Product({
       <div className=" w-full  flex flex-col justify-center ">
         <p className="font-semibold mx-1 text-lg">{title}</p>
         <p className="text-[14px] mx-1 text-gray-600">{type}</p>
-        <p className="font-semibold mt-2 mx-1">${price}</p>
+        <p className="font-semibold mt-2 mx-1">{price} <span className='font-bold'>৳</span> </p>
         <div className="flex justify-between mt-auto p-1 items-center">
           {quantity > 0 ? (
             <p className="text-sm  text-blue-900/80">{quantity} In Stock</p>

@@ -84,7 +84,7 @@ export default function ShoppingCard({ card, setCard }) {
                 <PointItems
                   key={item.id}
                   id={item.id}
-                  name={item.title}
+                  name={item.name}
                   price={item.price}
                   count={item.count}
                   onUpdate={handleUpdate}
