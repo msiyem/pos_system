@@ -3,16 +3,18 @@ import Deshboard from '../pannel/deshboard';
 import Pos from '../pannel/pos';
 import Product from '../pannel/products';
 import Customers from '../pannel/customers';
-import Supplier from '../pannel/sellingHestory';
+// import Supplier from '../pannel/sellingHestory';
 import Reports from '../pannel/reports';
 import Selling from '../pannel/selling';
-import Shopkeeper from '../pannel/supplier';
+import Supplier from '../pannel/supplier';
+import Shopkeeper from '../pannel/selling';
 import Error from '../error';
 import AddProduct from '../component/addProduct';
 import CustomerHistory from '../component/customerProfile';
 import { useEffect, useState } from 'react';
 import AddCustomer from '../component/addCustomer';
 import EditCustomer from '../component/editCustomer';
+import EditProduct from '../component/editProduct';
 
 export default function MyRoute() {
   const [customers, setCustomers] = useState([]);
@@ -28,7 +30,7 @@ export default function MyRoute() {
   const [p_search, setP_search] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const fetchCustomers = (pageNumber = 1, searchTerm = '') => {
+  const fetchCustomers = (pageNumber = 1, searchTerm = '',cus_limit=9) => {
     fetch(
       `http://localhost:3000/customers?page=${pageNumber}&limit=${cus_limit}&search=${searchTerm}`
     )
@@ -93,9 +95,17 @@ export default function MyRoute() {
             setsearch={setP_search}
             setSelectedProduct={setSelectedProduct}
             fetchProducts={fetchProducts}
+            customers={customers}
+            cus_limit={cus_limit}
+            cus_search={cus_search}
+            cus_total={cus_total}
+            fetchCustomers={fetchCustomers}
+            setCusSearch={setSearch}
+            
           />
         }
       />
+      <Route path="/products/:id/edit" element={<EditProduct />} />
       <Route path="/product/add" element={<AddProduct />} />
       <Route
         path="/customers"
@@ -128,9 +138,42 @@ export default function MyRoute() {
       <Route path="/customers/add" element={<AddCustomer />} />
       <Route path="/customer/:id/edit" element={<EditCustomer />} />
 
-      <Route path="/supplier" element={<Supplier />} />
+      <Route
+        path="/supplier"
+        element={
+          <Supplier
+            users={customers}
+            page={cus_page}
+            total={cus_total}
+            limit={cus_limit}
+            search={cus_search}
+            
+            selectedCustomer={selectedCustomer}
+            setPage={setPage}
+            setSearch={setSearch}
+            setSelectedCustomer={setSelectedCustomer}
+            fetchCustomers={fetchCustomers}
+          />
+        }
+      />
       <Route path="/reports" element={<Reports />} />
-      <Route path="/selling" element={<Selling />} />
+      <Route
+        path="/selling"
+        element={
+          <Selling
+            users={customers}
+            page={cus_page}
+            total={cus_total}
+            limit={cus_limit}
+            search={cus_search}
+            selectedCustomer={selectedCustomer}
+            setPage={setPage}
+            setSearch={setSearch}
+            setSelectedCustomer={setSelectedCustomer}
+            fetchCustomers={fetchCustomers}
+          />
+        }
+      />
       <Route path="/shopkeeper" element={<Shopkeeper />} />
       <Route path="/*" element={<Error />} />
     </Routes>

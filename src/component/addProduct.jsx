@@ -1,4 +1,4 @@
-import { Plus, Search, SearchIcon } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import BackButton from '../ui/backButton';
 import InputText from '../ui/inputText';
 import { useEffect, useState } from 'react';
@@ -8,21 +8,19 @@ import ImageUploader from '../ui/imageUploader';
 
 export default function AddProduct() {
   const [categories, setCategories] = useState([]);
-  const [mainCategoryId, setMainCategoryId] = useState('');
-  const [subcategories, setSubcategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [formData, setFormdata] = useState({
     name: '',
-    brand_id: null,
-    category_id: null,
+    brand_id: '',
+    category_id: '',
     sku: '',
-    price: 0.0,
-    stock: 0,
+    price: '',
+    stock: '',
     description: '',
   });
 
-  // fetch categories and brands
+  
   useEffect(() => {
     async function fetchData() {
       try {
@@ -30,43 +28,36 @@ export default function AddProduct() {
           API.get('/categories'),
           API.get('/brands'),
         ]);
-        const mainCats = catRes.data.filter((c) => !c.parent_id);
-        setCategories(mainCats);
+        setCategories(catRes.data);
         setBrands(brandRes.data);
       } catch (err) {
-        console.log(err);
-        console.error('Error fething data: ', err);
+        console.error('Error fetching data:', err);
       }
     }
     fetchData();
   }, []);
 
-  const handleMainCategoryChange = async (mainId) => {
-    setMainCategoryId(mainId);
-    setSubcategories([]);
-
-    if (!mainId) return;
-
-    try {
-      const res = await API.get(`categories/parent/${mainId}`);
-      const subs = res.data;
-
-      if (subs.length > 0) setSubcategories(subs);
-      else setFormdata({ ...formData, category_id: mainId });
-    } catch (err) {
-      console.error('Error fetching subcategories:', err);
-    }
+  
+  const handleChange = (e) => {
+    setFormdata({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    for (let key in formData) data.append(key, formData[key]);
-    if (imageFile) data.append('image', imageFile);
+
     if (!formData.name || !formData.sku || !formData.price) {
       alert('Name, SKU, and Price are required!');
       return;
     }
+
+    const data = new FormData();
+    for (let key in formData) data.append(key, formData[key]);
+    if (imageFile) data.append('image', imageFile);
+
     try {
       await API.post(`/products`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -83,19 +74,10 @@ export default function AddProduct() {
         description: '',
       });
       setImageFile(null);
-      setSubcategories([]);
-      setMainCategoryId('');
     } catch (err) {
-      console.error(err);
+      console.error('Error adding product:', err);
       alert('Failed to add product');
     }
-  };
-
-  const handleChange = (e) => {
-    setFormdata({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
   };
 
   return (
@@ -107,19 +89,17 @@ export default function AddProduct() {
           </span>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-5 sm:gap-10 "
-        >
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5 sm:gap-10">
           <InputText
             title="Name"
             type="text"
             name="name"
-            placeholder="Enter Name..."
+            placeholder="Enter product name..."
             formData={formData}
             handleChange={handleChange}
             required
           />
+
           <Select
             label="Brand"
             required
@@ -129,37 +109,20 @@ export default function AddProduct() {
             placeholder="Select Brand"
           />
 
-          {/* Main Category  */}
           <Select
-            label="Categories"
+            label="Category"
             required
             options={categories.map((c) => ({ value: c.id, label: c.name }))}
-            value={mainCategoryId}
-            onChange={(v) => handleMainCategoryChange(v)}
-            placeholder="Select Main Category"
+            value={formData.category_id}
+            onChange={(v) => setFormdata({ ...formData, category_id: v })}
+            placeholder="Select Category"
           />
-
-          {/* Subcategory  */}
-
-          {subcategories.length > 0 && (
-            <Select
-              label="Subcategory"
-              required
-              options={subcategories.map((s) => ({
-                value: s.id,
-                label: s.name,
-              }))}
-              value={formData.category_id}
-              onChange={(val) => setFormdata({ ...formData, category_id: val })}
-              placeholder="Select Subcategory"
-            />
-          )}
 
           <InputText
             title="SKU"
             type="text"
             name="sku"
-            placeholder="enter unique sku..."
+            placeholder="Enter unique SKU..."
             formData={formData}
             handleChange={handleChange}
             required
@@ -192,18 +155,15 @@ export default function AddProduct() {
             placeholder="Enter description..."
             formData={formData}
             handleChange={handleChange}
-            
           />
 
           <ImageUploader onFileSelect={setImageFile} required />
-
-          
 
           <div className="flex justify-between">
             <BackButton />
             <button
               type="submit"
-              className="ring-0 rounded-lg bg-red-600/85 hover:bg-red-600 flex items-center p-1 gap-1"
+              className="ring-0 rounded-lg bg-red-600/85 hover:bg-red-600 flex items-center p-1 gap-1 cursor-pointer"
             >
               <Plus className="h-4 w-4 text-white" />
               <span className="text-white">Add Product</span>

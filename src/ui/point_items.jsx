@@ -23,17 +23,17 @@ export default function PointItems({
     }
   };
   return (
-    <div className="relative w-full ring-gray-300 ring-1 rounded-lg flex justify-between items-center m-0 p-0">
+    <div className="relative bg-white w-full ring-gray-300 ring-1 rounded-lg flex justify-between items-center m-0 p-0">
       <div className="flex flex-col p-1 ml-2 my-1 border-r border-gray-200 min-w-25">
         <span className="text-[14px] md:text-[15px] lg:text-[16px] font-light">
           {name}
         </span>
-        <span className="text-sm text-gray-500">${price}</span>
+        <span className="text-sm text-gray-500">{price} <span className='font-mono text-[12px] mt-[4px]'>৳</span></span>
       </div>
       <div className="mb-3 mx-3 flex space-x-1 sm:space-x-2 items-center justify-center sm:mx-4 ">
         <button
           onClick={() => onUpdate(id, Math.max(1, count - 1))}
-          className="px-1 sm:px-2 ring-0  flex justify-center items-center border border-gray-500  rounded-lg w-5 sm:w-8 h-6 sm:h-8 "
+          className="cursor-pointer px-1 sm:px-2 ring-0  flex justify-center items-center border border-gray-500  rounded-full w-5 sm:w-8 h-6 sm:h-6 hover:bg-gray-50 hover:scale-105 duration-200 transition-all"
         >
           <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
         </button>
@@ -51,12 +51,12 @@ export default function PointItems({
 
         <button
           onClick={() => onUpdate(id, count + 1)}
-          className="px-1 sm:px-2 ring-0  flex justify-center items-center border border-gray-500 rounded-lg w-5 sm:w-8 h-6 sm:h-8 "
+          className="cursor-pointer px-1 sm:px-2 ring-0  flex justify-center items-center border border-gray-500 rounded-full w-5 sm:w-8 h-6 sm:h-6 hover:scale-105 hover:bg-gray-50 duration-200 transition-all"
         >
           <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
         </button>
-        <span className="text-sm sm:text-base text-gray-500">
-          ${price * count}
+        <span className="text-sm sm:text-base flex items-center gap-0.5 text-gray-500">
+          {price * count} <span className='font-mono text-[12px] mt-[4px]'>৳</span>
         </span>
         <button
           onClick={() => onDelete(id)}

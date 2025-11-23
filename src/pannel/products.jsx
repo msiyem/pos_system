@@ -1,19 +1,10 @@
 import Product from '../ui/productCard';
-import Nano from '../assets/products/Anker-Nano-30W-USB-C-Adapter-iPhone-15-Series-A2337-1.webp';
-import GoPlay1 from '../assets/products/Baseus-GoPlay-1-Max-3.5mm-Jack-Gaming-Wired-Headphone-1.png';
-import EQ17 from '../assets/products/Hoco-EQ17-ANCENC-TWS-1.png';
-import J101B from '../assets/products/Hoco-J101B-22.5W-30000mAh-Fast-Charging-Power-Bank-600x600.webp';
-import Q39 from '../assets/products/Hoco-Q39-Eminete-22.5WPD20W-20000mAh-Power-Bank-600x600.webp';
-import Y31 from '../assets/products/Hoco-Y31-Bluetooth-Calling-Smart-Watch-1-250x250.webp';
-import M196 from '../assets/products/Logitech-M196-Bluetooth-Mouse-1-250x250.png';
-import OSW from '../assets/products/Oraimo-Watch-5R-OSW-820-Smart-Watch-1-250x250.webp';
-import Planet from '../assets/products/Planet-Wireless-Smart-Charger-Alarm-Clock-Bluetooth-Speaker-1-500x500.jpg';
-import C500 from '../assets/products/Xiaomi-C500-Pro-Smart-Camera-600x600.webp';
 import Pagination from '../ui/pagination';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Check, ShoppingCart } from 'lucide-react';
+import { Check } from 'lucide-react';
 import ShoppingCard from '../component/shoppingCard';
+import API from '../api/api';
 
 export default function Products({
   products,
@@ -24,229 +15,213 @@ export default function Products({
   setPage,
   setsearch,
   fetchProducts,
+  customers,
+  cus_limit,
+  cus_search,
+  fetchCustomers,
+  setCusSearch,
+  cus_total
 }) {
   const navigate = useNavigate();
   const totalPages = Math.ceil(total / limit);
-  
-  const category = [
-    'Charger',
-    'HeadPhone',
-    'TWS',
-    'Smart Watch',
-    'Camera',
-    'Mouse',
-  ];
 
-  // const [search, setsearch] = useState('');
-  const [card, setCart] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [cart, setCart] = useState([]);
   const [openCategory, setOpenCategory] = useState(false);
   const [openStock, setOpenStock] = useState(false);
   const [stockfilter, setStockfilter] = useState('all');
   const [checkCategory, setCheckCategory] = useState('all');
 
-  const useCategoryRef = useRef(null);
-  const useStockRef = useRef(null);
+  const categoryRef = useRef(null);
+  const stockRef = useRef(null);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await API.get('/categories');
+        setCategories(res.data);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   const handleSearchChange = (e) => {
-    setsearch(e.target.value);
-    (setPage(1), fetchProducts(1, e.target.value));
+    const val = e.target.value;
+    setsearch(val);
+    setPage(1);
+    fetchProducts(1, val);
   };
 
   useEffect(() => {
-    const funCategory = (e) => {
-      if (
-        useCategoryRef.current &&
-        !useCategoryRef.current.contains(e.target)
-      ) {
+    const handleClickOutside = (e) => {
+      if (categoryRef.current && !categoryRef.current.contains(e.target))
         setOpenCategory(false);
-      }
+      if (stockRef.current && !stockRef.current.contains(e.target))
+        setOpenStock(false);
     };
-    document.addEventListener('mousedown', funCategory);
-    return () => document.removeEventListener('mousedown', funCategory);
-  }, [openCategory]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
-    const funStock = (e) => {
-      if (useStockRef.current && !useStockRef.current.contains(e.target)) {
-        setOpenStock(false);
-      }
-    };
-    document.addEventListener('mousedown', funStock);
-    return () => document.removeEventListener('mousedown', funStock);
-  }, [openStock]);
+    let query = '';
+    if (stockfilter === 'in') query = 'in stock';
+    else if (stockfilter === 'out') query = 'out of stock';
+    else if (checkCategory !== 'all')
+      query = categories[checkCategory]?.name?.toLowerCase();
+    else query = search;
 
-
+    fetchProducts(1, query);
+  }, [stockfilter, checkCategory]);
 
   const handleAddToCard = (item) => {
-    setCart((prevCard) => {
-      const existing = prevCard.find((p) => p.id === item.id); // age thekei ace ki na check
+    setCart((prevCart) => {
+      const existing = prevCart.find((p) => p.id === item.id);
       if (existing) {
-        return prevCard.map((p) =>
+        return prevCart.map((p) =>
           p.id === item.id ? { ...p, count: p.count + 1 } : p
         );
       } else {
-        return [...prevCard, { ...item, count: 1 }]; // count add kora hoice
+        return [...prevCart, { ...item, count: 1 }];
       }
     });
   };
 
   return (
-    <div className="bg-gray-50/50 flex flex-col">
-      <div className="">
-        <ShoppingCard card={card} setCard={setCart} />
-      </div>
-      <div>
-        <div className="flex items-center justify-between my-5 mx-3">
-          <div className="flex flex-col">
-            <span
-              onClick={() => navigate(0)}
-              className="text-[32px] font-serif font-semibold cursor-pointer"
-            >
-              Products
-            </span>
-            <span className="text-sm text-gray-600">
-              Manage your products and inventory
-            </span>
-          </div>
+    <div className="bg-gray-50/50 flex flex-col min-h-dvh no-scrollbar overflow-y-auto">
+      <ShoppingCard
+        customers={customers}
+        cus_limit={cus_limit}
+        cus_search={cus_search}
+        fetchCustomers={fetchCustomers}
+        card={cart}
+        setCard={setCart}
+        setSearch={setCusSearch}
+        cus_total={cus_total}
+      />
 
-          <div className="flex gap-1 items-center">
-            <button
-              onClick={() => navigate('/product/add')}
-              className="mr-8 bg-red-500/90 hover:bg-red-500 ring-0 rounded-lg flex justify-center items-center text-white p-1 px-2.5 cursor-pointer"
-            >
-              + Add Product
-            </button>
-          </div>
+      <div className="flex items-center justify-between my-5 mx-3">
+        <div className="flex flex-col">
+          <span
+            onClick={() => {
+              setsearch('');
+              setCheckCategory('all');
+              setStockfilter('all');
+              fetchProducts(1, '');
+            }}
+            className="text-[32px] font-serif font-semibold cursor-pointer"
+          >
+            Products
+          </span>
+          <span className="text-sm text-gray-600">
+            Manage your products and inventory
+          </span>
         </div>
 
-        <div className="flex justify-between items-center m-3 my-5 ">
-          <div className="">
-            <input
-              type="text"
-              placeholder="Search products...."
-              value={search}
-              onChange={handleSearchChange}
-              className="w-[18ch] p-1 px-2 ring-1 hover:bg-white ring-gray-300 rounded-lg shadow outline-0  focus:ring-gray-400 cursor-text "
-            />
-          </div>
-          <div className="flex gap-5">
-            <div ref={useStockRef} className="relative">
-              <button
-                onClick={() => setOpenStock(!openStock)}
-                className="cursor-pointer ring-1 ring-gray-300 p-1 px-2 rounded-lg bg-gray-50 hover:bg-gray-100 "
-              >
-                Stock Filter
-              </button>
-              {/* Dropdown Stock */}
-              <div
-                className={`absolute mt-2 right-0 shadow-2xl
-                transform origin-top-right transition-all duration-300 ease-in-out ${
-                  openStock ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-                }`}
-              >
-                <div className="bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm sm:text-base p-1 text-nowrap">
+        <button
+          onClick={() => navigate('/product/add')}
+          className="mr-8 bg-red-500/90 hover:bg-red-500 rounded-lg flex justify-center items-center text-white p-1 px-2.5"
+        >
+          + Add Product
+        </button>
+      </div>
+
+      {/* Search + Filters */}
+      <div className="flex justify-between items-center m-3 my-5">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={search}
+          onChange={handleSearchChange}
+          className="w-[18ch] p-1 px-2 ring-1 ring-gray-300 rounded-lg shadow outline-0 focus:ring-gray-400 cursor-text hover:bg-white"
+        />
+
+        <div className="flex gap-5">
+          {/* Stock Filter */}
+          <div ref={stockRef} className="relative">
+            <button
+              onClick={() => setOpenStock(!openStock)}
+              className="ring-1 ring-gray-300 p-1 px-2 rounded-lg bg-gray-50 hover:bg-gray-100"
+            >
+              Stock Filter
+            </button>
+            {openStock && (
+              <div className="absolute mt-2 right-0 z-50 shadow-2xl bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm p-1 text-nowrap">
+                {['in', 'out', 'all'].map((type) => (
                   <div
+                    key={type}
                     onClick={() => {
-                      setStockfilter('in');
+                      setStockfilter(type);
+                      setOpenStock(false);
                     }}
-                    className="flex items-center gap-2 cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50 hover:shadow"
+                    className="flex items-center gap-2 cursor-pointer border-b border-gray-200 pb-1 m-1 px-1 hover:bg-gray-50"
                   >
                     <Check
-                      className={`w-4 h-4 ${stockfilter == 'in' ? 'text-red-500/90' : 'text-white'}`}
+                      className={`w-4 h-4 ${
+                        stockfilter === type ? 'text-red-500/90' : 'text-white'
+                      }`}
                     />
-                    In Stock
+                    {type === 'in'
+                      ? 'In Stock'
+                      : type === 'out'
+                        ? 'Out of Stock'
+                        : 'All'}
                   </div>
-                  <div
-                    onClick={() => {
-                      setStockfilter('out');
-                    }}
-                    className="flex items-center gap-2 cursor-pointer m-1 border-b border-gray-300 pb-1  px-1 hover:bg-gray-50 hover:shadow"
-                  >
-                    <Check
-                      className={`w-4 h-4 ${stockfilter == 'out' ? 'text-red-500/90' : 'text-white'}`}
-                    />
-                    Out of Stock
-                  </div>
-                  <span
-                    className="flex items-center gap-2 cursor-pointer  pb-1 m-1  px-1 hover:bg-gray-50 hover:shadow"
-                    onClick={() => {
-                      navigate(0);
-                      setStockfilter('all');
-                    }}
-                  >
-                    <Check
-                      className={`w-4 h-4 ${stockfilter == 'all' ? 'text-red-500/90' : 'text-white'}`}
-                    />
-                    All
-                  </span>
-                </div>
+                ))}
               </div>
-            </div>
+            )}
+          </div>
 
-            <div ref={useCategoryRef} className="relative">
-              <button
-                onClick={() => setOpenCategory(!openCategory)}
-                className="cursor-pointer ring-1 ring-gray-300 p-1 px-2 rounded-lg bg-gray-50 hover:bg-gray-100 "
-              >
-                Category
-              </button>
-
-              {/* Dropdown category */}
-
-              <div
-                className={`absolute mt-2 right-0 shadow-2xl 
-            transform origin-top-right transition-all duration-300 ease-in-out ${
-              openCategory ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-            }`}
-              >
-                <div className="bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm sm:text-base text-nowrap ">
-                  {category.map((c, value) => (
-                    <span
-                      key={c}
-                      className="flex items-center gap-2 cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50 hover:shadow"
-                      onClick={() => {
-                        setsearch(c.toLowerCase());
-                        setCheckCategory(value);
-                        setOpenCategory(false);
-                      }}
-                    >
-                      <Check
-                        className={`w-4 h-4 ${checkCategory == value ? 'text-red-500/90' : 'text-white'}`}
-                      />
-                      {c}
-                    </span>
-                  ))}
+          {/* Category Filter */}
+          <div ref={categoryRef} className="relative">
+            <button
+              onClick={() => setOpenCategory(!openCategory)}
+              className="ring-1 ring-gray-300 p-1 px-2 rounded-lg bg-gray-50 hover:bg-gray-100"
+            >
+              Category
+            </button>
+            {openCategory && (
+              <div className="absolute mt-2 right-0 z-50 shadow-2xl bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm text-nowrap">
+                {categories.map((c, idx) => (
                   <span
-                    className="flex items-center gap-2 cursor-pointer border-b border-gray-300 pb-1 m-1 px-1 hover:bg-gray-50"
+                    key={c.id}
+                    className="flex items-center gap-2 cursor-pointer border-b border-gray-200 pb-1 m-1 px-1 hover:bg-gray-50"
                     onClick={() => {
-                      setsearch('other');
-                      setCheckCategory('other');
+                      setCheckCategory(idx);
                       setOpenCategory(false);
                     }}
                   >
                     <Check
-                      className={`w-4 h-4 ${checkCategory == 'other' ? 'text-red-500/90' : 'text-white'}`}
+                      className={`w-4 h-4 ${
+                        checkCategory === idx ? 'text-red-500/90' : 'text-white'
+                      }`}
                     />
-                    Other
+                    {c.name}
                   </span>
-                  <span
-                    className="flex items-center gap-2 cursor-pointer  pb-1 m-1 px-1 hover:bg-gray-50"
-                    onClick={() => {
-                      navigate(0);
-                      setCheckCategory('all');
-                    }}
-                  >
-                    <Check
-                      className={`w-4 h-4 ${checkCategory == 'all' ? 'text-red-500/90' : 'text-white'}`}
-                    />
-                    All
-                  </span>
-                </div>
+                ))}
+                <span
+                  className="flex items-center gap-2 cursor-pointer pb-1 m-1 px-1 hover:bg-gray-50"
+                  onClick={() => {
+                    setCheckCategory('all');
+                    setOpenCategory(false);
+                  }}
+                >
+                  <Check
+                    className={`w-4 h-4 ${
+                      checkCategory === 'all' ? 'text-red-500/90' : 'text-white'
+                    }`}
+                  />
+                  All
+                </span>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Product List */}
       <div className="mx-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {products.map((product) => (
           <Product
@@ -261,16 +236,16 @@ export default function Products({
           />
         ))}
       </div>
-      <div>
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={(newPage) => {
-            setPage(newPage);
-            fetchProducts(newPage, search);
-          }}
-        />
-      </div>
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={(newPage) => {
+          setPage(newPage);
+          fetchProducts(newPage, search);
+        }}
+      />
     </div>
   );
 }
