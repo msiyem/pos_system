@@ -6,7 +6,6 @@ import Customers from '../pannel/customers';
 // import Supplier from '../pannel/sellingHestory';
 import Reports from '../pannel/reports';
 import Selling from '../pannel/selling';
-import Supplier from '../pannel/supplier';
 import Shopkeeper from '../pannel/selling';
 import Error from '../error';
 import AddProduct from '../component/addProduct';
@@ -15,6 +14,10 @@ import { useEffect, useState } from 'react';
 import AddCustomer from '../component/addCustomer';
 import EditCustomer from '../component/editCustomer';
 import EditProduct from '../component/editProduct';
+import Purchase from '../pannel/purchase';
+import AddSupplier from '../component/addSupplier';
+import Suppliers from '../pannel/suppliers';
+import SupplierHistory from '../component/supplierProfile';
 
 export default function MyRoute() {
   const [customers, setCustomers] = useState([]);
@@ -141,7 +144,7 @@ export default function MyRoute() {
       <Route
         path="/supplier"
         element={
-          <Supplier
+          <Suppliers
             users={customers}
             page={cus_page}
             total={cus_total}
@@ -156,6 +159,8 @@ export default function MyRoute() {
           />
         }
       />
+      <Route path='/supplier/:id' element={<SupplierHistory/>}/>
+      <Route path="/supplier/add" element={<AddSupplier />} />
       <Route path="/reports" element={<Reports />} />
       <Route
         path="/selling"
@@ -174,6 +179,7 @@ export default function MyRoute() {
           />
         }
       />
+      <Route path="/purchase" element={<Purchase />} />
       <Route path="/shopkeeper" element={<Shopkeeper />} />
       <Route path="/*" element={<Error />} />
     </Routes>

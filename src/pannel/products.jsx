@@ -90,7 +90,7 @@ export default function Products({
   };
 
   return (
-    <div className="bg-gray-50/50 flex flex-col min-h-dvh no-scrollbar overflow-y-auto">
+    <div className="bg-gray-50/50 flex flex-col min-h-dvh w-full">
       <ShoppingCard
         customers={customers}
         cus_limit={cus_limit}
@@ -102,8 +102,8 @@ export default function Products({
         cus_total={cus_total}
       />
 
-      <div className="flex items-center justify-between my-5 mx-3">
-        <div className="flex flex-col">
+      <div className="flex items-center justify-between w-full my-5 mx-3">
+        <div className="flex flex-col ">
           <span
             onClick={() => {
               setsearch('');
@@ -129,26 +129,26 @@ export default function Products({
       </div>
 
       {/* Search + Filters */}
-      <div className="flex justify-between items-center m-3 my-5">
+      <div className="flex justify-between items-center m-3 my-5 ">
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder="Search Products....."
           value={search}
           onChange={handleSearchChange}
-          className="w-[18ch] p-1 px-2 ring-1 ring-gray-300 rounded-lg shadow outline-0 focus:ring-gray-400 cursor-text hover:bg-white"
+          className="w-[30vw]  p-1 px-2 ring-1 ring-gray-300 rounded-lg shadow outline-0 focus:ring-gray-400 cursor-text hover:bg-white"
         />
 
         <div className="flex gap-5">
           {/* Stock Filter */}
-          <div ref={stockRef} className="relative">
+          <div ref={stockRef} className="relative sm:w-[15vw]">
             <button
               onClick={() => setOpenStock(!openStock)}
-              className="ring-1 ring-gray-300 p-1 px-2 rounded-lg bg-gray-50 hover:bg-gray-100"
+              className="ring-1  w-full ring-gray-300 p-1 px-2 cursor-pointer rounded-lg bg-gray-50 hover:bg-gray-100"
             >
               Stock Filter
             </button>
             {openStock && (
-              <div className="absolute mt-2 right-0 z-50 shadow-2xl bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm p-1 text-nowrap">
+              <div className="absolute w-full mt-2 right-0 z-50  shadow-2xl bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm p-1 text-nowrap">
                 {['in', 'out', 'all'].map((type) => (
                   <div
                     key={type}
@@ -175,15 +175,15 @@ export default function Products({
           </div>
 
           {/* Category Filter */}
-          <div ref={categoryRef} className="relative">
+          <div ref={categoryRef} className="relative sm:w-[15vw]">
             <button
               onClick={() => setOpenCategory(!openCategory)}
-              className="ring-1 ring-gray-300 p-1 px-2 rounded-lg bg-gray-50 hover:bg-gray-100"
+              className="ring-1 w-full ring-gray-300 p-1 px-2 rounded-lg bg-gray-50 hover:bg-gray-100"
             >
               Category
             </button>
             {openCategory && (
-              <div className="absolute mt-2 right-0 z-50 shadow-2xl bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm text-nowrap">
+              <div className="absolute w-full mt-2 right-0 z-50 shadow-2xl bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm text-nowrap">
                 {categories.map((c, idx) => (
                   <span
                     key={c.id}
@@ -231,6 +231,7 @@ export default function Products({
             title={product.name}
             price={product.price}
             type={product.category_name}
+            sku={product.sku}
             quantity={product.stock}
             onAddToCard={() => handleAddToCard(product)}
           />

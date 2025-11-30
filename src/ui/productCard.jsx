@@ -6,11 +6,13 @@ export default function Product({
   title,
   type,
   price,
+  // sku,
   quantity,
   onAddToCard,
 }) {
   return (
-    <div className="flex bg-white flex-col justify-between items-center p-2 ring-0 border-2 border-gray-200 shadow rounded-2xl">
+    <div className="flex relative bg-white flex-col justify-between items-center p-2 ring-0 border-2 border-gray-200 shadow hover:shadow-lg rounded-2xl hover:scale-101 transition-all duration-200">
+      {/* <span className='absolute left-3 top-2 border text-gray-500 text-[14px] border-gray-300 px-2 rounded-xl shadow'>ID: {sku}</span> */}
       <div className="h-40 w-full flex justify-center overflow-hidden ">
         <img
           src={image}
@@ -31,8 +33,9 @@ export default function Product({
           {quantity>0?(
             <button
             onClick={() => onAddToCard({ id, title, type, price, image })}
-            className="bg-red-600 ring-0 rounded-lg cursor-pointer "
+            className="bg-red-600 flex items-center py-1.5 px-1 pl-2 text-white ring-0 rounded-lg cursor-pointer hover:scale-105"
           >
+            <span>Add to Card</span>
             <ShoppingCart className=" h-7 w-7 p-1 text-white m-1 " />
           </button>
         ):(

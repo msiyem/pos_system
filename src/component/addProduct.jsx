@@ -16,7 +16,6 @@ export default function AddProduct() {
     category_id: '',
     sku: '',
     price: '',
-    stock: '',
     description: '',
   });
 
@@ -70,7 +69,6 @@ export default function AddProduct() {
         category_id: '',
         sku: '',
         price: '',
-        stock: '',
         description: '',
       });
       setImageFile(null);
@@ -138,15 +136,16 @@ export default function AddProduct() {
             required
           />
 
-          <InputText
+          {/* <InputText
             title="Stock"
             type="number"
+            min='0'
             name="stock"
             placeholder="Enter stock..."
             formData={formData}
             handleChange={handleChange}
             required
-          />
+          /> */}
 
           <InputText
             title="Description"

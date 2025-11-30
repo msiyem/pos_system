@@ -6,13 +6,17 @@ import {
   Building,
   ChartColumn,
   BadgeDollarSign,
+  ShoppingBasket,
+  Store,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+
 
 const menuItems = [
   { to: "/", icon: Home, label: "Dashboard" },
   { to: "/pos", icon: LucideShoppingCart, label: "POS" },
   { to: "/product", icon: LucideShoppingBag, label: "Product" },
+  { to: "/purchase", icon: Store , label: "Purchase" },
   { to: "/customers", icon: Users, label: "Customers" },
   { to: "/supplier", icon: Building, label: "Supplier" },
   { to: "/reports", icon: ChartColumn, label: "Reports" },
