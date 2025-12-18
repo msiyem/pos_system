@@ -4,16 +4,18 @@ export default function PointItems({
   id,
   name,
   price,
+  stock,
   count,
   onUpdate,
   onDelete,
 }) {
   const handleInputChange = (e) => {
-    const newValue = parseInt(e.target.value, 10);
-    if (!isNaN(newValue) && newValue > 0) {
+    let newValue = parseInt(e.target.value, 10);
+    if (!isNaN(newValue) && newValue > 0 ) {
+      newValue = Math.min(stock,newValue);
       onUpdate(id, newValue);
     } else if (e.target.value === '') {
-      onUpdate(id, '0');
+      onUpdate(id, 0);
     }
   };
 
@@ -28,7 +30,9 @@ export default function PointItems({
         <span className="text-[14px] md:text-[15px] lg:text-[16px] font-light">
           {name}
         </span>
-        <span className="text-sm text-gray-500">{price} <span className='font-mono text-[12px] mt-[4px]'>৳</span></span>
+        <span className="text-sm text-gray-500">
+          {price} <span className="font-mono text-[12px] mt-[4px]">৳</span>
+        </span>
       </div>
       <div className="mb-3 mx-3 flex space-x-1 sm:space-x-2 items-center justify-center sm:mx-4 ">
         <button
@@ -50,13 +54,18 @@ export default function PointItems({
         />
 
         <button
-          onClick={() => onUpdate(id, count + 1)}
+          onClick={() => {
+            if (stock > count) {
+              onUpdate(id, count + 1);
+            }
+          }}
           className="cursor-pointer px-1 sm:px-2 ring-0  flex justify-center items-center border border-gray-500 rounded-full w-5 sm:w-8 h-6 sm:h-6 hover:scale-105 hover:bg-gray-50 duration-200 transition-all"
         >
           <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
         </button>
         <span className="text-sm sm:text-base flex items-center gap-0.5 text-gray-500">
-          {price * count} <span className='font-mono text-[12px] mt-[4px]'>৳</span>
+          {price * count}{' '}
+          <span className="font-mono text-[12px] mt-[4px]">৳</span>
         </span>
         <button
           onClick={() => onDelete(id)}

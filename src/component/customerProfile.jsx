@@ -24,12 +24,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import DateButton from './dateButton';
 import DeleteCustomerButton from './deleteCustomer';
+import api from '../api/api'; 
 
-export default function CustomerHistory({
-  fetchCustomers,
-  page,
-  search,
-}) {
+export default function CustomerHistory({ fetchCustomers, page, search }) {
   const { id } = useParams();
   const [customer, setCustomer] = useState({});
   // const customer = users.find((c) => c.id === parseInt(id));
@@ -43,19 +40,19 @@ export default function CustomerHistory({
   useEffect(() => {
     async function fetchCustomer() {
       try {
-        const res = await fetch(
-          `http://localhost:3000/customers/${customerId}/details`
-        );
-        const data = await res.json();
-        setCustomer(data);
-        if (!res.ok) {
-          alert('❌ Customer not found!');
+        const res = await api.get(`/customers/${customerId}/details`);
+        setCustomer(res.data);
+
+        // Optional: backend response ok check
+        if (!res.data) {
+          alert('Customer not found!');
         }
       } catch (err) {
         console.log(err);
-        alert('❌ Error fetching customer details');
+        alert('Error fetching customer details');
       }
     }
+
     fetchCustomer();
   }, [customerId]);
 

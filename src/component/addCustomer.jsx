@@ -81,7 +81,7 @@ export default function AddCustomer() {
     };
 
     try {
-      const res = await fetch('http://localhost:3000/customers', {
+      const res = await fetch('http://localhost:3000/api/customers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

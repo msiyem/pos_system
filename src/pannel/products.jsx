@@ -15,12 +15,16 @@ export default function Products({
   setPage,
   setsearch,
   fetchProducts,
+  stock,
+  category,
+  setcategory,
+  setstock,
   customers,
   cus_limit,
   cus_search,
   fetchCustomers,
   setCusSearch,
-  cus_total
+  cus_total,
 }) {
   const navigate = useNavigate();
   const totalPages = Math.ceil(total / limit);
@@ -29,8 +33,8 @@ export default function Products({
   const [cart, setCart] = useState([]);
   const [openCategory, setOpenCategory] = useState(false);
   const [openStock, setOpenStock] = useState(false);
-  const [stockfilter, setStockfilter] = useState('all');
-  const [checkCategory, setCheckCategory] = useState('all');
+  // const [stockfilter, setStockfilter] = useState('all');
+  // const [checkCategory, setCheckCategory] = useState('all');
 
   const categoryRef = useRef(null);
   const stockRef = useRef(null);
@@ -51,7 +55,6 @@ export default function Products({
     const val = e.target.value;
     setsearch(val);
     setPage(1);
-    fetchProducts(1, val);
   };
 
   useEffect(() => {
@@ -64,17 +67,6 @@ export default function Products({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    let query = '';
-    if (stockfilter === 'in') query = 'in stock';
-    else if (stockfilter === 'out') query = 'out of stock';
-    else if (checkCategory !== 'all')
-      query = categories[checkCategory]?.name?.toLowerCase();
-    else query = search;
-
-    fetchProducts(1, query);
-  }, [stockfilter, checkCategory]);
 
   const handleAddToCard = (item) => {
     setCart((prevCart) => {
@@ -107,9 +99,8 @@ export default function Products({
           <span
             onClick={() => {
               setsearch('');
-              setCheckCategory('all');
-              setStockfilter('all');
-              fetchProducts(1, '');
+              setcategory('all');
+              setstock('all');
             }}
             className="text-[32px] font-serif font-semibold cursor-pointer"
           >
@@ -153,20 +144,20 @@ export default function Products({
                   <div
                     key={type}
                     onClick={() => {
-                      setStockfilter(type);
+                      setstock(type);
                       setOpenStock(false);
                     }}
                     className="flex items-center gap-2 cursor-pointer border-b border-gray-200 pb-1 m-1 px-1 hover:bg-gray-50"
                   >
                     <Check
                       className={`w-4 h-4 ${
-                        stockfilter === type ? 'text-red-500/90' : 'text-white'
+                        stock === type ? 'text-red-500/90' : 'text-white'
                       }`}
                     />
                     {type === 'in'
                       ? 'In Stock'
                       : type === 'out'
-                        ? 'Out of Stock'
+                        ? 'Out Stock'
                         : 'All'}
                   </div>
                 ))}
@@ -184,18 +175,18 @@ export default function Products({
             </button>
             {openCategory && (
               <div className="absolute w-full mt-2 right-0 z-50 shadow-2xl bg-white flex flex-col gap-0 rounded-xl border border-gray-300 text-sm text-nowrap">
-                {categories.map((c, idx) => (
+                {categories.map((c) => (
                   <span
                     key={c.id}
                     className="flex items-center gap-2 cursor-pointer border-b border-gray-200 pb-1 m-1 px-1 hover:bg-gray-50"
                     onClick={() => {
-                      setCheckCategory(idx);
+                      setcategory(c.id);
                       setOpenCategory(false);
                     }}
                   >
                     <Check
                       className={`w-4 h-4 ${
-                        checkCategory === idx ? 'text-red-500/90' : 'text-white'
+                        category === c.id ? 'text-red-500/90' : 'text-white'
                       }`}
                     />
                     {c.name}
@@ -204,13 +195,13 @@ export default function Products({
                 <span
                   className="flex items-center gap-2 cursor-pointer pb-1 m-1 px-1 hover:bg-gray-50"
                   onClick={() => {
-                    setCheckCategory('all');
+                    setcategory('all');
                     setOpenCategory(false);
                   }}
                 >
                   <Check
                     className={`w-4 h-4 ${
-                      checkCategory === 'all' ? 'text-red-500/90' : 'text-white'
+                      category === 'all' ? 'text-red-500/90' : 'text-white'
                     }`}
                   />
                   All

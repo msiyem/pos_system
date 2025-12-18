@@ -1,7 +1,7 @@
 import { ShoppingCart, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
 import PointItems from '../ui/point_items';
+import api from '../api/api';
 
 export default function ShoppingCard({
   card,
@@ -19,7 +19,7 @@ export default function ShoppingCard({
   const [openCus, setOpenCus] = useState(true);
   const [cusName, setcusName] = useState('');
   const [cusDebt, setCusDebt] = useState(0.0);
-  const [cusId, setCusId] = useState(0);
+  const [cusId, setCusId] = useState(null);
   const [discount, setDiscount] = useState(0);
   const [paid_amount, setPaidAmount] = useState(0);
 
@@ -91,8 +91,11 @@ export default function ShoppingCard({
   const handleConfirmSale = async () => {
     // if (!cusName) return alert('Please select a customer');
     // if (card.length === 0) return alert('Cart is empty');
+      if (!cusId && paid_amount < total) {
+    return alert("Guest must pay full amount!");
+  }
 
-    // if (!cusId) return alert('Invalid customer');
+
     if (!cusId && card.length === 0 && paid_amount > 0) {
     return alert("Select a customer to clear due!");
 }
@@ -102,7 +105,7 @@ export default function ShoppingCard({
     }
 
     try {
-      const res = await axios.post('http://localhost:3000/sales', {
+      const res = await api.post('/sales', {
         customer_id: cusId,
         user_id: userId,
         items: itemsData,
@@ -228,6 +231,7 @@ export default function ShoppingCard({
               <PointItems
                 key={item.id}
                 id={item.id}
+                stock={item.stock}
                 name={item.name}
                 price={item.price}
                 count={item.count}

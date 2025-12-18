@@ -8,7 +8,7 @@ export default function DeleteCustomerButton({ customerId, onDeleted }) {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/customers/${customerId}`, {
+      const res = await fetch(`http://localhost:3000/api/customers/${customerId}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Failed to delete customer');

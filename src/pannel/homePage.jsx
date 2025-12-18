@@ -1,7 +1,6 @@
 import logo from "../assets/logo.png";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
-import MyRoute from "../myRoute/MyRoute";
+import { Link, Outlet } from "react-router-dom";
 import Sidebar from "../sidebar/Sidebar";
 import Notification from "../component/notification";
 import { useEffect, useRef, useState } from "react";
@@ -101,7 +100,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="w-full overflow-auto ">
-          <MyRoute />
+          <Outlet/>
         </div>
       </motion.div>
     </div>
