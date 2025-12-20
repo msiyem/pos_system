@@ -96,7 +96,7 @@ export default function HomePage() {
           </button>
           <div className="flex gap-3  items-center">
             <Notification count={2} />
-            <MiniProfile/>
+            <MiniProfile />
           </div>
         </div>
         <div className="w-full overflow-auto ">

@@ -1,9 +1,30 @@
 import { LogOutIcon, User } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
+import api from "../api/api";
+import { useAuth } from "../context/useAuth";
 
 export default function MiniProfile() {
   const [openProfile, setOpenProfile] = useState(false);
   const miniprofileRef = useRef(null);
+  const [userName,setUserName]=useState("");
+  const [userEmail,setUserEmail] = useState("");
+  const {userId,logout} = useAuth();
+
+  useEffect(()=>{
+    if(!userId) return;
+
+    async function fetchUser() {
+    const res=await api.get(`/user/${userId}`);
+    const u=res.data;
+    setUserName(u.name);
+    setUserEmail(u.email);
+  }
+  fetchUser();
+  },[userId])
+  const initials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("");
 
   useEffect(() => {
     function handleClickOutSide(event) {
@@ -27,7 +48,7 @@ export default function MiniProfile() {
         className="cursor-pointer relative"
       >
         <p className="flex ring-0 rounded-full bg-[rgb(88,50,138)] h-10 w-10 text-center items-center justify-center font-semibold text-blue-200">
-          MH
+          {initials}
         </p>
       </button>
 
@@ -40,9 +61,9 @@ export default function MiniProfile() {
         `}
       >
         <div className="flex flex-col p-2 border-b">
-          <p>Mahfujul Haque Siyem</p>
+          <p>{userName}</p>
           <p className="text-[12px] text-gray-600">
-            msiyem978@gmail.com
+            {userEmail}
           </p>
         </div>
         <div className="m-2 flex flex-col space-y-1">
@@ -50,7 +71,9 @@ export default function MiniProfile() {
             <User className="h-4 w-4" />
             <p className="mx-2">Profile</p>
           </div>
-          <div className="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
+          <div 
+          onClick={()=>logout()}
+          className="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
             <LogOutIcon className="h-4 w-4" />
             <p className="mx-2">Logout</p>
           </div>

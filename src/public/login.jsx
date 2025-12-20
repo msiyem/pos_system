@@ -19,7 +19,7 @@ export default function Login() {
       });
       const data=res.data;
       // backend returns: { accessToken, role }
-      login(data.accessToken, data.user.role);
+      login(data.accessToken, data.user.role, data.user.id);
 
       navigate("/",{replace:true});
     } catch (err) {
