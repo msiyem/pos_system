@@ -1,5 +1,5 @@
 import { Clock, Printer, TimerIcon, TimerOff } from 'lucide-react';
-import PointItems from '../ui/point_items';
+import PointItems from '../../ui/point_items';
 import { useEffect, useState } from 'react';
 
 export default function Pos() {

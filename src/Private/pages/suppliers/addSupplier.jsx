@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import InputText from '../ui/inputText';
-import InputRadio from '../ui/radio';
-import BackButton from '../ui/backButton';
-import API from '../api/api.js';
+import InputText from '../../ui/inputText.jsx';
+import InputRadio from '../../ui/radio.jsx';
+import BackButton from '../../ui/backButton.jsx';
+import API from '../../../api/api.js';
 export default function AddSupplier() {
   const [formData, setFormData] = useState({
     name: '',

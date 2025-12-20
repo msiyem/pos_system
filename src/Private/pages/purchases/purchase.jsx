@@ -9,8 +9,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import API from '../api/api';
-import BackButton from '../ui/backButton';
+import API from '../../../api/api.js';
+import BackButton from '../../ui/backButton';
 
 export default function Purchase() {
   const [suppliers, setSuppliers] = useState(null);
@@ -473,7 +473,9 @@ export default function Purchase() {
           )}
           <div className='flex gap-2 items-baseline'><span className='text-[20px] font-semibold'>Total Purchase Amount :</span> <span>{total_amount}<span className="ml-1 font-mono text-[12px]">৳</span></span></div>
           <div className="w-full flex justify-between px-2 ">
-            <div className="text-blue-700/80 hover:text-blue-700 hover:scale-105">
+            <div 
+            onClick={(e)=>e.preventDefault()}
+            className="text-blue-700/80 hover:text-blue-700 hover:scale-105">
               <BackButton />
             </div>
             <button

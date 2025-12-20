@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import InputText from '../ui/inputText';
-import InputRadio from '../ui/radio';
-import BackButton from '../ui/backButton';
+import InputText from '../../ui/inputText';
+import InputRadio from '../../ui/radio';
+import BackButton from '../../ui/backButton';
 import { useNavigate, useParams } from 'react-router';
 
 export default function EditCustomer() {

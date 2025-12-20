@@ -22,42 +22,43 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import DateButton from './dateButton';
+import DateButton from '../../component/dateButton';
 import DeleteCustomerButton from './deleteCustomer';
-import API from '../api/api';
+import api from '../../../api/api';
 
-export default function SupplierHistory() {
+export default function CustomerHistory({ fetchCustomers, page, search }) {
   const { id } = useParams();
-  const [supplier, setSupplier] = useState({});
+  const [customer, setCustomer] = useState({});
   // const customer = users.find((c) => c.id === parseInt(id));
   const [activeTab, setActiveTab] = useState('info');
   const [type, setType] = useState('All');
   const [openTypes, setOpenType] = useState(false);
   const [openElipse, setOpenElipse] = useState(false);
   const navigate = useNavigate();
-  const supplierId = parseInt(id);
-
-  async function fetchSupplier() {
-    try {
-      const res = await API.get(`/suppliers/${supplierId}/details`);
-
-      setSupplier(res.data.data);
-      if (!res.data.success) {
-        alert('Supplier not found!');
-      }
-    } catch (err) {
-      console.log(err);
-      alert('Error fetching customer details');
-    }
-  }
+  const customerId = parseInt(id);
 
   useEffect(() => {
-    fetchSupplier();
-  }, [supplierId]);
+    async function fetchCustomer() {
+      try {
+        const res = await api.get(`/customers/${customerId}/details`);
+        setCustomer(res.data);
 
-  // if (!supplier || Object.keys(supplier).length === 0) {
-  //   return <div>Loading customer data...</div>;
-  // }
+        // Optional: backend response ok check
+        if (!res.data) {
+          alert('Customer not found!');
+        }
+      } catch (err) {
+        console.log(err);
+        alert('Error fetching customer details');
+      }
+    }
+
+    fetchCustomer();
+  }, [customerId]);
+
+  if (!customer || Object.keys(customer).length === 0) {
+    return <div>Loading customer data...</div>;
+  }
 
   return (
     <div className="min-w-[800px] max-w-[1180px] m-auto shrink-0 flex flex-col gap-5 p-5 bg-amber-50/10">
@@ -70,8 +71,8 @@ export default function SupplierHistory() {
         <div className="w-full flex flex-col gap-2 ml-5">
           <div className="flex justify-between w-full">
             <div className="flex gap-3">
-              <span className="text-[24px] font-bold">{supplier.name}</span>
-              {supplier.verify ? (
+              <span className="text-[24px] font-bold">{customer.name}</span>
+              {customer.verify ? (
                 <div className="flex items-center bg-green-100 rounded-lg px-2 pr-3 gap-2 flex-shrink-0 self-center">
                   <ShieldCheck className="h-3 w-3" />
                   <span className="text-[12px] font-medium text-gray-600">
@@ -87,7 +88,7 @@ export default function SupplierHistory() {
                 </div>
               )}
               <div className="flex items-center bg-gray-100 shadow text-[14px] rounded-xl px-2 pr-3 gap-2 flex-shrink-0 self-center">
-                <span>Gender: {supplier.gender} </span>
+                <span>Gender: {customer.gender} </span>
               </div>
             </div>
             <div className="relative">
@@ -115,7 +116,7 @@ export default function SupplierHistory() {
                   <div onClick={() => navigate(-1)} className="text-[#e51e5a]">
                     <DeleteCustomerButton
                       customerId={id}
-                      onDeleted={() => fetchSupplier()}
+                      onDeleted={() => fetchCustomers(page, search)}
                     />
                   </div>
                 </div>
@@ -126,18 +127,18 @@ export default function SupplierHistory() {
           <div className="text-gray-600 flex gap-6 text-[12px] sm:text-sm">
             <div className="flex items-center gap-2">
               <CalendarCheck className="w-4 h-4" />
-              <span>Joined: {supplier.created_at}</span>
+              <span>Joined: {customer.join_at}</span>
             </div>
             <div className="flex items-center gap-2">
               <History className="h-4 w-4" />
-              <span>Last Supplies: {supplier.last_transition}</span>
+              <span>Last Purchase: {customer.last_purchased}</span>
             </div>
           </div>
 
           <div className="flex justify-between items-center gap-3">
             <div className=" text-[#e51e5a] text-[12px] font-semibold border border-gray-300 flex items-center w-fit rounded-lg px-2 py-1 gap-1">
               <BookmarkMinus className="h-3 w-3 " />
-              <span>Due: {supplier.payable}</span>
+              <span>Due: {customer.debt}</span>
             </div>
             <div className="text-[12px] font-semibold text-gray-800 border border-[#e51e5a]/15 px-2 py-1   rounded-lg shadow flex items-center gap-[1px]">
               <ShieldUser className="h-3.5 w-3.5" />
@@ -213,7 +214,7 @@ export default function SupplierHistory() {
                       <Phone className="h-3.5 w-3.5" />
                       <span className="font-medium">Phone:</span>
                     </th>
-                    <td>{supplier.phone}</td>
+                    <td>{customer.phone}</td>
                   </tr>
 
                   <tr className="p-1 border border-gray-300 ">
@@ -221,7 +222,7 @@ export default function SupplierHistory() {
                       <PhoneCall className="h-3.5 w-3.5" />
                       <span className="font-medium">Alternative:</span>
                     </th>
-                    <td>{supplier?.alt_phone}</td>
+                    <td>{customer?.alt_phone}</td>
                   </tr>
 
                   <tr className="p-1 border border-gray-300 ">
@@ -229,7 +230,7 @@ export default function SupplierHistory() {
                       <MessageCircle className="h-3.5 w-3.5" />
                       <span className="font-medium">WhatsApp:</span>
                     </th>
-                    <td>{supplier.whatsapp}</td>
+                    <td>{customer.whatsapp}</td>
                   </tr>
 
                   <tr className="p-1 border border-gray-300 ">
@@ -237,7 +238,7 @@ export default function SupplierHistory() {
                       <Mail className="h-3.5 w-3.5" />
                       <span className="font-medium">Email:</span>
                     </th>
-                    <td>{supplier.email}</td>
+                    <td>{customer.email}</td>
                   </tr>
                 </tbody>
               </table>
@@ -253,42 +254,42 @@ export default function SupplierHistory() {
                     <th className="flex items-center gap-1.5 p-2">
                       <span className="font-medium">Sector:</span>
                     </th>
-                    <td>{supplier.sector}</td>
+                    <td>{customer.sector}</td>
                   </tr>
 
                   <tr className="p-1 border border-gray-300 ">
                     <th className="flex items-center gap-1.5 p-2">
                       <span className="font-medium">Area:</span>
                     </th>
-                    <td>{supplier.area}</td>
+                    <td>{customer.area}</td>
                   </tr>
 
                   <tr className="p-1 border border-gray-300 ">
                     <th className="flex items-center gap-1.5 p-2">
                       <span className="font-medium">Post Code:</span>
                     </th>
-                    <td>{supplier.post_code}</td>
+                    <td>{customer.post_code}</td>
                   </tr>
 
                   <tr className="p-1 border border-gray-300 ">
                     <th className="flex items-center gap-1.5 p-2">
                       <span className="font-medium">City:</span>
                     </th>
-                    <td>{supplier.city}</td>
+                    <td>{customer.city}</td>
                   </tr>
 
                   <tr className="p-1 border border-gray-300 ">
                     <th className="flex items-center gap-1.5 p-2">
                       <span className="font-medium">District:</span>
                     </th>
-                    <td>{supplier.district}</td>
+                    <td>{customer.district}</td>
                   </tr>
 
                   <tr className="p-1 border border-gray-300 ">
                     <th className="flex items-center gap-1.5 p-2">
                       <span className="font-medium">Division:</span>
                     </th>
-                    <td>{supplier.division}</td>
+                    <td>{customer.division}</td>
                   </tr>
                 </tbody>
               </table>

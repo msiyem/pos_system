@@ -1,23 +1,23 @@
 import { Plus, Search } from 'lucide-react';
-import Supplier from '../component/supplierCard';
+import Supplier from './supplierCard';
 import { useNavigate } from 'react-router';
-import Pagination from '../ui/pagination';
-import API from '../api/api';
+import Pagination from '../../ui/pagination';
+import API from '../../../api/api';
 import { useEffect, useState } from 'react';
 
 export default function Suppliers() {
   const navigate = useNavigate();
-  const [suppliers,setSuppliers]=useState([]);
-  const [page,setPage]=useState(1);
+  const [suppliers, setSuppliers] = useState([]);
+  const [page, setPage] = useState(1);
   // const [limit,setLimit]=useState(9);
-  const [total,setTotal]=useState(0);
-  const [search,setSearch]=useState('');
+  const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState('');
 
   const totalPages = Math.ceil(total / 9);
-  const fetchSuppliers=async()=>{
+  const fetchSuppliers = async () => {
     try {
-      const res=await API.get('suppliers',{
-        params:{
+      const res = await API.get('suppliers', {
+        params: {
           page: page,
           limit: 9,
           search: search,
@@ -26,21 +26,18 @@ export default function Suppliers() {
       setSuppliers(res.data.data);
       setPage(res.data.page);
       setTotal(res.data.total);
-      
     } catch (err) {
       console.log(err);
-      alert("Error fething products data!");
-      
+      alert('Error fething products data!');
     }
-  }
+  };
 
-  useEffect(()=>{
-    const delayDebounce=setTimeout(()=>{
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
       fetchSuppliers();
-    },350);
-    return ()=>clearTimeout(delayDebounce);
-
-  },[search,page])
+    }, 350);
+    return () => clearTimeout(delayDebounce);
+  }, [search, page]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);

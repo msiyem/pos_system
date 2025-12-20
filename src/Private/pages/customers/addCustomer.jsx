@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import InputText from '../ui/inputText';
-import InputRadio from '../ui/radio';
-import BackButton from '../ui/backButton';
+import InputText from '../../ui/inputText';
+import InputRadio from '../../ui/radio';
+import BackButton from '../../ui/backButton';
 
 export default function AddCustomer() {
   const [formData, setFormData] = useState({

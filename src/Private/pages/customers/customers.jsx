@@ -1,7 +1,7 @@
 import { Plus, Search } from 'lucide-react';
-import Customer from '../component/customerCard';
+import Customer from './customerCard';
 import { useNavigate } from 'react-router';
-import Pagination from '../ui/pagination';
+import Pagination from '../../ui/pagination';
 
 export default function Customers({
   users,
@@ -43,18 +43,23 @@ export default function Customers({
             </button>
           </div>
         </div>
-        <div className='flex justify-between items-center self-start'>
+        <div className="flex justify-between items-center self-start">
           <div className="ring-0 border rounded-lg border-gray-300 p-1 px-2 shadow w-[30ch] flex items-center gap-1">
-          <Search className="h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={handleSearchChange}
-            placeholder="Customers Search ..."
-            className="outline-0 flex-1"
-          />
-        </div>
-        <div className='border border-gray-300 px-2 rounded-lg shadow text-gray-700 text-[15px] font-mono py-1'>Total Customers: <span className='border px-1 border-gray-200/80 rounded-lg shadow'>{total}</span></div>
+            <Search className="h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={handleSearchChange}
+              placeholder="Customers Search ..."
+              className="outline-0 flex-1"
+            />
+          </div>
+          <div className="border border-gray-300 px-2 rounded-lg shadow text-gray-700 text-[15px] font-mono py-1">
+            Total Customers:{' '}
+            <span className="border px-1 border-gray-200/80 rounded-lg shadow">
+              {total}
+            </span>
+          </div>
         </div>
       </div>
 

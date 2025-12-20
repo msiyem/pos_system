@@ -1,7 +1,7 @@
 import { ShoppingCart, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import PointItems from '../ui/point_items';
-import api from '../api/api';
+import PointItems from '../../ui/point_items';
+import api from '../../../api/api';
 
 export default function ShoppingCard({
   card,
@@ -91,16 +91,15 @@ export default function ShoppingCard({
   const handleConfirmSale = async () => {
     // if (!cusName) return alert('Please select a customer');
     // if (card.length === 0) return alert('Cart is empty');
-      if (!cusId && paid_amount < total) {
-    return alert("Guest must pay full amount!");
-  }
-
+    if (!cusId && paid_amount < total) {
+      return alert('Guest must pay full amount!');
+    }
 
     if (!cusId && card.length === 0 && paid_amount > 0) {
-    return alert("Select a customer to clear due!");
-}
+      return alert('Select a customer to clear due!');
+    }
 
-    if(!totalPayable) {
+    if (!totalPayable) {
       return alert('Card is Emyty!');
     }
 
@@ -125,7 +124,7 @@ export default function ShoppingCard({
       setDiscount(0);
     } catch (err) {
       console.error(err);
-      console.error("ERR ===>", err.response?.data);
+      console.error('ERR ===>', err.response?.data);
       alert('Sale submission failed!');
     }
   };
@@ -224,25 +223,22 @@ export default function ShoppingCard({
           </div>
 
           {/* Items */}
-          {card.length!=0 && (
-            <div className="flex flex-col gap-2 py-2 px-1 min-h-[300px] max-h-[500px] w-full overflow-auto"
-            >
-            {card.map((item) => (
-              <PointItems
-                key={item.id}
-                id={item.id}
-                stock={item.stock}
-                name={item.name}
-                price={item.price}
-                count={item.count}
-                onUpdate={handleUpdate}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-          )
-
-          }
+          {card.length != 0 && (
+            <div className="flex flex-col gap-2 py-2 px-1 min-h-[300px] max-h-[500px] w-full overflow-auto">
+              {card.map((item) => (
+                <PointItems
+                  key={item.id}
+                  id={item.id}
+                  stock={item.stock}
+                  name={item.name}
+                  price={item.price}
+                  count={item.count}
+                  onUpdate={handleUpdate}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Totals */}
           <div className="m-auto w-full">
@@ -252,8 +248,6 @@ export default function ShoppingCard({
                 {subtotal.toFixed(2)} <span className="text-sm">৳</span>
               </span>
             </div>
-
-            
 
             {/* discount method  */}
             {card.length != 0 && (

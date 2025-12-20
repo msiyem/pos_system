@@ -1,10 +1,10 @@
 import { Plus } from 'lucide-react';
-import BackButton from '../ui/backButton';
-import InputText from '../ui/inputText';
+import BackButton from '../../ui/backButton';
+import InputText from '../../ui/inputText';
 import { useEffect, useState } from 'react';
-import Select from '../ui/select';
-import API from '../api/api';
-import ImageUploader from '../ui/imageUploader';
+import Select from '../../ui/select';
+import API from '../../../api/api';
+import ImageUploader from '../../ui/imageUploader';
 
 export default function AddProduct() {
   const [categories, setCategories] = useState([]);

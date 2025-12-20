@@ -1,10 +1,10 @@
-import Product from '../ui/productCard';
-import Pagination from '../ui/pagination';
+import Product from './productCard';
+import Pagination from '../../ui/pagination';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Check } from 'lucide-react';
-import ShoppingCard from '../component/shoppingCard';
-import API from '../api/api';
+import ShoppingCard from './shoppingCard';
+import API from '../../../api/api';
 
 export default function Products({
   products,

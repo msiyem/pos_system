@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
-import DeleteCustomerButton from './deleteCustomer';
+import DeleteCustomerButton from '../customers/deleteCustomer';
 
 export default function Suppliers({
   id,
