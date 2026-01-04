@@ -18,11 +18,15 @@ import AddCustomer from '../private/pages/customers/addCustomer';
 import EditCustomer from '../private/pages/customers/editCustomer';
 import EditProduct from '../private/pages/products/editProduct';
 import Purchase from '../private/pages/purchases/purchase';
-import AddSupplier from '../private/pages/suppliers/addSupplier';
-import Suppliers from '../private/pages/suppliers/suppliers';
+import AddSupplier from '../private/pages/suppliers/addSupplier.jsx';
+import Suppliers from '../Private/pages/suppliers/suppliers';
 import SupplierHistory from '../private/pages/suppliers/supplierProfile';
 import api from '../api/api.js';
 import Login from '../public/login.jsx';
+import useToast from '../toast/useToast.jsx';
+import AddBrand from '../private/component/addBrand.jsx';
+import AddCategory from '../private/component/addCategory.jsx';
+import EditSupplier from '../private/pages/suppliers/editSupplier.jsx';
 
 export default function MyRoute() {
   const [customers, setCustomers] = useState([]);
@@ -38,7 +42,9 @@ export default function MyRoute() {
   const [p_search, setP_search] = useState('');
   const [Pstock, setPstock] = useState('all');
   const [Pcategory, setPcategory] = useState('all');
+  const [Pbrand, setPbrand] = useState('all');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const toast = useToast();
 
   const fetchCustomers = async () => {
     try {
@@ -54,7 +60,7 @@ export default function MyRoute() {
       setTotal(res.data.total);
     } catch (err) {
       console.log(err);
-      alert('Error fetching customers data.');
+      toast.error('Error fetching customers data!');
     }
   };
 
@@ -69,11 +75,12 @@ export default function MyRoute() {
     try {
       const res = await api.get('/products', {
         params: {
-          page: p_page,
-          limit: p_limit,
-          search: p_search,
-          stock: Pstock,
-          category: Pcategory,
+          page: p_page || 1,
+          limit: p_limit || 8,
+          search: p_search || '',
+          stock: Pstock || 'all',
+          category: Pcategory || 'all',
+          brand: Pbrand || 'all',
         },
       });
 
@@ -82,7 +89,7 @@ export default function MyRoute() {
       setP_total(res.data.total);
     } catch (err) {
       console.log(err);
-      alert('Error fetching products data.');
+      toast.error('Error fetching products data!');
     }
   };
 
@@ -91,11 +98,19 @@ export default function MyRoute() {
       fetchProducts(p_page, p_search, Pstock, Pcategory);
     }, 300);
     return () => clearTimeout(delayDebounce);
-  }, [p_page, p_search, Pstock, Pcategory]);
+  }, [p_page, p_search, Pstock, Pcategory, Pbrand]);
 
   return (
     <Routes>
-      <Route path="/" element={<HomePage />}>
+      <Route path="/" element={<HomePage 
+      customers={customers}
+      fetchCustomers={fetchCustomers}
+      fethchProducts={fetchProducts}
+      setSearch={setSearch}
+      cus_total={cus_total}
+      cus_search={cus_search}
+      
+      />}>
         <Route path="/" element={<Deshboard />} />
         <Route path="/pos" element={<Pos />} />
         <Route
@@ -112,21 +127,20 @@ export default function MyRoute() {
               setsearch={setP_search}
               stock={Pstock}
               category={Pcategory}
+              brand={Pbrand}
               setcategory={setPcategory}
               setstock={setPstock}
+              setbrand={setPbrand}
               setSelectedProduct={setSelectedProduct}
               fetchProducts={fetchProducts}
-              customers={customers}
-              cus_limit={cus_limit}
-              cus_search={cus_search}
-              cus_total={cus_total}
-              fetchCustomers={fetchCustomers}
-              setCusSearch={setSearch}
             />
           }
         />
         <Route path="/products/:id/edit" element={<EditProduct />} />
         <Route path="/product/add" element={<AddProduct />} />
+        <Route path="/brand/add" element={<AddBrand />} />
+        <Route path="/category/add" element={<AddCategory />} />
+
         <Route
           path="/customers"
           element={
@@ -158,25 +172,11 @@ export default function MyRoute() {
         <Route path="/customers/add" element={<AddCustomer />} />
         <Route path="/customer/:id/edit" element={<EditCustomer />} />
 
-        <Route
-          path="/supplier"
-          element={
-            <Suppliers
-              users={customers}
-              page={cus_page}
-              total={cus_total}
-              limit={cus_limit}
-              search={cus_search}
-              selectedCustomer={selectedCustomer}
-              setPage={setPage}
-              setSearch={setSearch}
-              setSelectedCustomer={setSelectedCustomer}
-              fetchCustomers={fetchCustomers}
-            />
-          }
-        />
+        <Route path="/supplier" element={<Suppliers />} />
         <Route path="/supplier/:id" element={<SupplierHistory />} />
         <Route path="/supplier/add" element={<AddSupplier />} />
+        <Route path="/supplier/:id/edit" element={<EditSupplier />} />
+
         <Route path="/reports" element={<Reports />} />
         <Route
           path="/selling"

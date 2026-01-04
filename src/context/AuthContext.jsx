@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
     await api.post('/auth/logout');
     setToken(null);
     setRole(null);
+    setUserId(null);
     setAuthToken(null);
   };
 
@@ -27,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     const restoreSession = async () => {
       try {
         const res = await api.post('/auth/refresh');
-        login(res.data.accessToken, res.data.user.role, res.data.user.id);
+        login(res.data.accessToken, res.data.user?.role, res.data.user?.id);
       } catch {
         setToken(null);
         setRole(null);
