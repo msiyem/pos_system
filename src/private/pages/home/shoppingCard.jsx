@@ -1,22 +1,22 @@
-import { ShoppingCart, X } from 'lucide-react';
+import { History, ShoppingCart, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import api from '../../../api/api';
 import useToast from '../../../toast/useToast';
 import PointItems from '../../../ui/point_items';
+import {useCart} from '../../cart/useCart.jsx';
 
 export default function ShoppingCard({
-  card=[],
-  setCard=()=>{},
   customers = [],
   cus_search = '',
-  fetchCustomers=()=>{},
-  fetchProducts = ()=>{},
-  setSearch = ()=> {},
+  fetchCustomers = () => {},
+  fetchProducts = () => {},
+  setSearch = () => {},
   cus_total = 0,
 }) {
   const [openShoppingCart, setOpenShoppingCart] = useState(false);
   const shoppingCartRef = useRef(null);
   const cusRef = useRef(null);
+
   const [openCus, setOpenCus] = useState(true);
   const [cusName, setcusName] = useState('');
   const [cusDebt, setCusDebt] = useState(0.0);
@@ -25,17 +25,18 @@ export default function ShoppingCard({
   const [paid_amount, setPaidAmount] = useState(0);
 
   const [paymentMethod, setPaymentMethod] = useState('cash');
-  const userId = 1;
   const toast = useToast();
+  const { cart, setCart, clearCart } = useCart();
 
-  const handleUpdate = (id, newCount) => {
-    setCard((pre) =>
+  const updateQty = (id, newCount) => {
+    if (newCount < 0) return;
+    setCart((pre) =>
       pre.map((item) => (item.id === id ? { ...item, count: newCount } : item))
     );
   };
 
-  const handleDelete = (id) => {
-    setCard((pre) => pre.filter((item) => item.id !== id));
+  const removeItem = (id) => {
+    setCart((pre) => pre.filter((item) => item.id !== id));
   };
 
   const handleSearchChange = (e) => {
@@ -44,15 +45,14 @@ export default function ShoppingCard({
     fetchCustomers(1, e.target.value);
   };
 
-  // Total calculation (including customer due)
-  const productTotal = card.reduce(
-    (sum, item) => sum + Number(item.price) * Number(item.count),
-    0
+  // Total calculation
+  const subtotal = Number(
+    cart.reduce((sum, item) => sum + Number(item.price) * Number(item.count), 0)
   );
 
   const handleDiscountChange = (e) => {
     let count = parseFloat(e.target.value) || 0;
-    if (count > productTotal) count = productTotal;
+    if (count > subtotal) count = subtotal;
     setDiscount(count);
   };
 
@@ -70,56 +70,66 @@ export default function ShoppingCard({
   }, [openShoppingCart]);
 
   // Convert cart items for API request
-  const itemsData = card.map((item) => ({
+  const itemsData = cart.map((item) => ({
     product_id: item.id,
     quantity: item.count,
     price: item.price,
   }));
-  const subtotal = Number(productTotal);
 
   const total = Number(subtotal) - Number(discount);
-
-  const totalPayable = Math.max(0, Number(total + Number(cusDebt)));
 
   const handlePaidChange = (e) => {
     let value = Number(e.target.value) || 0;
     if (paymentMethod === 'due') value = 0;
-    const paymentlimit = total + Number(cusDebt);
+    const paymentlimit = total;
     if (value > paymentlimit) value = paymentlimit;
     setPaidAmount(value);
   };
 
+  // const handleSavePending = async () => {
+  //   if (cart.length === 0) return toast.error('Cart Empty!');
+
+  //   try {
+  //     await api.post('/sales/pending', {
+  //       customer_id: cusId,
+  //       items: itemsData,
+  //       subtotal,
+  //       discount,
+  //       total_amount: total,
+  //     });
+
+  //     toast.success('Saved as pending');
+  //     clearCart();
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error('pending save failed!');
+  //   }
+  // };
+
   // Confirm Sale (Submit data to backend)
-  const handleConfirmSale = async () => {
-    // if (!cusName) return alert('Please select a customer');
-    // if (card.length === 0) return alert('Cart is empty');
+  const handleCheckout = async () => {
     if (!cusId && paid_amount < total) {
       return toast.error('Guest must pay full amount!', 3500);
     }
 
-    if (!cusId && card.length === 0 && paid_amount > 0) {
-      return toast.error('Select a customer to clear due!', 3500);
-    }
-
-    if (!totalPayable) {
-      return toast.error('Card is Empty!', 3500);
+    if (cart.length === 0 && paid_amount > 0) {
+      return toast.error('Cart in Empty', 3500);
     }
 
     try {
-      const res = await api.post('/sales', {
+      const res = await api.post('/sales/checkout', {
         customer_id: cusId,
-        user_id: userId,
         items: itemsData,
-        subtotal: subtotal,
+        subtotal,
         tax: 0,
-        discount: discount,
+        discount,
         total_amount: total,
         paid_amount: paid_amount,
         payment_method: paymentMethod,
       });
 
       toast.success(res.data.message, 4000);
-      setCard([]);
+      clearCart();
       setcusName('');
       setPaidAmount(0);
       setCusDebt(0);
@@ -128,21 +138,23 @@ export default function ShoppingCard({
     } catch (err) {
       console.error(err);
       console.error('ERR ===>', err.response?.data);
-      toast.error('Sale submission failed!');
+      toast.error('Checkout failed!');
     }
   };
 
-  const totalItems = card.reduce((s,i)=> s+i.count,0);
+  // const totalItems = cart.reduce((s, i) => s + i.count, 0);
 
   return (
     <div ref={shoppingCartRef}>
-      <div className="relative rounded-xl flex items-center justify-center  bg-gray-100  border border-gray-200 shadow-white">
-        <button onClick={() => setOpenShoppingCart(!openShoppingCart)}
-          className='relative flex h-10 w-10 bg-[rgb(249,246,246)] right-0 rounded-full justify-center items-center cursor-pointer'>
-          <ShoppingCart className="h-5 w-5  cursor-pointer" />
-          {totalItems > 0 && (
+      <div className="relative rounded-xl flex items-center justify-center border border-gray-200 bg-gray-50 shadow-white">
+        <button
+          onClick={() => setOpenShoppingCart(!openShoppingCart)}
+          className="relative flex h-10 w-10  right-0 rounded-full justify-center items-center cursor-pointer"
+        >
+          <ShoppingCart className="h-5 w-5  cursor-pointer text-red-500" />
+          {cart.length > 0 && (
             <span className="absolute -top-1 -right-0 bg-red-600/75 hover:bg-red-600 text-white text-[10px] ring-0 rounded-full flex items-center justify-center px-1">
-              {totalItems}
+              {cart.length}
             </span>
           )}
         </button>
@@ -229,9 +241,9 @@ export default function ShoppingCard({
           </div>
 
           {/* Items */}
-          {card.length != 0 && (
+          {cart.length != 0 && (
             <div className="flex flex-col gap-2 py-2 px-1 min-h-[300px] max-h-[500px] w-full overflow-auto">
-              {card.map((item) => (
+              {cart.map((item) => (
                 <PointItems
                   key={item.id}
                   id={item.id}
@@ -239,8 +251,8 @@ export default function ShoppingCard({
                   name={item.name}
                   price={item.price}
                   count={item.count}
-                  onUpdate={handleUpdate}
-                  onDelete={handleDelete}
+                  onUpdate={updateQty}
+                  onDelete={removeItem}
                 />
               ))}
             </div>
@@ -256,7 +268,7 @@ export default function ShoppingCard({
             </div>
 
             {/* discount method  */}
-            {card.length != 0 && (
+            {cart.length != 0 && (
               <div className="flex justify-between px-3 border-t border-gray-400 py-3 p">
                 <span className="sm:text-lg font-semibold ">Discount</span>
                 <div className="w-fit">
@@ -278,12 +290,6 @@ export default function ShoppingCard({
               </span>
             </div>
 
-            <div className="flex justify-between p-3 border-t border-gray-400">
-              <span className="sm:text-lg font-semibold">Total Payable</span>
-              <span className="sm:text-lg font-semibold">
-                {totalPayable.toFixed(2)} <span className="text-sm">৳</span>
-              </span>
-            </div>
             {/* Payment Method */}
             <div className="flex justify-between p-3 border-b">
               <span>Payment Method</span>
@@ -307,7 +313,7 @@ export default function ShoppingCard({
                   <input
                     value={paid_amount}
                     onChange={handlePaidChange}
-                    type="number"
+                    type="text"
                     min="0"
                     className="outline-0 pl-5 border border-gray-400 rounded-lg"
                   />
@@ -317,11 +323,19 @@ export default function ShoppingCard({
 
             {/* Confirm Button */}
             <div className="flex justify-end p-3">
+              {/* <button
+                onClick={handleSavePending}
+                className="flex items-center gap-2 p-2 px-4 bg-gray-400 text-white rounded-md hover:bg-gray-500"
+              >
+                <History size={16}/>
+                Hold
+              </button> */}
+
               <button
-                onClick={handleConfirmSale}
+                onClick={handleCheckout}
                 className="p-2 px-4 bg-green-500 text-white rounded-md hover:bg-green-600"
               >
-                Confirm Sale
+                Checkout
               </button>
             </div>
           </div>

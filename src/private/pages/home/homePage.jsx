@@ -57,7 +57,7 @@ export default function HomePage({
           {open && (
             <motion.div
               initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 180, opacity: 1 }}
+              animate={{ width: 220, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.35, ease: 'easeInOut' }}
               className="bg-[rgb(250,250,250)] h-full flex flex-col px-1 z-20"

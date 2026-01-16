@@ -1,4 +1,4 @@
-import { Delete, LucideDelete, Minus, Plus, Trash } from 'lucide-react';
+import { Minus, Plus, Trash } from 'lucide-react';
 
 export default function PointItems({
   id,
@@ -11,7 +11,7 @@ export default function PointItems({
 }) {
   const handleInputChange = (e) => {
     let newValue = parseInt(e.target.value, 10);
-    if (!isNaN(newValue) && newValue > 0 ) {
+    if (!isNaN(newValue) && newValue >= 0 ) {
       newValue = Math.min(stock,newValue);
       onUpdate(id, newValue);
     } else if (e.target.value === '') {
@@ -21,7 +21,7 @@ export default function PointItems({
 
   const handleBlur = (e) => {
     if (e.target.value === '' || isNaN(parseInt(e.target.value))) {
-      onUpdate(id, 1);
+      onUpdate(id, 0);
     }
   };
   return (
@@ -36,7 +36,7 @@ export default function PointItems({
       </div>
       <div className="mb-3 mx-3 flex space-x-1 sm:space-x-2 items-center justify-center sm:mx-4 ">
         <button
-          onClick={() => onUpdate(id, Math.max(1, count - 1))}
+          onClick={() => onUpdate(id, Math.max(0, count - 1))}
           className="cursor-pointer px-1 sm:px-2 ring-0  flex justify-center items-center border border-gray-500  rounded-full w-5 sm:w-8 h-6 sm:h-6 hover:bg-gray-50 hover:scale-105 duration-200 transition-all"
         >
           <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -46,7 +46,7 @@ export default function PointItems({
           value={count}
           onChange={handleInputChange}
           onBlur={handleBlur}
-          min="1"
+          min="0"
           className="text-center border border-gray-400 rounded-md text-sm sm:text-base font-mono outline-none"
           style={{
             width: `${String(count).length + 3}ch`,

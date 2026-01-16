@@ -1,10 +1,10 @@
 import Product from './productCard';
 import Pagination from '../../../ui/pagination';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate, useOutletContext } from 'react-router';
-import { ArrowBigDown, Check, ChevronDown, ChevronUp } from 'lucide-react';
-import ShoppingCard from '../home/shoppingCard';
+import { useLocation, useNavigate } from 'react-router';
+import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import API from '../../../api/api';
+import {useCart} from '../../cart/useCart.jsx';
 
 export default function Products({
   products,
@@ -28,7 +28,7 @@ export default function Products({
 
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
-  const { cart, setCart } = useOutletContext();
+  const { addToCart } = useCart();
   const [openCategory, setOpenCategory] = useState(false);
   const [openStock, setOpenStock] = useState(false);
   const [openBrands, setOpenBrands] = useState(false);
@@ -87,27 +87,35 @@ export default function Products({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleAddToCard = (item) => {
-    setCart((prevCart) => {
-      const existing = prevCart.find((p) => p.id === item.id);
-      if (existing) {
-        return prevCart.map((p) =>
-          p.id === item.id ? { ...p, count: p.count + 1 } : p
-        );
-      } else {
-        return [
-          ...prevCart,
-          {
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            stock: item.stock,
-            count: 1,
-          },
-        ];
-      }
-    });
-  };
+  // const handleAddToCard = (product) => {
+  //   if (product.stock <= 0) {
+  //   toast.error("Product is out of stock");
+  //   return;
+  // }
+  //   setCart((prevCart) => {
+  //     const existing = prevCart.find((p) => p.id === product.id);
+  //     if (existing) {
+  //       if (existing.count >= product.stock) {
+  //       toast.error("No more stock available");
+  //       return prevCart;
+  //     }
+  //       return prevCart.map((p) =>
+  //         p.id === product.id ? { ...p, count: p.count + 1 } : p
+  //       );
+  //     } else {
+  //       return [
+  //         ...prevCart,
+  //         {
+  //           id: product.id,
+  //           name: product.name,
+  //           price: product.price,
+  //           stock: product.stock,
+  //           count: 1,
+  //         },
+  //       ];
+  //     }
+  //   });
+  // };
 
   return (
     <div className="@container bg-gray-50/50 flex flex-col min-h-dvh w-full">
@@ -302,7 +310,7 @@ export default function Products({
             type={product.category_name}
             sku={product.sku}
             quantity={product.stock}
-            onAddToCard={() => handleAddToCard(product)}
+            onAddToCart={addToCart}
           />
         ))}
       </div>
