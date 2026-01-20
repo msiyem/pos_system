@@ -19,7 +19,7 @@ import EditCustomer from '../private/pages/customers/editCustomer';
 import EditProduct from '../private/pages/products/editProduct';
 import Purchase from '../private/pages/purchases/purchase';
 import AddSupplier from '../private/pages/suppliers/addSupplier.jsx';
-import Suppliers from '../Private/pages/suppliers/suppliers';
+import Suppliers from '../private/pages/suppliers/suppliers.jsx';
 import SupplierHistory from '../private/pages/suppliers/supplierProfile';
 import api from '../api/api.js';
 import Login from '../public/login.jsx';
@@ -27,6 +27,8 @@ import useToast from '../toast/useToast.jsx';
 import AddBrand from '../private/component/addBrand.jsx';
 import AddCategory from '../private/component/addCategory.jsx';
 import EditSupplier from '../private/pages/suppliers/editSupplier.jsx';
+import CustomerDue from '../private/pages/customers/customerDue.jsx';
+import SupplierPayable from '../private/pages/suppliers/supplierPayable.jsx';
 
 export default function MyRoute() {
   const [customers, setCustomers] = useState([]);
@@ -171,11 +173,13 @@ export default function MyRoute() {
         />
         <Route path="/customers/add" element={<AddCustomer />} />
         <Route path="/customer/:id/edit" element={<EditCustomer />} />
+        <Route path='/customers/:id/due' element={<CustomerDue/>}/>
 
         <Route path="/supplier" element={<Suppliers />} />
         <Route path="/supplier/:id" element={<SupplierHistory />} />
         <Route path="/supplier/add" element={<AddSupplier />} />
         <Route path="/supplier/:id/edit" element={<EditSupplier />} />
+        <Route path='/supplier/:id/due' element={<SupplierPayable/>}/>
 
         <Route path="/reports" element={<Reports />} />
         <Route

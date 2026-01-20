@@ -27,15 +27,17 @@ import {
   Trash2,
   User,
 } from 'lucide-react';
-import { use, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import DateButton from '../../component/dateButton';
 import DeleteCustomerButton from './deleteCustomer';
 import api from '../../../api/api';
 import { format } from 'date-fns';
+import useToast from '../../../toast/useToast';
 
 export default function CustomerHistory({ fetchCustomers, page, search }) {
   const { id } = useParams();
+  const toast = useToast();
   const [customer, setCustomer] = useState({});
   // const customer = users.find((c) => c.id === parseInt(id));
   const [activeTab, setActiveTab] = useState('info');
@@ -48,23 +50,23 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
 
   //transaction states
   const [transactions, setTransactions] = useState([]);
-  const [transactionData, setTransactionData] = useState(0);
-  const [openTanEntries,setOpenTanEntries] = useState(false);
+  const [transactionSummary, setTransactionSummary] = useState(0);
+  const [openTanEntries, setOpenTanEntries] = useState(false);
   const [saleItems, setSaleItems] = useState([]);
   const [selectedSale, setSelectedSale] = useState();
   const [viewMode, setViewMode] = useState('transactions');
   const [tanPage, setTanPage] = useState(1);
   const [tanLimit, setTanLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const entries = [10,25,50,100];
-  const entriesRef= useRef(null);
+  const entries = [10, 25, 50, 100];
+  const entriesRef = useRef(null);
 
   const [purchasedPage, setPurchasedPage] = useState(1);
   const [purchasedLimit, setPurchasedLimit] = useState(10);
-  const [totalPurchasedPages, setTotalPurchasedPage] = useState(1);
+  // const [totalPurchasedPages, setTotalPurchasedPage] = useState(1);
+  const [productsSummary, setProductsSummary] = useState({});
 
   //purchased products states
-  const [purchased, setPurchased] = useState([]);
   const [productItems, setProductItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState([]);
 
@@ -72,15 +74,14 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  useEffect(()=>{
-
+  useEffect(() => {
     function handleEntriesRef(e) {
       if (entriesRef.current && !entriesRef.current.contains(e.target)) {
         setOpenTanEntries(false);
       }
     }
-    function handleTypeRef(e){
-      if(typeRef.current && !typeRef.current.contains(e.target)){
+    function handleTypeRef(e) {
+      if (typeRef.current && !typeRef.current.contains(e.target)) {
         setOpenType(false);
       }
     }
@@ -90,8 +91,7 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
       document.removeEventListener('mousedown', handleEntriesRef);
       document.removeEventListener('mousedown', handleTypeRef);
     };
-
-  },[entriesRef,typeRef])
+  }, [entriesRef, typeRef]);
 
   useEffect(() => {
     async function fetchCustomer() {
@@ -101,11 +101,11 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
 
         // Optional: backend response ok check
         if (!res.data) {
-          alert('Customer not found!');
+          toast.error('Customer not found!');
         }
       } catch (err) {
         console.log(err);
-        alert('Error fetching customer details');
+        toast.error('Error fetching customer details');
       }
     }
 
@@ -123,18 +123,49 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
           limit: tanLimit,
         },
       });
-      setTransactions(res.data.data);
-      setTransactionData(res.data);
-      console.log(res.data);
 
-      setTotalPages(res.data.pagination?.totalPages);
+      setTransactions(res.data.data);
+
+      // ✅ FIXED
+      setTotalPages(res.data.pagination?.totalPage || 1);
     } catch (err) {
       console.error(err);
     }
   }
+
+  async function fetchCustomerTransactionSummary() {
+  try {
+    const res = await api.get(
+      `/customers/${customerId}/transactions/summary`,
+      {
+        params: {
+          fromDate: startDate
+            ? format(startDate, "yyyy-MM-dd")
+            : undefined,
+          toDate: endDate
+            ? format(endDate, "yyyy-MM-dd")
+            : undefined,
+          type: "All",
+          limit: tanLimit,
+        },
+      }
+    );
+
+    setTransactionSummary(res.data);
+    console.log(res.data);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+
   useEffect(() => {
     fetchTransactions();
   }, [customerId, startDate, endDate, tanPage, tanLimit, type]);
+
+    useEffect(() => {
+    fetchCustomerTransactionSummary();
+  }, [customerId, startDate, endDate]);
 
   async function fetchTransactionsSaleItems(saleId) {
     try {
@@ -147,7 +178,6 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
         }
       );
       setSaleItems(res.data.data);
-      console.log(res.data.data)
       setViewMode('sale_items');
     } catch (err) {
       console.error(err);
@@ -165,7 +195,24 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
         },
       });
       setProductItems(res.data.data);
-      console.log(res.data.data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function fetchPurchasedProductsSummary() {
+    try {
+      const summary = await api.get(
+        `/customers/${customerId}/products_summary`,
+        {
+          params: {
+            fromDate: startDate,
+            toDate: endDate,
+          },
+        }
+      );
+      setProductsSummary(summary.data.data);
+
       // setViewMode('sale_items');
     } catch (err) {
       console.error(err);
@@ -195,38 +242,15 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
 
   useEffect(() => {
     fetchPurchasedProducts();
+    fetchPurchasedProductsSummary();
   }, [customerId, startDate, endDate]);
-
-  const summary = useMemo(() => {
-    if (!productItems || productItems.length === 0) {
-      return {
-        totalTimesPurchased: 0,
-        totalQuantity: 0,
-        totalAmount: 0,
-      };
-    }
-
-    return productItems.reduce(
-      (acc, item) => {
-        acc.totalTimesPurchased += Number(item.times_purchased);
-        acc.totalQuantity += Number(item.total_quantity);
-        acc.totalAmount += Number(item.total_amount);
-        return acc;
-      },
-      {
-        totalTimesPurchased: 0,
-        totalQuantity: 0,
-        totalAmount: 0,
-      }
-    );
-  }, [productItems]);
 
   if (!customer || Object.keys(customer).length === 0) {
     return <div>Loading customer data...</div>;
   }
 
   return (
-    <div className="min-w-[950px] max-w-[1180px] m-auto shrink-0 flex flex-col gap-5 p-5 bg-amber-50/10">
+    <div className="min-w-[1000px] max-w-[1180px] m-auto shrink-0 flex flex-col gap-5 p-5 bg-amber-50/10">
       {/* Customer Info Card */}
       <div
         className={`flex p-6 border rounded-xl shadow w-full bg-white
@@ -514,7 +538,9 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                   className="text-green-500 shadow m-1 p-1  border rounded-lg border-gray-300"
                 />
                 <span className="font-semibold">Total Types</span>
-                <span className="font-bold">{productItems.length || 0}</span>
+                <span className="font-bold">
+                  {productsSummary?.totalProductsPurchased || 0}
+                </span>
               </div>
               <div className="flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  shadow-2xs shadow-blue-100 hover:scale-101">
                 <Store
@@ -522,7 +548,9 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                   className="text-green-500 shadow m-1 p-1  border rounded-lg border-gray-300"
                 />
                 <span className="font-semibold">Total Quantity</span>
-                <span className="font-bold">{summary.totalQuantity}</span>
+                <span className="font-bold">
+                  {productsSummary?.totalQuantity || 0}
+                </span>
               </div>
               <div className="flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  shadow-2xs shadow-blue-100 hover:scale-101">
                 <ClockFading
@@ -530,7 +558,9 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                   className="text-green-500 shadow m-1 p-1  border rounded-lg border-gray-300"
                 />
                 <span className="font-semibold">Total Times</span>
-                <span className="font-bold">{summary.totalTimesPurchased}</span>
+                <span className="font-bold">
+                  {productsSummary?.totalTimesPurchased || 0}
+                </span>
               </div>
               <div className="flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  shadow-2xs shadow-blue-100 hover:scale-101">
                 <BadgeDollarSign
@@ -539,7 +569,7 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                 />
                 <span className="font-semibold">Total Amount(Tk)</span>
                 <span className="font-bold">
-                  {summary.totalAmount}{' '}
+                  {productsSummary?.totalAmount || 0}{' '}
                   <span className="font-extrabold text-sm">৳</span>
                 </span>
               </div>
@@ -700,10 +730,10 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                 </div>
 
                 <div className="max-h-[500px] overflow-auto border border-gray-200">
-                  <table className="w-full border border-gray-300 text-center table-fixed border-collapse">
-                    <thead className="bg-gray-100 sticky top-0 z-10 w-full">
+                  <table className="w-full border border-gray-300 text-center table-auto border-collapse">
+                    <thead className="bg-gray-100 sticky top-0 w-full">
                       <tr className="border-b border-gray-300 font-medium">
-                        <th className="px-4 py-1 border-r border-gray-300 w-[8ch]">
+                        <th className="px-4 py-2 border-r border-gray-300 w-[8ch]">
                           NO
                         </th>
                         <th className="border-r border-gray-300">Invoice</th>
@@ -720,7 +750,7 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                             key={i}
                             className="border-b border-gray-300 text-center"
                           >
-                            <td className="py-1 border-r border-gray-300">
+                            <td className="py-2 border-r border-gray-300">
                               {i + 1}
                             </td>
                             <td className="py-1 border-r border-gray-300">
@@ -756,55 +786,89 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
         {activeTab === 'transition' && (
           <div className="w-full  my-10 flex flex-col gap-10">
             <div className="grid grid-cols-5 gap-3 w-full ">
-              <div className="flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  shadow-blue-100 hover:scale-101">
+              <div
+                onClick={() => setType('All')}
+                className={`flex flex-col gap-2  p-5 rounded-2xl  
+                  shadow-2xs shadow-blue-100 hover:scale-101
+                  border-orange-200 border-2`}
+              >
+                {' '}
                 <ClockFading
                   size={32}
                   className="text-orange-500 shadow m-1 p-1  border rounded-lg border-gray-300"
                 />
                 <span className="font-semibold">Total Transactions</span>
                 <span className="font-bold text-[18px] text-orange-500">
-                  {transactionData?.total_transactions || 0}
+                  {transactionSummary?.total_transactions || 0}
                 </span>
               </div>
 
-              <div className="flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  shadow-2xs shadow-blue-100 hover:scale-101">
+              <div
+                onClick={() => setType('Purchased')}
+                className={`flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  
+                  shadow-2xs shadow-blue-100 hover:scale-101
+                  ${type === 'All' && 'border-orange-200 border-2'}
+                  ${type === 'Purchased' && 'border-orange-200 border-2'}`}
+              >
+                {' '}
                 <ClockFading
                   size={32}
                   className="text-blue-500 shadow m-1 p-1  border rounded-lg border-gray-300"
                 />
                 <span className="font-semibold">Total Purchased</span>
                 <span className="font-bold text-[18px] text-blue-500">
-                  {transactionData?.purchased_count || 0}
+                  {transactionSummary?.purchased_count || 0}
                 </span>
               </div>
-              <div className="flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  shadow-2xs shadow-blue-100 hover:scale-101">
+              <div
+                onClick={() => setType('Payment')}
+                className={`flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  
+                  shadow-2xs shadow-blue-100 hover:scale-101
+                  ${type === 'All' && 'border-orange-200 border-2'}
+                  ${type === 'Payment' && 'border-orange-200 border-2'}`}
+              >
+                {' '}
                 <ClockFading
                   size={32}
                   className="text-green-500 shadow m-1 p-1  border rounded-lg border-gray-300"
                 />
                 <span className="font-semibold">Total Payment</span>
                 <span className="font-bold text-[18px] text-green-500">
-                  {transactionData.payment_count || 0}
+                  {transactionSummary.payment_count || 0}
                 </span>
               </div>
-              <div className="flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  shadow-2xs shadow-blue-100 hover:scale-101">
+              <div
+                onClick={() => setType('DuePayment')}
+                className={`flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  
+                  shadow-2xs shadow-blue-100 hover:scale-101
+                  ${type === 'All' && 'border-orange-200 border-2'}
+                  ${type === 'DuePayment' && 'border-orange-200 border-2'}`}
+              >
+                {' '}
                 <ClockFading
                   size={32}
                   className="text-purple-500 shadow m-1 p-1  border rounded-lg border-gray-300"
                 />
                 <span className="font-semibold">Total DuePayment</span>
                 <span className="font-bold text-[18px] text-purple-500">
-                  {transactionData?.duepayment_count || 0}
+                  {transactionSummary?.duepayment_count || 0}
                 </span>
               </div>
-              <div className="flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  shadow-2xs shadow-blue-100 hover:scale-101">
+              <div
+                onClick={() => setType('Refund')}
+                className={`flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  
+                  shadow-2xs shadow-blue-100 hover:scale-101
+                  ${type === 'All' && 'border-orange-200 border-2'}
+                  ${type === 'Refund' && 'border-orange-200 border-2'}`}
+              >
+                {' '}
                 <ClockFading
                   size={32}
                   className="text-rose-500 shadow m-1 p-1  border rounded-lg border-gray-300"
                 />
                 <span className="font-semibold">Total Refund Payment</span>
                 <span className="font-bold text-[18px] text-rose-500">
-                  {transactionData?.refund_count || 0}
+                  {transactionSummary?.refund_count || 0}
                 </span>
               </div>
             </div>
@@ -845,69 +909,72 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                       className="border border-gray-300 rounded-lg px-2 py-1"
                     />
                   </div>
-                  <div ref={typeRef} className="relative ">
-                    <div
-                      className="cursor-pointer py-0.5 flex items-center gap-2 border border-gray-300 w-fit px-3 rounded-lg shadow hover:bg-gray-50"
-                      onClick={() => setOpenType(!openTypes)}
-                    >
-                      {type === 'All' ? 'All Types' : type}
-                    </div>
+                  <div className="flex flex-col gap-2">
+                    <div className="font-semibold">Selected Type</div>
+                    <div ref={typeRef} className="relative ">
+                      <div
+                        className="cursor-pointer py-0.5 flex items-center gap-2 border border-gray-300 w-fit px-5 rounded-lg shadow hover:bg-gray-50"
+                        onClick={() => setOpenType(!openTypes)}
+                      >
+                        {type === 'All' ? 'All Types' : type}
+                      </div>
 
-                    {/* dropdown types  */}
-                    <div
-                      className={`absolute mt-2 z-50 
+                      {/* dropdown types  */}
+                      <div
+                        className={`absolute mt-2 z-50 
                   transform origin-top transition-all duration-300 ease-in-out ${
                     openTypes ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
                   }`}
-                    >
-                      <div
-                        className="flex flex-col border border-gray-200 shadow-xl rounded-xl p-1 bg-white"
-                        onClick={() => setOpenType(false)}
                       >
                         <div
-                          onClick={() => setType('All')}
-                          className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                          className="flex flex-col border border-gray-200 shadow-xl rounded-xl p-1 bg-white"
+                          onClick={() => setOpenType(false)}
                         >
-                          <Check
-                            className={`h-3 w-3  ${type === 'All' ? 'text-black' : 'text-white'}`}
-                          />
-                          <span>All</span>
-                        </div>
-                        <div
-                          onClick={() => setType('Purchased')}
-                          className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
-                        >
-                          <Check
-                            className={`h-3 w-3  ${type === 'Purchased' ? 'text-black' : 'text-white'}`}
-                          />
-                          <span>Purchased</span>
-                        </div>
-                        <div
-                          onClick={() => setType('Payment')}
-                          className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
-                        >
-                          <Check
-                            className={`h-3 w-3  ${type === 'Payment' ? 'text-black' : 'text-white'}`}
-                          />
-                          <span>Payment</span>
-                        </div>
-                        <div
-                          onClick={() => setType('DuePayment')}
-                          className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
-                        >
-                          <Check
-                            className={`h-3 w-3  ${type === 'DuePayment' ? 'text-black' : 'text-white'}`}
-                          />
-                          <span>DuePayment</span>
-                        </div>
-                        <div
-                          onClick={() => setType('Refund')}
-                          className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
-                        >
-                          <Check
-                            className={`h-3 w-3  ${type === 'Refund' ? 'text-black' : 'text-white'}`}
-                          />
-                          <span>Refund</span>
+                          <div
+                            onClick={() => setType('All')}
+                            className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                          >
+                            <Check
+                              className={`h-3 w-3  ${type === 'All' ? 'text-black' : 'text-white'}`}
+                            />
+                            <span>All</span>
+                          </div>
+                          <div
+                            onClick={() => setType('Purchased')}
+                            className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                          >
+                            <Check
+                              className={`h-3 w-3  ${type === 'Purchased' ? 'text-black' : 'text-white'}`}
+                            />
+                            <span>Purchased</span>
+                          </div>
+                          <div
+                            onClick={() => setType('Payment')}
+                            className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                          >
+                            <Check
+                              className={`h-3 w-3  ${type === 'Payment' ? 'text-black' : 'text-white'}`}
+                            />
+                            <span>Payment</span>
+                          </div>
+                          <div
+                            onClick={() => setType('DuePayment')}
+                            className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                          >
+                            <Check
+                              className={`h-3 w-3  ${type === 'DuePayment' ? 'text-black' : 'text-white'}`}
+                            />
+                            <span>DuePayment</span>
+                          </div>
+                          <div
+                            onClick={() => setType('Refund')}
+                            className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer p-1  border-b border-b-gray-100 rounded-lg"
+                          >
+                            <Check
+                              className={`h-3 w-3  ${type === 'Refund' ? 'text-black' : 'text-white'}`}
+                            />
+                            <span>Refund</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -916,34 +983,46 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                   <div ref={entriesRef} className="relative ml-auto">
                     <div className=" flex gap-1 h-fit">
                       <span>Show</span>
-                      <div 
-                      onClick={()=>{setOpenTanEntries(!openTanEntries)}}
-                      className='flex items-center border gap-1  pl-1'>
-                        <span className='w-[3ch]'>{tanLimit}</span>
-                        {!openTanEntries?(<ChevronDown size={16} className=''/>):(<ChevronUp size={16} className=''/>)}
+                      <div
+                        onClick={() => {
+                          setOpenTanEntries(!openTanEntries);
+                        }}
+                        className="flex items-center border gap-1  pl-1"
+                      >
+                        <span className="w-[3ch]">{tanLimit}</span>
+                        {!openTanEntries ? (
+                          <ChevronDown size={16} className="" />
+                        ) : (
+                          <ChevronUp size={16} className="" />
+                        )}
                       </div>
                       <span>entries</span>
                     </div>
                     {/* dropdown entries  */}
                     {openTanEntries && (
                       <div
-                      className={`absolute z-50 left-10.5 text-center border border-gray-300 bg-white flex flex-col`}
-                    >
-                      {entries.map((val,idx)=>(
-                        <span key={idx} 
-                        onClick={()=>setTanLimit(val)}
-                        className="hover:bg-blue-300 px-3">{val}</span>
-                      ))}
-                    </div>)}
+                        className={`absolute z-50 left-10.5 text-center border border-gray-300 bg-white flex flex-col`}
+                      >
+                        {entries.map((val, idx) => (
+                          <span
+                            key={idx}
+                            onClick={() => setTanLimit(val)}
+                            className="hover:bg-blue-300 px-3"
+                          >
+                            {val}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div className="w-full border border-gray-300">
                   <div className="max-h-[800px] overflow-auto">
-                    <table className="w-full table-fixed border-collapse">
+                    <table className="w-full table-auto border-collapse">
                       <thead className="bg-gray-100 sticky top-0 z-10">
                         <tr className="border-b border-gray-300 font-medium">
-                          <th className="px-4 py-1 border-r border-gray-300">
+                          <th className="px-4 py-2 border-r border-gray-300">
                             NO
                           </th>
                           <th className="border-r border-gray-300">Date</th>
@@ -952,13 +1031,11 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                           <th className="border-r border-gray-300">
                             Amount(Tk)
                           </th>
-                          <th className="border-r border-gray-300">
-                            Debt(Tk)
-                          </th>
+                          <th className="border-r border-gray-300">Debt(Tk)</th>
                           <th className="border-r border-gray-300">Method</th>
                           <th className="border-r border-gray-300">Status</th>
                           <th className="border-r border-gray-300">Seller</th>
-                          <th className='w-[8%]'>Details</th>
+                          <th className="w-[8%]">Details</th>
                         </tr>
                       </thead>
                       <tbody className="border-l border-r text-center border-gray-300">
@@ -968,11 +1045,21 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                               key={`${tx.type}-${tx.ref_id}-${index}`}
                               className="border-b border-gray-300"
                             >
-                              <th className="py-1 border-r border-gray-300">
+                              <th className="py-2 border-r border-gray-300">
                                 {(tanPage - 1) * tanLimit + (index + 1)}
                               </th>
                               <td className="border-r border-gray-300">
-                                {tx.created_at}
+                                {new Date(tx.created_at)
+                                  .toLocaleString('en-GB', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true,
+                                  })
+                                  .replaceAll('/', '-')
+                                  .toUpperCase()}
                               </td>
                               <td className="border-r border-gray-300">
                                 {tx.reference}
@@ -990,7 +1077,7 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                                 {tx.amount}৳
                               </td>
                               <td className="border-r border-gray-300 text-rose-500">
-                                {tx.due ?(<span>{tx.due}৳</span>):('-')}
+                                {tx.due ? <span>{tx.due}৳</span> : '-'}
                               </td>
                               <td className="border-r border-gray-300">
                                 {tx.method}
@@ -1084,9 +1171,12 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                             {item.product_name}
                           </td>
                           <td className="border p-2 text-left">
-                            <div className='flex justify-center'>
-                              <img src={item.image} alt="Product picture" 
-                              className='w-22 h-20'/>
+                            <div className="flex justify-center">
+                              <img
+                                src={item.image}
+                                alt="Product picture"
+                                className="w-22 h-20"
+                              />
                             </div>
                           </td>
                           <td className="border p-2">{item.price}</td>

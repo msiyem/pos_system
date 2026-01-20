@@ -11,8 +11,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import API from '../../../api/api.js';
 import BackButton from '../../../ui/backButton.jsx';
+import useToast from '../../../toast/useToast.jsx';
 
 export default function Purchase() {
+  const toast = useToast();
   const [suppliers, setSuppliers] = useState(null);
   const [sup_page, setSupPage] = useState(1);
   const [sup_total, setSupTotal] = useState(0);
@@ -33,6 +35,8 @@ export default function Purchase() {
   const [items, setItems] = useState([]);
 
   const [total_amount, setTotalAmount] = useState(0);
+  const [paid, setpaid] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('cash');
   const [openPd, setOpenPd] = useState(false);
 
   const supRef = useRef(null);
@@ -54,7 +58,7 @@ export default function Purchase() {
       setPdTotal(res.data.total);
     } catch (err) {
       console.log(err);
-      alert('Error fetching products data.');
+      toast.error('Error fetching products data!');
     }
   }
 
@@ -72,7 +76,7 @@ export default function Purchase() {
       setSuppliers(res.data.data);
     } catch (err) {
       console.log(err);
-      alert('Error fetching supplier data');
+      toast.error('Error fetching supplier data');
     }
   }
 
@@ -159,25 +163,33 @@ export default function Purchase() {
     e.preventDefault();
 
     if (!supId) {
-      alert('Please Select Supplier!');
+      toast.error('Please Select Supplier!');
       return;
     }
     if (items.length === 0) {
-      alert('Please Select Product!');
+      toast.error('Please Select Product!');
       return;
     }
+    if (paymentMethod !== 'due' && Number(paid) <= 0) {
+      toast.error('Payment amount required!');
+      return;
+    }
+
     try {
       const res = await API.post('/purchase', {
         supplier_id: supId,
         items: items,
         total_amount: total_amount,
+        paid_amount: paid,
+        payment_method: paymentMethod,
       });
-      alert('Purchase Completed! Invoice N0: ' + res.data.purchase_id);
+      toast.success(res.data?.message);
       setItems([]);
+      setpaid('');
       setSupId(null);
     } catch (err) {
       console.log(err);
-      alert('Purchase Failed!');
+      toast.error('Purchase Failed!');
     }
   }
   const handleRemoveItem = (index) => {
@@ -272,12 +284,11 @@ export default function Purchase() {
               <span className="px-1">Add Supplier</span>
             </button>
           </div>
-          {supName ? (
+          {supId ? (
             <div className="font-semibold flex justify-between">
               <div className="flex gap-2 items-center ">
                 <span className="flex gap-2">
-                  Name <span className="text-red-500">*</span>
-                  :
+                  Name <span className="text-red-500">*</span>:
                 </span>
                 <span className="font-normal border-gray-200 bg-white/60  border p-1 px-2 rounded-xl">
                   {supName}
@@ -307,7 +318,7 @@ export default function Purchase() {
           )}
 
           {/* product items  */}
-          <div className=" w-full flex gap-2 justify-between font-semibold text-[16px]">
+          <div className=" w-full flex gap-2 justify-between font-semibold text-[16px] mt-10">
             <div className=" text-[18px] mt-1 flex gap-2 ">
               Product <span className="text-red-500"> * </span>:{' '}
             </div>
@@ -476,27 +487,75 @@ export default function Purchase() {
               Please Select Products first *
             </div>
           )}
-          <div className="flex gap-2 items-baseline">
-            <span className="text-[20px] font-semibold">
-              Total Purchase Amount :
-            </span>{' '}
-            <span>
+          <div className="flex gap-2 items-baseline mt-10">
+            <span className="text-[18px] font-semibold">Total Amount :</span>{' '}
+            <span className="text-[18px]">
               {total_amount}
-              <span className="ml-1 font-mono text-[12px]">৳</span>
+              <span className="ml-1 font-mono text-[16px]">৳</span>
             </span>
           </div>
-          <div className="w-full flex justify-between px-2 ">
+
+          <div className="flex items-center justify-between ">
             <div
               onClick={(e) => e.preventDefault()}
-              className="text-blue-700/80 hover:text-blue-700 hover:scale-105"
+              className="cursor-pointer mt-6"
             >
-              <BackButton />
+              <BackButton className="cursor-pointer py-2.5" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label
+                htmlFor="due_payment"
+                className="font-semibold text-[16px]"
+              >
+                Payment Amount (Tk)
+              </label>
+
+              <input
+                type="text"
+                inputMode="decimal"
+                pattern="[0-9]*"
+                min="0"
+                value={paid}
+                placeholder="Enter amount"
+                className="border rounded-lg px-3 py-2 text-base outline-0 border-gray-500 hover:border-black bg-white"
+                onChange={(e) => {
+                  const v = e.target.value;
+
+                  // allow only numbers + decimal
+                  if (!/^\d*\.?\d*$/.test(v)) return;
+
+                  const max = Number(total_amount || 0);
+
+                  if (Number(v) > max) {
+                    setpaid(String(max));
+                  } else {
+                    setpaid(v);
+                  }
+                }}
+              />
+            </div>
+            <div className="flex flex-col  p-3 gap-1">
+              <span className="font-semibold text-[16px]">Payment Method</span>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="border p-2 rounded-md outline-0 bg-white "
+              >
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+                <option value="bkash">Bkash</option>
+                <option value="nagad">Nagad</option>
+                <option value="due">Due</option>
+              </select>
             </div>
             <button
               type="submit"
-              className="rounded-lg shadow from-blue-500 px-4 py-2 to-blue-800 bg-gradient-to-r hover:bg-gradient-to-b text-white mt-5 cursor-pointer"
+              className="rounded-lg shadow from-blue-500 px-4 py-2.5  to-blue-800 bg-gradient-to-r hover:bg-gradient-to-b 
+              text-white mt-6 cursor-pointer
+              active:scale-95
+              transition duration-200"
             >
-              Confirm Purchase
+              Confirm
             </button>
           </div>
         </form>

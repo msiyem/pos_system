@@ -47,7 +47,7 @@ export default function Suppliers() {
   };
 
   return (
-    <div className="m-4 flex flex-col gap-5">
+    <div className="@container m-4 flex flex-col gap-5">
       {/* Header  */}
       <div className="">
         <div className="flex justify-between">
@@ -88,7 +88,7 @@ export default function Suppliers() {
       </div>
 
       {/* Customer List  */}
-      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 items-stretch gap-4">
+      <div className="grid grid-cols-1 @min-[740px]:grid-cols-2 @min-[1200px]:grid-cols-3  items-stretch gap-4">
         {suppliers.map((user) => (
           <Supplier
             key={user.id}
@@ -102,6 +102,7 @@ export default function Suppliers() {
             fetchCustomers={fetchSuppliers}
             page={page}
             search={search}
+            payable={user.payable}
           />
         ))}
       </div>
