@@ -1,9 +1,13 @@
+import { Eye, EyeClosed, EyeOff } from 'lucide-react';
+import { useState } from 'react';
+
 export default function InputText({
   label,
   name,
   register,
   error,
   required,
+  password = false,
   type = 'text',
   placeholder = '',
   maxLength,
@@ -11,6 +15,8 @@ export default function InputText({
   onlyText = false,
   ...rest
 }) {
+  const [showPassword, setShowPassword] = useState(false);
+
   const registerProps = register(name, {
     required: required && `${label} is required`,
 
@@ -47,19 +53,37 @@ export default function InputText({
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
-      <input
-        id={name}
-        type={type}
-        maxLength={maxLength}
-        placeholder={placeholder}
-        inputMode={onlyNumber ? 'numeric' : undefined}
-        aria-invalid={!!error}
-        className={`border p-2 py-1.5 rounded-lg outline-none bg-white/90
-          ${error ? 'border-red-500' : 'border-gray-300'}
-        `}
-        {...registerProps}
-        {...rest}
-      />
+      <div className="relative">
+        <input
+          id={name}
+          type={type}
+          maxLength={maxLength}
+          placeholder={placeholder}
+          autoComplete="off"
+          inputMode={onlyNumber ? 'numeric' : undefined}
+          aria-invalid={!!error}
+          className={`border p-2 py-1.5 rounded-lg outline-none bg-white/90 w-full pr-4
+            ${error ? 'border-red-500' : 'border-gray-300'}
+          `}
+          {...(password && {
+            style: {
+              WebkitTextSecurity: showPassword ? 'none' : 'disc',
+            },
+          })}
+          {...registerProps}
+          {...rest}
+        />
+
+        {password && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
+          >
+            {showPassword ? <Eye size={18} /> : <EyeClosed size={18} />}
+          </button>
+        )}
+      </div>
 
       {error && <span className="text-xs text-red-600">{error}</span>}
     </div>

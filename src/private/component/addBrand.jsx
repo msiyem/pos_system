@@ -34,11 +34,11 @@ export default function AddBrand() {
   }
   return (
     <div className="min-h-svh w-full flex justify-center items-center
-  bg-[radial-gradient(circle,rgba(255,0,0,0.20)_1.12px,transparent_1px)]
+  bg-[radial-gradient(circle,rgba(255,0,0,0.5)_1.12px,transparent_1px)]
   [background-size:20px_20px] ">
       <form
         onSubmit={handleSubmit}
-        className="w-[50%] max-w-[400px] min-w-[300px] border-2 backdrop:backdrop-blur-md border-white/60 rounded-2xl shadow-lg  space-y-3 p-3 from-blue-100 to-cyan-100 bg-gradient-to-r"
+        className="w-[50%] max-w-[400px] min-w-[300px] border-2 backdrop:backdrop-blur-md border-gray-200 rounded-2xl shadow-lg  space-y-3 p-3 from-lime-50 to-cyan-100 bg-gradient-to-r"
       >
         <div className="font-semibold text-2xl font-serif text-center">
           Add Brand
@@ -55,7 +55,7 @@ export default function AddBrand() {
             onChange={(e) => {
               setName(e.target.value);
             }}
-            className="border px-2 border-gray-300 rounded-lg p-1 w-full mt-2 outline-0 hover:border-gray-500/85 focus:border-gray-500"
+            className="border px-2 border-gray-300 rounded-lg p-1 w-full mt-2 outline-0 hover:border-gray-500/85 focus:border-gray-500 bg-white"
           />
           {error?.name?<span className='text-red-500 text-xs'>{error.name}</span>:""}
         </div>
@@ -70,14 +70,15 @@ export default function AddBrand() {
             onChange={(e) => {
               setDescription(e.target.value);
             }}
-            className="border px-2 border-gray-300 rounded-lg p-1 w-full mt-2 outline-0 hover:border-gray-500"
+            
+            className="border px-2 border-gray-300 rounded-lg p-1 w-full mt-2 outline-0 hover:border-gray-500 bg-white min-h-10 max-h-80 overflow-auto"
           />
         </div>
 
         <div className="w-full flex justify-end">
           <button
             type="submit"
-            className="flex items-center gap-2 w-fit p-0.5 border-gray-300 shadow text-white from-blue-600 to-cyan-600 bg-gradient-to-r hover:bg-gradient-to-l px-2 border rounded-lg cursor-pointer "
+            className="flex items-center gap-2 w-fit p-0.5 border-gray-300 shadow text-white from-blue-600 to-sky-600 bg-gradient-to-r hover:bg-gradient-to-l px-2 border rounded-lg cursor-pointer active:scale-95 "
           >
             <PlusIcon size={16} />
             Add

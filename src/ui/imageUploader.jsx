@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import {useRef } from 'react';
 import { ImagePlus, X } from 'lucide-react';
 
 export default function ImageUploader({

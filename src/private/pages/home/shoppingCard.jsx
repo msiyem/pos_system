@@ -146,7 +146,7 @@ export default function ShoppingCard({
 
   return (
     <div ref={shoppingCartRef}>
-      <div className="relative rounded-xl flex items-center justify-center border border-gray-200 bg-gray-50 shadow-white">
+      <div className="relative rounded-xl flex items-center justify-center border border-gray-200 bg-gray-50 shadow-white ">
         <button
           onClick={() => setOpenShoppingCart(!openShoppingCart)}
           className="relative flex h-10 w-10  right-0 rounded-full justify-center items-center cursor-pointer"
@@ -161,16 +161,17 @@ export default function ShoppingCard({
       </div>
 
       <div
-        className={`fixed right-0 z-50 shadow-2xl min-h-150  transform transition-transform duration-300 ease-out ${
+        className={`fixed right-0 z-50 shadow-2xl min-h-150 bg-white  transform transition-transform duration-300 ease-out ${
           openShoppingCart ? 'translate-x-0' : 'translate-x-full'
         }`}
         style={{ top: '4.00rem', height: 'calc(100vh - 4.26rem)' }}
       >
-        <div className="bg-rose-50 p-3 w-[350px] sm:w-[400px] flex flex-col gap-5 h-full  border border-gray-300 shadow overflow-auto">
+        <div className=" p-3 w-[350px] sm:w-[400px] flex flex-col gap-5 h-full  border border-gray-300 shadow overflow-auto">
           {/* Header */}
           <div className="flex justify-between w-full">
-            <p className="text-[24px] sm:text-[28px] font-semibold">
-              Shopping Cart
+            <p className="text-[24px] sm:text-[28px] font-semibold flex gap-3 items-center">
+              <ShoppingCart className='h-[28px] w-[28px]'/>
+              <span>Shopping Cart</span>
             </p>
             <button
               onClick={() => setOpenShoppingCart(false)}
@@ -263,7 +264,7 @@ export default function ShoppingCard({
             <div className="flex justify-between p-3 border-t border-gray-400">
               <span className="sm:text-lg font-semibold">Subtotal</span>
               <span className="sm:text-lg font-semibold">
-                {subtotal.toFixed(2)} <span className="text-sm">৳</span>
+                {subtotal.toFixed(2)} <span className="text-[18px] font-semibold">৳</span>
               </span>
             </div>
 
@@ -286,7 +287,7 @@ export default function ShoppingCard({
             <div className="flex justify-between p-3 border-t border-gray-400">
               <span className="sm:text-lg font-semibold">Total</span>
               <span className="sm:text-lg font-semibold">
-                {total.toFixed(2)} <span className="text-sm">৳</span>
+                {total.toFixed(2)} <span className="text-[18px] font-semibold">৳</span>
               </span>
             </div>
 

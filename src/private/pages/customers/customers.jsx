@@ -1,26 +1,26 @@
 import { Plus, Search } from 'lucide-react';
 import Customer from './customerCard';
-import { useNavigate } from 'react-router';
+import { useNavigate, useOutletContext } from 'react-router';
 import Pagination from '../../../ui/pagination';
 import CustomerCard from './customerCard';
 
-export default function Customers({
-  users,
-  page,
-  total,
-  limit,
-  search,
+export default function Customers() {
+  const {
+  customers:users,
+  cus_page:page,
+  cus_total:total,
+  cus_limit:limit,
+  cus_search:search,
   setPage,
   setSearch,
   fetchCustomers,
-}) {
+}=useOutletContext();
   const navigate = useNavigate();
   const totalPages = Math.ceil(total / limit);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
     setPage(1);
-    fetchCustomers(1, e.target.value);
   };
 
   return (

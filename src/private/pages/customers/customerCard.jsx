@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import DeleteCustomerButton from './deleteCustomer';
 import useToast from '../../../toast/useToast';
+import dayjs from '../../utils/days.js'
 
 export default function CustomerCard({
   id,
@@ -146,8 +147,8 @@ export default function CustomerCard({
         </div>
       </div>
       <div className="flex justify-between mt-auto text-[12px]  w-full">
-        <div className="border border-gray-300 rounded-md px-1.5 py-[1px] w-fit font-semibold text-gray-500">
-          Last Visit: {lastVisit || null}
+        <div title={lastVisit} className="border border-gray-300 rounded-md px-1.5 py-[1px] w-fit font-semibold text-gray-500">
+          Last Visit: {dayjs(lastVisit , 'DD-MM-YYYY hh:mm A').fromNow()}
         </div>
         <div className='font-semibold'>
           {dues > 0 ? (

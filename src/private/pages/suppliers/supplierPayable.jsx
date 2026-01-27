@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import useToast from '../../../toast/useToast';
 import BackButton from '../../../ui/backButton';
 
+
 export default function SupplierPayable() {
   const { id } = useParams();
   const supplier_id = Number(id);

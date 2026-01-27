@@ -55,24 +55,24 @@ export default function AddProduct() {
     fetchData();
   }, []);
 
-  useEffect(()=>{
-    return ()=>{
-      if(imagePreview) URL.revokeObjectURL(imagePreview);
-    }
-  },[imagePreview])
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
 
   const onSubmit = async (data) => {
     const formdata = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
-      if(key === 'image') return;
+      if (key === 'image') return;
       if (value !== undefined && value !== null) {
         formdata.append(key, value);
       }
     });
 
     if (imageFile) formdata.append('image', imageFile);
-    if ( imageError) {
+    if (imageError) {
       toast.error(imageError);
       return;
     }
@@ -105,7 +105,7 @@ export default function AddProduct() {
 
   return (
     <div className="bg-gray-100 w-full min-h-screen flex justify-center items-center text-[#030006]">
-      <div className="flex flex-col gap-5 sm:gap-15 bg-[#ceaef6] from-[#ceaef6] to-[#aebff6] bg-gradient-to-tr m-3 p-5 shadow-xl ring-0 rounded-lg w-full max-w-[1000px] mt-5 border-2 border-gray-300">
+      <div className="flex flex-col gap-5 sm:gap-15 bg-[#ffffff]  m-3 p-5 shadow-xl ring-0 rounded-lg w-full max-w-[1000px] mt-5 border-2 border-gray-200">
         <div className="flex flex-col gap-2">
           <span className="text-[24px] sm:text-[28px] font-serif font-semibold flex justify-center">
             Add New Product
@@ -180,9 +180,12 @@ export default function AddProduct() {
             <button
               onClick={(e) => {
                 e.preventDefault();
-                navigate('/brand/add');
+                setTimeout(() => {
+                  navigate('/brand/add');
+                },350);
               }}
-              className="flex items-center gap-1 w-fit p-2 px-3 border border-gray-400 rounded-lg shadow from-blue-500 to-blue-800 bg-gradient-to-r hover:bg-gradient-to-b text-white  self-center mt-5 cursor-pointer"
+              className="flex items-center gap-1 w-fit p-2 px-3 border border-gray-300 rounded-lg  focus:border-3 focus:border-blue-400 
+              shadow text-white bg-blue-500 hover:bg-blue-600 self-center mt-5 cursor-pointer"
             >
               <PlusIcon size={16} />
               Add Brand
@@ -211,9 +214,14 @@ export default function AddProduct() {
             <button
               onClick={(e) => {
                 e.preventDefault();
-                navigate('/category/add');
+                setTimeout(()=>{
+                  navigate('/category/add');
+                  console.log('category');
+                },500)
               }}
-              className="flex items-center gap-1 w-fit p-2 px-3 border border-gray-400 rounded-lg shadow from-blue-500 to-blue-800 bg-gradient-to-r hover:bg-gradient-to-b text-white  self-center mt-5 cursor-pointer"
+              className="flex items-center gap-1 w-fit p-2 px-3 focus:border-3 focus:border-blue-400 
+              border border-gray-400 rounded-lg shadow bg-blue-500 hover:bg-blue-600 hover:bg-gradient-to-b
+              text-white  self-center mt-5 cursor-pointer"
             >
               <PlusIcon size={16} />
               Add Category
@@ -221,23 +229,23 @@ export default function AddProduct() {
           </div>
 
           <ImageUploader
-          label='Product Image'
-          value={imagePreview}
-          error={errors.image?.message || imageError}
+            label="Product Image"
+            value={imagePreview}
+            error={errors.image?.message || imageError}
             // defaultPreview={product?.image_url} // for edit img
             onFileSelect={(file, err) => {
               setImageError(err);
-              if(file){
+              if (file) {
                 setImageFile(file);
                 setImagePreview(URL.createObjectURL(file));
-                setValue('image',file,{
+                setValue('image', file, {
                   shouldDirty: true,
                   shouldValidate: true,
-                })
-              }else{
+                });
+              } else {
                 setImageFile(null);
                 setImagePreview(null);
-                setValue('image',null,{shouldDirty: true});
+                setValue('image', null, { shouldDirty: true });
               }
             }}
             required
@@ -247,8 +255,8 @@ export default function AddProduct() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-2 text-white px-6 py-2 rounded-xl
-                        disabled:opacity-60 cursor-pointer from-blue-500 to-blue-800 bg-gradient-to-r hover:bg-gradient-to-b 
+              className="flex items-center gap-2 text-white px-6 py-2 rounded-lg active:scale-95
+                        disabled:opacity-60 cursor-pointer focus:border-3 focus:border-blue-400  bg-blue-500 hover:bg-blue-600
                         disabled:cursor-not-allowed"
             >
               <PlusIcon size={16} />

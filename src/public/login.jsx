@@ -32,12 +32,12 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-svh w-full flex justify-center items-center
-  bg-[radial-gradient(circle,rgba(0,0,255,0.20)_1.1px,transparent_1px)]
+    <div className="min-h-svh w-full flex justify-center items-center bg-white
+  bg-[radial-gradient(circle,rgba(255,0,255,0.6)_1.12px,transparent_1px)]
   [background-size:20px_20px] ">
-      <div className="from-cyan-50/80 to-sky-50 bg-gradient-to-b w-full max-w-md border border-gray-200 rounded-2xl shadow p-8">
+      <div className="from-lime-100  to-sky-200/80 bg-gradient-to-br w-full max-w-md border border-gray-200 rounded-2xl shadow-lg  p-8">
         <h2 className="text-3xl font-bold font-serif text-center mb-6">
-          Welcome Back
+          Welcome To Back
         </h2>
 
         {error && (
@@ -50,7 +50,7 @@ export default function Login() {
           <input
             type="email"
             placeholder="Email"
-            className="w-full border border-gray-200 hover:border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-400 bg-white"
+            className="w-full border border-gray-200 hover:border-gray-400 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-500 bg-white"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -58,7 +58,7 @@ export default function Login() {
           <input
             type="password"
             placeholder="Password"
-            className="w-full border border-gray-200 hover:border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-400 bg-white"
+            className="w-full border border-gray-200 hover:border-gray-400 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-500 bg-white"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />

@@ -12,6 +12,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import DeleteCustomerButton from '../customers/deleteCustomer';
+import dayjs from '../../utils/days'
 
 export default function Suppliers({
   id,
@@ -21,9 +22,6 @@ export default function Suppliers({
   image,
   phone,
   lastVisit,
-  fetchCustomers,
-  page,
-  search,
   payable,
 }) {
   const profileRef = useRef(null);
@@ -134,8 +132,8 @@ export default function Suppliers({
         </div>
       </div>
       <div className="flex mt-auto text-[12px] justify-between ">
-        <div className="border border-gray-200 rounded-md px-1.5 py-[1px] self-start font-semibold text-gray-500">
-          Last Visit: {lastVisit || null}
+        <div title={lastVisit} className="border border-gray-200 rounded-md px-1.5 py-[1px] self-start font-semibold text-gray-500">
+          Last Visit: {dayjs(lastVisit, 'DD-MM-YYYY hh:mm A').fromNow()}
         </div>
         <div className='font-semibold'>
           {payable > 0 ? (

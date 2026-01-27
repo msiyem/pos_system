@@ -1,17 +1,17 @@
 import InputText from '../../../ui/inputText';
-import InputRadio from '../../../ui/customRadio';
+import CustomSelect from '../../../ui/customSelect';
+import ImageUploader from '../../../ui/imageUploader';
 import BackButton from '../../../ui/backButton';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { customerSchema } from '../../../forms/customer.schema';
-import useToast from '../../../toast/useToast';
+import { userSchema } from '../../../forms/user.schema';
 import api from '../../../api/api';
+import useToast from '../../../toast/useToast';
+import { useEffect, useState } from 'react';
 import { useEnterNavigation } from '../../../forms/utils/useEnterNavigation';
 import { focusFirstError } from '../../../forms/utils/focusFirstError';
-import CustomSelect from '../../../ui/customSelect';
-import { useNavigate, useParams } from 'react-router';
-import { useEffect, useState } from 'react';
-import ImageUploader from '../../../ui/imageUploader';
+import { PlusIcon } from 'lucide-react';
+import InputRadio from '../../../ui/customRadio';
 
 const DIVISIONS = [
   { label: 'Dhaka', value: 'Dhaka' },
@@ -123,97 +123,65 @@ const CITIES = [
   { label: 'Bhola', value: 'Bhola' },
 ];
 
-export default function EditCustomer() {
-  const toast = useToast();
-  const { id } = useParams();
-  const cusId = parseInt(id);
-  const navigate = useNavigate(null);
+const ROLES = [
+  { label: 'Admin', value: 'admin' },
+  { label: 'Staff', value: 'staff' },
+];
 
+export default function AddUser() {
+  const toast = useToast();
+  // const navigate = useNavigate();
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [imageError, setImageError] = useState(null);
-  const [existingImage, setExistingImage] = useState(null);
+
   const {
     register,
     handleSubmit,
     watch,
     reset,
     setValue,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(customerSchema),
+    resolver: zodResolver(userSchema),
     defaultValues: {
       division: '',
       district: '',
-      city: '',
     },
     mode: 'onChange',
     reValidateMode: 'onChange',
   });
 
   useEffect(() => {
-    async function fetchCustomer() {
-      try {
-        const res = await api.get(`/customers/${cusId}/details`);
-        const customer = res.data;
-        reset(res.data);
-        if (customer.image_url) {
-          setExistingImage(customer.image_url);
-          setImagePreview(customer.image_url);
-        }
-      } catch (err) {
-        console.error(err.message);
-        if (err.response?.status === 404) {
-          toast.error('Customer not found');
-          navigate(-1);
-        }
-      }
-    }
-
-    fetchCustomer();
-  }, [cusId, reset, toast,navigate]);
-
-  useEffect(() => {
     return () => {
-      if (imagePreview && imagePreview.startsWith('blob:')) {
-        URL.revokeObjectURL(imagePreview);
-      }
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
     };
-  },[imagePreview]);
+  }, [imagePreview]);
 
   const onSubmit = async (data) => {
-    if (!isDirty) {
-      toast.info('No changes detected');
-      return;
-    }
     const formData = new FormData();
     Object.entries(data).forEach(([k, v]) => {
-      if(k === 'image') return ;
+      if (k === 'image') return;
       if (v !== undefined && v !== null) formData.append(k, v);
     });
-
     if (imageError) {
       toast.error(imageError);
       return;
     }
-    
-    if (imageFile instanceof File) {
-      formData.append('image', imageFile);
-    } else if (!imagePreview && existingImage) {
-      formData.append('removeImage', 'true');
-    }
-    // for (let [key, value] of formData.entries()) {
-    //   console.log(key, value);
-    // }
+    if (imageFile) formData.append('image', imageFile);
+
     try {
-      const res = await api.put(`/customers/${cusId}`, formData, {
+      await api.post('/users', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      toast.success(res.data.message);
-      navigate(-1);
+      toast.success('User created successfully');
+      reset();
+      setImageFile(null);
+      setImageError(null);
+      setImagePreview(null);
     } catch (err) {
-      console.error(err);
-      toast.error('Customer update failed!');
+      console.log(err);
+      toast.error('Failed to create user');
     }
   };
 
@@ -223,24 +191,23 @@ export default function EditCustomer() {
   });
 
   const onError = (errors) => {
-    // console.log(errors);
     focusFirstError(errors);
   };
 
   return (
-    <div className="bg-gray-100 overflow-y-auto w-full min-h-screen flex justify-center text-[#030006]">
-      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#f3eafe] ">
-        <div className="text-[28px] mb-10 font-semibold font-serif flex justify-center ">
-          Edit Customer
-        </div>
+    <div className="bg-gray-100 min-h-screen w-full flex justify-center overflow-auto text-[#030006]">
+      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#d8fdfe] ">
+        <h2 className="text-[28px] mb-10 font-semibold font-serif flex justify-center">
+          Add User
+        </h2>
 
         <form
           onSubmit={handleSubmit(onSubmit, onError)}
           onKeyDown={enterNavigation}
-          className="space-y-6"
+          className="space-y-4"
         >
           <div className="flex gap-5 justify-between">
-            {/* Left Column */}
+            {/* Left Column  */}
             <div className="w-[45%] space-y-3">
               <InputText
                 label="Name"
@@ -248,25 +215,26 @@ export default function EditCustomer() {
                 register={register}
                 placeholder="Enter Name . . ."
                 onlyText
-                maxLength={30}
+                maxLength={50}
                 error={errors.name?.message}
-                required
-              />
-              <InputText
-                label="Birthday"
-                type="date"
-                name="birthday"
-                register={register}
-                error={errors.birthday?.message}
                 required
               />
 
               <InputText
+                label="Email"
+                name="email"
+                type="email"
+                register={register}
+                placeholder="please enter your email . . . ."
+                error={errors.email?.message}
+                required
+              />
+              <InputText
                 label="Phone"
                 name="phone"
-                onlyNumber
-                placeholder=" 01xxxxxxxxx"
                 register={register}
+                maxLength={11}
+                placeholder=" 01xxxxxxxxx"
                 error={errors.phone?.message}
                 required
               />
@@ -279,6 +247,26 @@ export default function EditCustomer() {
                 error={errors.alt_phone?.message}
               />
               <InputText
+                label="Password"
+                name="password"
+                password
+                register={register}
+                placeholder=""
+                error={errors.password?.message}
+                required
+              />
+
+              <InputText
+                label="Confirm Password"
+                name="confirmpassword"
+                password
+                register={register}
+                placeholder=""
+                error={errors.confirmpassword?.message}
+                required
+              />
+
+              <InputText
                 label="Whatsapp"
                 name="whatsapp"
                 onlyNumber
@@ -286,12 +274,26 @@ export default function EditCustomer() {
                 register={register}
                 error={errors.whatsapp?.message}
               />
+
+              <CustomSelect
+                label="Role"
+                name="role"
+                options={ROLES}
+                value={watch('role')}
+                onChange={(v) => setValue('role', v, { shouldValidate: true })}
+                error={errors.role?.message}
+                required
+              />
+            </div>
+
+            {/* Right Column  */}
+            <div className="w-[45%] space-y-3">
               <InputText
-                label="Email"
-                name="email"
-                placeholder=" Enter Your Email . . ."
+                label="Birthday"
+                type="date"
+                name="birthday"
                 register={register}
-                error={errors.email?.message}
+                error={errors.birthday?.message}
                 required
               />
               <CustomSelect
@@ -301,15 +303,11 @@ export default function EditCustomer() {
                 options={DIVISIONS}
                 value={watch('division')}
                 onChange={(val) =>
-                  setValue('division', val, { shouldValidate: true, shouldDirty:true })
+                  setValue('division', val, { shouldValidate: true })
                 }
                 error={errors.division?.message}
                 required
               />
-            </div>
-
-            {/* Right Column */}
-            <div className="w-[45%] space-y-3">
               <CustomSelect
                 name="district"
                 label="District"
@@ -317,12 +315,11 @@ export default function EditCustomer() {
                 options={DISTRICTS}
                 value={watch('district')}
                 onChange={(val) =>
-                  setValue('district', val, { shouldValidate: true, shouldDirty:true, })
+                  setValue('district', val, { shouldValidate: true })
                 }
                 error={errors.district?.message}
                 required
               />
-
               <CustomSelect
                 name="city"
                 label="City"
@@ -330,7 +327,7 @@ export default function EditCustomer() {
                 options={CITIES}
                 value={watch('city')}
                 onChange={(val) =>
-                  setValue('city', val, { shouldValidate: true, shouldDirty:true })
+                  setValue('city', val, { shouldValidate: true })
                 }
                 error={errors.city?.message}
               />
@@ -349,15 +346,7 @@ export default function EditCustomer() {
                 placeholder="Enter 4 digit code"
                 register={register}
                 error={errors.post_code?.message}
-                required
-              />
-
-              <InputText
-                label="Sector"
-                name="sector"
-                placeholder="Sector Name . . ."
-                register={register}
-                error={errors.sector?.message}
+              
               />
               <InputText
                 label="Road"
@@ -366,6 +355,7 @@ export default function EditCustomer() {
                 register={register}
                 error={errors.road?.message}
               />
+
               <InputText
                 label="House"
                 name="house"
@@ -375,8 +365,6 @@ export default function EditCustomer() {
               />
             </div>
           </div>
-
-          {/* Gender */}
           <div>
             <InputRadio
               label="Gender"
@@ -393,14 +381,13 @@ export default function EditCustomer() {
           </div>
 
           <ImageUploader
-            label="Customer Image"
+            label="Profile Image"
             value={imagePreview}
             error={errors.image?.message || imageError}
             onFileSelect={(file, err) => {
               setImageError(err);
-              if (imagePreview?.startsWith('blob:')) {
-                URL.revokeObjectURL(imagePreview);
-              }
+
+              if (imagePreview) URL.revokeObjectURL(imagePreview);
               if (file) {
                 setImageFile(file);
                 setImagePreview(URL.createObjectURL(file));
@@ -411,25 +398,24 @@ export default function EditCustomer() {
               } else {
                 setImageFile(null);
                 setImagePreview(null);
-                setValue('image', null, { shouldDirty: true });
+                setValue('image', file, {
+                  shouldDirty: true,
+                });
               }
             }}
           />
 
-          {/* Actions */}
           <div className="flex justify-between pt-4">
-            <div className="text-red-700 hover:scale-105">
-              <BackButton />
-            </div>
-
+            <BackButton />
             <button
               type="submit"
-              disabled={!isDirty || isSubmitting}
-              className="bg-blue-500 text-white px-6 py-2 rounded-xl
+              disabled={isSubmitting}
+              className="flex items-center gap-2 bg-blue-500 text-white px-6 py-2 rounded-xl
                         hover:bg-red-600 disabled:opacity-60 cursor-pointer from-indigo-700 to-blue-600 bg-gradient-to-b hover:bg-gradient-to-r
                           disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
+              {!isSubmitting && <PlusIcon size={16} />}
+              {isSubmitting ? 'Saving...' : 'Add User'}
             </button>
           </div>
         </form>

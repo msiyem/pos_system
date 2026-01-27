@@ -160,11 +160,11 @@ export default function AddCustomer() {
           formdata.append(key,value);
         }
       })
-      if(imageFile) formdata.append('image',imageFile);
       if(imageError){
         toast.error(imageError);
         return;
       }
+      if(imageFile) formdata.append('image',imageFile);
     try {
       
       const res = await api.post('/customers', formdata,{
@@ -192,7 +192,7 @@ export default function AddCustomer() {
 
   return (
     <div className="bg-gray-100 overflow-y-auto w-full min-h-screen flex justify-center text-[#030006]">
-      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#f3eafe] ">
+      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#f0e9f9] ">
         <div className="text-[28px] mb-10 font-semibold font-serif flex justify-center ">
           Add Customer
         </div>
@@ -211,7 +211,7 @@ export default function AddCustomer() {
                 register={register}
                 placeholder="Enter Name . . ."
                 onlyText
-                maxLength={30}
+                maxLength={50}
                 error={errors.name?.message}
                 required
               />
@@ -252,6 +252,7 @@ export default function AddCustomer() {
               <InputText
                 label="Email"
                 name="email"
+                type='email'
                 placeholder=" Enter Your Email . . ."
                 register={register}
                 error={errors.email?.message}

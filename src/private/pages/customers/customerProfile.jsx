@@ -1,6 +1,7 @@
 import {
   BadgeDollarSign,
   BookmarkMinus,
+  Building2,
   Calendar,
   CalendarCheck,
   Check,
@@ -11,8 +12,10 @@ import {
   EllipsisVertical,
   Eye,
   History,
+  House,
   IdCard,
   Mail,
+  MapPinned,
   MessageCircle,
   Phone,
   PhoneCall,
@@ -28,14 +31,28 @@ import {
   User,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useOutletContext, useParams } from 'react-router';
 import DateButton from '../../component/dateButton';
 import DeleteCustomerButton from './deleteCustomer';
 import api from '../../../api/api';
 import { format } from 'date-fns';
 import useToast from '../../../toast/useToast';
+import dayjs from '../../utils/days.js';
+import { useAuth } from '../../../context/useAuth.jsx';
+import BackButton from '../../../ui/backButton.jsx';
+import InfoTable from '../../component/InfoTable.jsx';
+import DataTable from '../../component/DataTable.jsx';
+import DateRange from '../../component/DateRange.jsx';
+import EntriesDropdown from '../../component/EntriesDropdown.jsx';
+import SummaryCard from '../../component/SummaryCard.jsx';
 
-export default function CustomerHistory({ fetchCustomers, page, search }) {
+export default function CustomerHistory() {
+  const {
+    fetchCustomers,
+    cus_page: page,
+    cus_search: search,
+  } = useOutletContext();
+  const { role } = useAuth();
   const { id } = useParams();
   const toast = useToast();
   const [customer, setCustomer] = useState({});
@@ -58,11 +75,10 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
   const [tanPage, setTanPage] = useState(1);
   const [tanLimit, setTanLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const entries = [10, 25, 50, 100];
-  const entriesRef = useRef(null);
 
   const [purchasedPage, setPurchasedPage] = useState(1);
   const [purchasedLimit, setPurchasedLimit] = useState(10);
+  const [openPurchasedEntrites, setOpenPurchasedEntrites] = useState(false);
   // const [totalPurchasedPages, setTotalPurchasedPage] = useState(1);
   const [productsSummary, setProductsSummary] = useState({});
 
@@ -71,27 +87,23 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
   const [selectedProduct, setSelectedProduct] = useState([]);
 
   //filters
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDateTan, setStartDateTan] = useState('');
+  const [endDateTan, setEndDateTan] = useState('');
+  const [startDatePsh, setStartDatePsh] = useState('');
+  const [endDatePsh, setEndDatePsh] = useState('');
 
   useEffect(() => {
-    function handleEntriesRef(e) {
-      if (entriesRef.current && !entriesRef.current.contains(e.target)) {
-        setOpenTanEntries(false);
-      }
-    }
     function handleTypeRef(e) {
       if (typeRef.current && !typeRef.current.contains(e.target)) {
         setOpenType(false);
       }
     }
-    document.addEventListener('mousedown', handleEntriesRef);
+
     document.addEventListener('mousedown', handleTypeRef);
     return () => {
-      document.removeEventListener('mousedown', handleEntriesRef);
       document.removeEventListener('mousedown', handleTypeRef);
     };
-  }, [entriesRef, typeRef]);
+  }, [typeRef]);
 
   useEffect(() => {
     async function fetchCustomer() {
@@ -116,8 +128,10 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
     try {
       const res = await api.get(`/customers/${customerId}/transactions`, {
         params: {
-          fromDate: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
-          toDate: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
+          fromDate: startDateTan
+            ? format(startDateTan, 'yyyy-MM-dd')
+            : undefined,
+          toDate: endDateTan ? format(endDateTan, 'yyyy-MM-dd') : undefined,
           type: type !== 'All' ? type : undefined,
           page: tanPage,
           limit: tanLimit,
@@ -126,7 +140,6 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
 
       setTransactions(res.data.data);
 
-      // ✅ FIXED
       setTotalPages(res.data.pagination?.totalPage || 1);
     } catch (err) {
       console.error(err);
@@ -134,38 +147,34 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
   }
 
   async function fetchCustomerTransactionSummary() {
-  try {
-    const res = await api.get(
-      `/customers/${customerId}/transactions/summary`,
-      {
-        params: {
-          fromDate: startDate
-            ? format(startDate, "yyyy-MM-dd")
-            : undefined,
-          toDate: endDate
-            ? format(endDate, "yyyy-MM-dd")
-            : undefined,
-          type: "All",
-          limit: tanLimit,
-        },
-      }
-    );
+    try {
+      const res = await api.get(
+        `/customers/${customerId}/transactions/summary`,
+        {
+          params: {
+            fromDate: startDateTan
+              ? format(startDateTan, 'yyyy-MM-dd')
+              : undefined,
+            toDate: endDateTan ? format(endDateTan, 'yyyy-MM-dd') : undefined,
+            type: 'All',
+            limit: tanLimit,
+          },
+        }
+      );
 
-    setTransactionSummary(res.data);
-    console.log(res.data);
-  } catch (err) {
-    console.error(err);
+      setTransactionSummary(res.data);
+    } catch (err) {
+      console.error(err);
+    }
   }
-}
-
 
   useEffect(() => {
     fetchTransactions();
-  }, [customerId, startDate, endDate, tanPage, tanLimit, type]);
+  }, [customerId, startDateTan, endDateTan, tanPage, tanLimit, type]);
 
-    useEffect(() => {
+  useEffect(() => {
     fetchCustomerTransactionSummary();
-  }, [customerId, startDate, endDate]);
+  }, [customerId, startDateTan, endDateTan]);
 
   async function fetchTransactionsSaleItems(saleId) {
     try {
@@ -188,8 +197,8 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
     try {
       const res = await api.get(`/customers/${customerId}/purchased_products`, {
         params: {
-          fromDate: startDate,
-          toDate: endDate,
+          fromDate: startDatePsh,
+          toDate: endDatePsh,
           page: purchasedPage,
           limit: purchasedLimit,
         },
@@ -206,8 +215,8 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
         `/customers/${customerId}/products_summary`,
         {
           params: {
-            fromDate: startDate,
-            toDate: endDate,
+            fromDate: startDatePsh,
+            toDate: endDatePsh,
           },
         }
       );
@@ -225,8 +234,8 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
         `/customers/${customerId}/purchased_products/${product_id}`,
         {
           params: {
-            fromDate: startDate,
-            toDate: endDate,
+            fromDate: startDatePsh,
+            toDate: endDatePsh,
             page: 1,
             limit: 10,
           },
@@ -241,13 +250,322 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
   }
 
   useEffect(() => {
-    fetchPurchasedProducts();
     fetchPurchasedProductsSummary();
-  }, [customerId, startDate, endDate]);
+  }, [customerId, startDatePsh, endDatePsh]);
+  useEffect(() => {
+    fetchPurchasedProducts();
+  }, [customerId, startDatePsh, endDatePsh, purchasedLimit]);
 
   if (!customer || Object.keys(customer).length === 0) {
     return <div>Loading customer data...</div>;
   }
+
+  const contactRows = [
+    {
+      label: 'Phone:',
+      icon: <Phone className="h-3.5 w-3.5" />,
+      value: customer.phone,
+    },
+    {
+      label: 'Alternative:',
+      icon: <PhoneCall className="h-3.5 w-3.5" />,
+      value: customer.alt_phone,
+    },
+    {
+      label: 'WhatsApp:',
+      icon: <MessageCircle className="h-3.5 w-3.5" />,
+      value: customer.whatsapp,
+    },
+    {
+      label: 'Email:',
+      icon: <Mail className="h-3.5 w-3.5" />,
+      value: customer.email,
+    },
+  ];
+
+  const addressRows = [
+    {
+      label: 'Sector:',
+      icon: <Building2 className="h-3.5 w-3.5" />,
+      value: customer.sector,
+    },
+    {
+      label: 'Area:',
+      icon: <MapPinned className="h-3.5 w-3.5" />,
+      value: customer.area,
+    },
+    {
+      label: 'Post Code:',
+      icon: <Mail className="h-3.5 w-3.5" />,
+      value: customer.post_code,
+    },
+    {
+      label: 'City:',
+      icon: <Building2 className="h-3.5 w-3.5" />,
+      value: customer.city,
+    },
+    {
+      label: 'District:',
+      icon: <Building2 className="h-3.5 w-3.5" />,
+      value: customer.district,
+    },
+    {
+      label: 'Division:',
+      icon: <Building2 className="h-3.5 w-3.5" />,
+      value: customer.division,
+    },
+    {
+      label: 'House:',
+      icon: <House className="h-3.5 w-3.5" />,
+      value: customer.house,
+    },
+  ];
+  const adminRows = [
+    {
+      label: 'Created By',
+      icon: <User className="h-3.5 w-3.5" />,
+      value: customer.created_by,
+    },
+    {
+      label: 'Updated By',
+      icon: <User className="h-3.5 w-3.5" />,
+      value: customer.updated_by,
+    },
+    {
+      label: 'Updated At',
+      icon: <History className="h-3.5 w-3.5" />,
+      value: dayjs(customer.updated_at).fromNow(),
+      title: customer.updated_at,
+    },
+  ];
+
+  const transactionColumns = [
+    {
+      label: 'NO',
+      render: (_, index) => (tanPage - 1) * tanLimit + (index + 1),
+    },
+    {
+      label: 'Date',
+      render: (tx) =>
+        new Date(tx.created_at)
+          .toLocaleString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          })
+          .replaceAll('/', '-')
+          .toUpperCase(),
+    },
+    {
+      label: 'Invoice',
+      key: 'reference',
+    },
+    {
+      label: 'Type',
+      render: (tx) => (
+        <span
+          className={`
+          ${tx.type === 'Purchased' && 'text-blue-500'}
+          ${tx.type === 'Payment' && 'text-green-500'}
+          ${tx.type === 'DuePayment' && 'text-purple-500'}
+          ${tx.type === 'Refund' && 'text-rose-600'}
+        `}
+        >
+          {tx.type}
+        </span>
+      ),
+    },
+    {
+      label: 'Amount (Tk)',
+      render: (tx) => `${tx.amount}৳`,
+    },
+    {
+      label: 'Debt (Tk)',
+      render: (tx) =>
+        tx.due ? <span className="text-rose-500">{tx.due}৳</span> : '-',
+    },
+    {
+      label: 'Method',
+      key: 'method',
+    },
+    {
+      label: 'Status',
+      render: (tx) => (
+        <span
+          className={`
+          ${tx.status === 'completed' && 'text-green-500'}
+          ${tx.status === 'success' && 'text-green-500'}
+          ${tx.status === 'pending' && 'text-purple-500'}
+          ${tx.status === 'cancelled' && 'text-gray-600'}
+        `}
+        >
+          {tx.status}
+        </span>
+      ),
+    },
+    {
+      label: 'Seller',
+      key: 'seller_name',
+    },
+    {
+      label: 'Details',
+      render: (tx) =>
+        tx.type === 'Purchased' ? (
+          <div
+            className="flex justify-center cursor-pointer"
+            onClick={() => {
+              setSelectedSale(tx);
+              fetchTransactionsSaleItems(Number(tx.ref_id));
+            }}
+          >
+            <Eye size={22} className="text-gray-600 hover:text-black" />
+          </div>
+        ) : (
+          ''
+        ),
+    },
+  ];
+
+  const saleItemsColumns = [
+    {
+      label: 'Product',
+      key: 'product_name',
+    },
+    {
+      label: 'Image',
+      render: (item) => (
+        <div className="flex justify-center">
+          <img
+            src={item.image}
+            alt={item.product_name}
+            className="w-22 h-20 object-contain"
+          />
+        </div>
+      ),
+    },
+    {
+      label: 'Price (unit)',
+      render: (item) => `${item.price}৳`,
+    },
+    {
+      label: 'Quantity',
+      key: 'quantity',
+    },
+    {
+      label: 'Total',
+      render: (item) => `${item.total}৳`,
+    },
+  ];
+
+  const productItemsColumns = [
+    {
+      label: 'NO',
+      render: (_, index) => index + 1,
+    },
+    {
+      label: 'Product Name',
+      key: 'product_name',
+    },
+    {
+      label: 'Product Image',
+      render: (pi) => (
+        <div className="flex items-center justify-center">
+          <img
+            src={pi.image}
+            alt={pi.product_name}
+            className="h-20 w-20 object-contain"
+          />
+        </div>
+      ),
+    },
+    {
+      label: 'Times Purchased',
+      key: 'times_purchased',
+    },
+    {
+      label: 'Total Amount (TK)',
+      render: (pi) => `${pi.total_amount}৳`,
+    },
+    {
+      label: 'Total Quantity',
+      key: 'total_quantity',
+    },
+    {
+      label: 'Details',
+      render: (pi) => (
+        <div
+          className="flex justify-center items-center h-full cursor-pointer"
+          onClick={() => fetchPurchasedProductsHistory(pi.product_id)}
+        >
+          <Eye size={22} className="text-gray-600 hover:text-black" />
+        </div>
+      ),
+    },
+  ];
+
+  const selectedProductColumns = [
+    {
+      label: 'NO',
+      render: (_, index) => index + 1,
+    },
+    {
+      label: 'Invoice',
+      key: 'invoice',
+    },
+    {
+      label: 'Quantity',
+      key: 'quantity',
+    },
+    {
+      label: 'Price (Tk)',
+      key: 'subtotal',
+    },
+    {
+      label: 'Time',
+      key: 'created_at',
+    },
+  ];
+
+  const summaryCards = [
+    {
+      type: 'All',
+      title: 'Total Transactions',
+      value: transactionSummary?.total_transactions || 0,
+      color: 'text-orange-500',
+      icon: ClockFading,
+    },
+    {
+      type: 'Purchased',
+      title: 'Total Purchased',
+      value: transactionSummary?.purchased_count || 0,
+      color: 'text-blue-500',
+      icon: ClockFading,
+    },
+    {
+      type: 'Payment',
+      title: 'Total Payment',
+      value: transactionSummary?.payment_count || 0,
+      color: 'text-green-500',
+      icon: ClockFading,
+    },
+    {
+      type: 'DuePayment',
+      title: 'Total Due Payment',
+      value: transactionSummary?.duepayment_count || 0,
+      color: 'text-purple-500',
+      icon: ClockFading,
+    },
+    {
+      type: 'Refund',
+      title: 'Total Refund Payment',
+      value: transactionSummary?.refund_count || 0,
+      color: 'text-rose-500',
+      icon: ClockFading,
+    },
+  ];
 
   return (
     <div className="min-w-[1000px] max-w-[1180px] m-auto shrink-0 flex flex-col gap-5 p-5 bg-amber-50/10">
@@ -276,18 +594,14 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
             <div className="flex gap-3">
               <span className="text-[24px] font-bold">{customer.name}</span>
               {customer.verify ? (
-                <div className="flex items-center bg-green-100 rounded-lg px-2 pr-3 gap-2 flex-shrink-0 self-center">
+                <div className="flex items-center  bg-green-200/80 text-green-600 p-0.5 rounded-xl px-2 pr-3 gap-2 flex-shrink-0 self-center">
                   <ShieldCheck className="h-3 w-3" />
-                  <span className="text-[12px] font-medium text-gray-600">
-                    Verified
-                  </span>
+                  <span className="text-[12px] font-medium">Verified</span>
                 </div>
               ) : (
-                <div className="flex items-center bg-red-100 rounded-lg px-2 pr-3 gap-2 flex-shrink-0 self-center">
+                <div className="flex items-center bg-red-200/80 text-red-600 p-0.5 rounded-xl px-2 pr-3 gap-2 flex-shrink-0 self-center">
                   <ShieldCheck className="h-3 w-3" />
-                  <span className="text-[12px] font-medium text-gray-600">
-                    Not Verified
-                  </span>
+                  <span className="text-[12px] font-medium ">Not Verified</span>
                 </div>
               )}
               <div className="flex items-center bg-gray-100 shadow text-[14px] rounded-xl px-2 pr-3 gap-2 flex-shrink-0 self-center">
@@ -328,13 +642,22 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
           </div>
 
           <div className="text-gray-600 flex gap-6 text-[12px] sm:text-sm">
-            <div className="flex items-center gap-2">
+            <div title={customer.join_at} className="flex items-center gap-2">
               <CalendarCheck className="w-4 h-4" />
-              <span>Joined: {customer.join_at}</span>
+              <span>
+                Joined:{' '}
+                {dayjs(customer.join_at, 'DD-MM-YYYY hh:mm A').fromNow()}
+              </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div
+              title={customer.last_purchased}
+              className="flex items-center gap-2"
+            >
               <History className="h-4 w-4" />
-              <span>Last Purchase: {customer.last_purchased}</span>
+              <span>
+                Last Purchase:{' '}
+                {dayjs(customer.last_purchased, 'DD-MM-YYYY hh:mm A').fromNow()}
+              </span>
             </div>
           </div>
 
@@ -398,8 +721,8 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
               onClick={() => {
                 setActiveTab('purchased');
                 setViewMode('purchased');
-                setStartDate('');
-                setEndDate('');
+                setStartDatePsh('');
+                setEndDatePsh('');
               }}
             >
               <ShoppingBag className="h-4 w-4" />
@@ -419,8 +742,8 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
               onClick={() => {
                 setActiveTab('transition');
                 setViewMode('transactions');
-                setStartDate('');
-                setEndDate('');
+                setStartDateTan('');
+                setEndDateTan('');
               }}
             >
               <History className="h-4 w-4" />
@@ -431,98 +754,13 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
 
         {/* dropdown info  */}
         {activeTab === 'info' && (
-          <div className="my-10 w-full">
-            <div className="w-full">
-              <p className="text-[18px] my-2 font-medium">
-                Contact Information :
-              </p>
-              <table className="w-full text-gray-700 text-[16px]">
-                <tbody>
-                  <tr className="p-1 border border-gray-300 ">
-                    <th className="flex items-center gap-1.5 p-2">
-                      <Phone className="h-3.5 w-3.5" />
-                      <span className="font-medium">Phone:</span>
-                    </th>
-                    <td>{customer.phone}</td>
-                  </tr>
+          <div className="my-10 w-full space-y-6">
+            <InfoTable title="Contact Information :" rows={contactRows} />
+            <InfoTable title="Address Information :" rows={addressRows} />
 
-                  <tr className="p-1 border border-gray-300 ">
-                    <th className="flex items-center gap-1.5 p-2">
-                      <PhoneCall className="h-3.5 w-3.5" />
-                      <span className="font-medium">Alternative:</span>
-                    </th>
-                    <td>{customer?.alt_phone}</td>
-                  </tr>
-
-                  <tr className="p-1 border border-gray-300 ">
-                    <th className="flex items-center gap-1.5 p-2">
-                      <MessageCircle className="h-3.5 w-3.5" />
-                      <span className="font-medium">WhatsApp:</span>
-                    </th>
-                    <td>{customer.whatsapp}</td>
-                  </tr>
-
-                  <tr className="p-1 border border-gray-300 ">
-                    <th className="flex items-center gap-1.5 p-2">
-                      <Mail className="h-3.5 w-3.5" />
-                      <span className="font-medium">Email:</span>
-                    </th>
-                    <td>{customer.email}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div className="w-full">
-              <p className="text-[18px] mt-8 my-2 font-medium">
-                Address Information :
-              </p>
-              <table className="w-full text-gray-700 text-[16px]">
-                <tbody>
-                  <tr className="p-1 border border-gray-300 ">
-                    <th className="flex items-center gap-1.5 p-2">
-                      <span className="font-medium">Sector:</span>
-                    </th>
-                    <td>{customer.sector}</td>
-                  </tr>
-
-                  <tr className="p-1 border border-gray-300 ">
-                    <th className="flex items-center gap-1.5 p-2">
-                      <span className="font-medium">Area:</span>
-                    </th>
-                    <td>{customer.area}</td>
-                  </tr>
-
-                  <tr className="p-1 border border-gray-300 ">
-                    <th className="flex items-center gap-1.5 p-2">
-                      <span className="font-medium">Post Code:</span>
-                    </th>
-                    <td>{customer.post_code}</td>
-                  </tr>
-
-                  <tr className="p-1 border border-gray-300 ">
-                    <th className="flex items-center gap-1.5 p-2">
-                      <span className="font-medium">City:</span>
-                    </th>
-                    <td>{customer.city}</td>
-                  </tr>
-
-                  <tr className="p-1 border border-gray-300 ">
-                    <th className="flex items-center gap-1.5 p-2">
-                      <span className="font-medium">District:</span>
-                    </th>
-                    <td>{customer.district}</td>
-                  </tr>
-
-                  <tr className="p-1 border border-gray-300 ">
-                    <th className="flex items-center gap-1.5 p-2">
-                      <span className="font-medium">Division:</span>
-                    </th>
-                    <td>{customer.division}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            {role === 'admin' && (
+              <InfoTable title="Admin Information :" rows={adminRows} />
+            )}
           </div>
         )}
 
@@ -585,123 +823,27 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
             </div> */}
             {viewMode === 'purchased' && (
               <div className="space-y-10">
-                <div className="flex gap-16">
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="startDate" className="font-semibold">
-                      Start Date
-                    </label>
-
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="border border-gray-300 rounded-lg px-2 py-1"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="endDate" className="font-semibold">
-                      End Date
-                    </label>
-                    <input
-                      type="date"
-                      value={endDate}
-                      min={startDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="border border-gray-300 rounded-lg px-2 py-1"
-                    />
-                  </div>
+                <div className="flex gap-16 items-center">
+                  <DateRange
+                    startDate={startDatePsh}
+                    endDate={endDatePsh}
+                    setEndDate={setEndDatePsh}
+                    setStartDate={setStartDatePsh}
+                  />
+                  <EntriesDropdown
+                    value={purchasedLimit}
+                    onChange={setPurchasedLimit}
+                    open={openPurchasedEntrites}
+                    setOpen={setOpenPurchasedEntrites}
+                  />
                 </div>
 
                 <div className="w-full border border-gray-300">
                   <div className="max-h-[800px] overflow-auto">
-                    <table className="w-full table-fixed border-collapse">
-                      <thead className="bg-gray-100 sticky top-0 z-10 w-full">
-                        <tr className="border-b border-gray-300 font-medium">
-                          <th className="px-4 py-1 border-r border-gray-300 w-[8ch]">
-                            NO
-                          </th>
-                          <th className="border-r border-gray-300">
-                            Product Name
-                          </th>
-                          <th className="border-r border-gray-300">
-                            Product Image
-                          </th>
-                          <th className="border-r border-gray-300">
-                            Times Purchased
-                          </th>
-                          <th className="border-r border-gray-300">
-                            Total Amount(TK)
-                          </th>
-
-                          <th className="border-r border-gray-300">
-                            Total Quantity
-                          </th>
-
-                          <th className="w-22">Details</th>
-                        </tr>
-                      </thead>
-                      <tbody className="border-l border-r text-center border-gray-300">
-                        {productItems.length ? (
-                          productItems.map((pi, index) => (
-                            <tr
-                              key={`${pi.type}-${pi.ref_id}-${index}`}
-                              className="border-b border-gray-300 text-center"
-                            >
-                              <th className="py-1 border-r border-gray-300">
-                                {index + 1}
-                              </th>
-
-                              <td className="border-r border-gray-300 px-1">
-                                {pi.product_name}
-                              </td>
-                              <td className="border-r border-gray-300 px-1">
-                                <div className="flex items-center justify-center">
-                                  <img
-                                    src={pi.image}
-                                    alt="product picture"
-                                    className="h-20 w-20"
-                                  />
-                                </div>
-                              </td>
-                              <td className="border-r border-gray-300">
-                                {pi.times_purchased}
-                              </td>
-                              <td className="border-r border-gray-300">
-                                {pi.total_amount}৳
-                              </td>
-
-                              <td className="border-r border-gray-300">
-                                {pi.total_quantity}
-                              </td>
-                              <td
-                                className="border-r border-gray-300"
-                                onClick={() => {
-                                  // setSelectedSale(pi);
-                                  fetchPurchasedProductsHistory(pi.product_id);
-                                }}
-                              >
-                                <div className="flex justify-center items-center h-full ">
-                                  <Eye
-                                    size={22}
-                                    className="text-gray-600 hover:text-black cursor-pointer"
-                                  />
-                                </div>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td
-                              colSpan={7}
-                              className="text-center text-red-500 py-4 border-b border-gray-300"
-                            >
-                              No transactions found
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                    <DataTable
+                      columns={productItemsColumns}
+                      data={productItems}
+                    />
                   </div>
                 </div>
               </div>
@@ -720,62 +862,22 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
 
                   <button
                     onClick={() => {
-                      setViewMode('purchased');
-                      setSelectedProduct([]);
+                      setTimeout(() => {
+                        setViewMode('purchased');
+                        setSelectedProduct([]);
+                      }, 350);
                     }}
-                    className="border px-3 py-1 rounded-lg hover:bg-gray-100"
+                    className="border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-100 active:scale-95  focus:border-2 focus:border-blue-400 transition-all cursor-pointer"
                   >
                     ← Back
                   </button>
                 </div>
 
                 <div className="max-h-[500px] overflow-auto border border-gray-200">
-                  <table className="w-full border border-gray-300 text-center table-auto border-collapse">
-                    <thead className="bg-gray-100 sticky top-0 w-full">
-                      <tr className="border-b border-gray-300 font-medium">
-                        <th className="px-4 py-2 border-r border-gray-300 w-[8ch]">
-                          NO
-                        </th>
-                        <th className="border-r border-gray-300">Invoice</th>
-                        <th className="border-r border-gray-300">Quantity</th>
-                        <th className="border-r border-gray-300">Price(Tk)</th>
-                        <th className="border-r border-gray-300">Time</th>
-                      </tr>
-                    </thead>
-
-                    <tbody className="border-l border-r text-center border-gray-300">
-                      {selectedProduct.length ? (
-                        selectedProduct.map((item, i) => (
-                          <tr
-                            key={i}
-                            className="border-b border-gray-300 text-center"
-                          >
-                            <td className="py-2 border-r border-gray-300">
-                              {i + 1}
-                            </td>
-                            <td className="py-1 border-r border-gray-300">
-                              {item.invoice}
-                            </td>
-                            <td className="py-1 border-r border-gray-300">
-                              {item.quantity}
-                            </td>
-                            <td className="py-1 border-r border-gray-300">
-                              {item.subtotal}
-                            </td>
-                            <td className="py-1 border-r border-gray-300">
-                              {item.created_at}
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={5} className="p-4 text-red-500">
-                            No Product found
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                  <DataTable
+                    columns={selectedProductColumns}
+                    data={selectedProduct}
+                  />
                 </div>
               </div>
             )}
@@ -785,92 +887,18 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
         {/* dropdown  Purchased transition  */}
         {activeTab === 'transition' && (
           <div className="w-full  my-10 flex flex-col gap-10">
-            <div className="grid grid-cols-5 gap-3 w-full ">
-              <div
-                onClick={() => setType('All')}
-                className={`flex flex-col gap-2  p-5 rounded-2xl  
-                  shadow-2xs shadow-blue-100 hover:scale-101
-                  border-orange-200 border-2`}
-              >
-                {' '}
-                <ClockFading
-                  size={32}
-                  className="text-orange-500 shadow m-1 p-1  border rounded-lg border-gray-300"
+            <div className="grid grid-cols-5 gap-3 w-full">
+              {summaryCards.map((card) => (
+                <SummaryCard
+                  key={card.type}
+                  icon={card.icon}
+                  title={card.title}
+                  value={card.value}
+                  color={card.color}
+                  active={type === card.type || type === 'All'}
+                  onClick={() => setType(card.type)}
                 />
-                <span className="font-semibold">Total Transactions</span>
-                <span className="font-bold text-[18px] text-orange-500">
-                  {transactionSummary?.total_transactions || 0}
-                </span>
-              </div>
-
-              <div
-                onClick={() => setType('Purchased')}
-                className={`flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  
-                  shadow-2xs shadow-blue-100 hover:scale-101
-                  ${type === 'All' && 'border-orange-200 border-2'}
-                  ${type === 'Purchased' && 'border-orange-200 border-2'}`}
-              >
-                {' '}
-                <ClockFading
-                  size={32}
-                  className="text-blue-500 shadow m-1 p-1  border rounded-lg border-gray-300"
-                />
-                <span className="font-semibold">Total Purchased</span>
-                <span className="font-bold text-[18px] text-blue-500">
-                  {transactionSummary?.purchased_count || 0}
-                </span>
-              </div>
-              <div
-                onClick={() => setType('Payment')}
-                className={`flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  
-                  shadow-2xs shadow-blue-100 hover:scale-101
-                  ${type === 'All' && 'border-orange-200 border-2'}
-                  ${type === 'Payment' && 'border-orange-200 border-2'}`}
-              >
-                {' '}
-                <ClockFading
-                  size={32}
-                  className="text-green-500 shadow m-1 p-1  border rounded-lg border-gray-300"
-                />
-                <span className="font-semibold">Total Payment</span>
-                <span className="font-bold text-[18px] text-green-500">
-                  {transactionSummary.payment_count || 0}
-                </span>
-              </div>
-              <div
-                onClick={() => setType('DuePayment')}
-                className={`flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  
-                  shadow-2xs shadow-blue-100 hover:scale-101
-                  ${type === 'All' && 'border-orange-200 border-2'}
-                  ${type === 'DuePayment' && 'border-orange-200 border-2'}`}
-              >
-                {' '}
-                <ClockFading
-                  size={32}
-                  className="text-purple-500 shadow m-1 p-1  border rounded-lg border-gray-300"
-                />
-                <span className="font-semibold">Total DuePayment</span>
-                <span className="font-bold text-[18px] text-purple-500">
-                  {transactionSummary?.duepayment_count || 0}
-                </span>
-              </div>
-              <div
-                onClick={() => setType('Refund')}
-                className={`flex flex-col gap-2 border p-5 rounded-2xl border-gray-300  
-                  shadow-2xs shadow-blue-100 hover:scale-101
-                  ${type === 'All' && 'border-orange-200 border-2'}
-                  ${type === 'Refund' && 'border-orange-200 border-2'}`}
-              >
-                {' '}
-                <ClockFading
-                  size={32}
-                  className="text-rose-500 shadow m-1 p-1  border rounded-lg border-gray-300"
-                />
-                <span className="font-semibold">Total Refund Payment</span>
-                <span className="font-bold text-[18px] text-rose-500">
-                  {transactionSummary?.refund_count || 0}
-                </span>
-              </div>
+              ))}
             </div>
 
             {/* <div className="border py-0.5 flex items-center gap-1 self-start px-1 rounded-lg border-gray-400 hover:shadow">
@@ -884,31 +912,12 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
             {viewMode === 'transactions' && (
               <div className="space-y-10">
                 <div className="flex gap-16">
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="startDate" className="font-semibold">
-                      Start Date
-                    </label>
-
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="border border-gray-300 rounded-lg px-2 py-1"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="endDate" className="font-semibold">
-                      End Date
-                    </label>
-                    <input
-                      type="date"
-                      value={endDate}
-                      min={startDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="border border-gray-300 rounded-lg px-2 py-1"
-                    />
-                  </div>
+                  <DateRange
+                    startDate={startDateTan}
+                    endDate={endDateTan}
+                    setStartDate={setStartDateTan}
+                    setEndDate={setEndDateTan}
+                  />
                   <div className="flex flex-col gap-2">
                     <div className="font-semibold">Selected Type</div>
                     <div ref={typeRef} className="relative ">
@@ -980,150 +989,20 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
                     </div>
                   </div>
 
-                  <div ref={entriesRef} className="relative ml-auto">
-                    <div className=" flex gap-1 h-fit">
-                      <span>Show</span>
-                      <div
-                        onClick={() => {
-                          setOpenTanEntries(!openTanEntries);
-                        }}
-                        className="flex items-center border gap-1  pl-1"
-                      >
-                        <span className="w-[3ch]">{tanLimit}</span>
-                        {!openTanEntries ? (
-                          <ChevronDown size={16} className="" />
-                        ) : (
-                          <ChevronUp size={16} className="" />
-                        )}
-                      </div>
-                      <span>entries</span>
-                    </div>
-                    {/* dropdown entries  */}
-                    {openTanEntries && (
-                      <div
-                        className={`absolute z-50 left-10.5 text-center border border-gray-300 bg-white flex flex-col`}
-                      >
-                        {entries.map((val, idx) => (
-                          <span
-                            key={idx}
-                            onClick={() => setTanLimit(val)}
-                            className="hover:bg-blue-300 px-3"
-                          >
-                            {val}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <EntriesDropdown
+                    value={tanLimit}
+                    onChange={setTanLimit}
+                    open={openTanEntries}
+                    setOpen={setOpenTanEntries}
+                  />
                 </div>
 
                 <div className="w-full border border-gray-300">
                   <div className="max-h-[800px] overflow-auto">
-                    <table className="w-full table-auto border-collapse">
-                      <thead className="bg-gray-100 sticky top-0 z-10">
-                        <tr className="border-b border-gray-300 font-medium">
-                          <th className="px-4 py-2 border-r border-gray-300">
-                            NO
-                          </th>
-                          <th className="border-r border-gray-300">Date</th>
-                          <th className="border-r border-gray-300">Invoice</th>
-                          <th className="border-r border-gray-300">Type</th>
-                          <th className="border-r border-gray-300">
-                            Amount(Tk)
-                          </th>
-                          <th className="border-r border-gray-300">Debt(Tk)</th>
-                          <th className="border-r border-gray-300">Method</th>
-                          <th className="border-r border-gray-300">Status</th>
-                          <th className="border-r border-gray-300">Seller</th>
-                          <th className="w-[8%]">Details</th>
-                        </tr>
-                      </thead>
-                      <tbody className="border-l border-r text-center border-gray-300">
-                        {transactions.length ? (
-                          transactions.map((tx, index) => (
-                            <tr
-                              key={`${tx.type}-${tx.ref_id}-${index}`}
-                              className="border-b border-gray-300"
-                            >
-                              <th className="py-2 border-r border-gray-300">
-                                {(tanPage - 1) * tanLimit + (index + 1)}
-                              </th>
-                              <td className="border-r border-gray-300">
-                                {new Date(tx.created_at)
-                                  .toLocaleString('en-GB', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true,
-                                  })
-                                  .replaceAll('/', '-')
-                                  .toUpperCase()}
-                              </td>
-                              <td className="border-r border-gray-300">
-                                {tx.reference}
-                              </td>
-                              <td
-                                className={`border-r border-gray-300
-                                ${tx.type === 'Purchased' && 'text-blue-500'}
-                                ${tx.type === 'Payment' && 'text-green-500'}
-                                ${tx.type === 'DuePayment' && 'text-purple-500'}
-                                ${tx.type === 'Refund' && 'text-rose-600'}`}
-                              >
-                                {tx.type}
-                              </td>
-                              <td className="border-r border-gray-300">
-                                {tx.amount}৳
-                              </td>
-                              <td className="border-r border-gray-300 text-rose-500">
-                                {tx.due ? <span>{tx.due}৳</span> : '-'}
-                              </td>
-                              <td className="border-r border-gray-300">
-                                {tx.method}
-                              </td>
-                              <td
-                                className={`border-r border-gray-300
-                                ${tx.status === 'completed' && 'text-green-500'}
-                                ${tx.status === 'success' && 'text-green-500'}
-                                ${tx.status === 'pending' && 'text-purple-500'}
-                                ${tx.status === 'cancelled' && 'text-gray-600'}`}
-                              >
-                                {tx.status}
-                              </td>
-                              <td className="border-r border-gray-300">
-                                {tx.seller_name}
-                              </td>
-                              {tx.type === 'Purchased' ? (
-                                <td
-                                  className="flex justify-center mt-1.5 cursor-pointer"
-                                  onClick={() => {
-                                    setSelectedSale(tx);
-                                    fetchTransactionsSaleItems(tx.ref_id);
-                                  }}
-                                >
-                                  <Eye
-                                    size={22}
-                                    className="text-gray-600 cursor-pointer hover:text-black"
-                                  />
-                                </td>
-                              ) : (
-                                <td></td>
-                              )}
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td
-                              colSpan={7}
-                              className="text-center text-red-500 py-4 border-b border-gray-300"
-                            >
-                              No transactions found
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                    <DataTable
+                      columns={transactionColumns}
+                      data={transactions}
+                    />
                   </div>
                 </div>
               </div>
@@ -1142,64 +1021,26 @@ export default function CustomerHistory({ fetchCustomers, page, search }) {
 
                   <button
                     onClick={() => {
-                      setViewMode('transactions');
-                      setSaleItems([]);
-                      setSelectedSale(null);
+                      setTimeout(() => {
+                        setViewMode('transactions');
+                        setSaleItems([]);
+                        setSelectedSale(null);
+                      }, 350);
                     }}
-                    className="border px-3 py-1 rounded-lg hover:bg-gray-100"
+                    className="border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-100 active:scale-95  focus:border-2 focus:border-blue-400 transition-all cursor-pointer"
                   >
                     ← Back
                   </button>
                 </div>
 
-                <table className="w-full border border-gray-300 text-center">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="border p-2">Product</th>
-                      <th className="border p-2">Image</th>
-                      <th className="border p-2">Price(unit)</th>
-                      <th className="border p-2">Quantity</th>
-                      <th className="border p-2">Total</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {saleItems.length ? (
-                      saleItems.map((item, i) => (
-                        <tr key={i} className="border">
-                          <td className="border p-2 text-left">
-                            {item.product_name}
-                          </td>
-                          <td className="border p-2 text-left">
-                            <div className="flex justify-center">
-                              <img
-                                src={item.image}
-                                alt="Product picture"
-                                className="w-22 h-20"
-                              />
-                            </div>
-                          </td>
-                          <td className="border p-2">{item.price}</td>
-                          <td className="border p-2">{item.quantity}</td>
-                          <td className="border p-2">{item.total}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={4} className="p-4 text-red-500">
-                          No sale items found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                <DataTable columns={saleItemsColumns} data={saleItems} />
               </div>
             )}
           </div>
         )}
-      </div>
 
-      <div className=""></div>
+        <BackButton className="w-fit" />
+      </div>
     </div>
   );
 }

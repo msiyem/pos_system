@@ -1,7 +1,8 @@
 import { LogOutIcon, User } from 'lucide-react';
-import { useState, useRef, useEffect, useContext } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import api from '../../../api/api';
 import { useAuth } from '../../../context/useAuth';
+import { useNavigate } from 'react-router';
 
 export default function MiniProfile() {
   const [openProfile, setOpenProfile] = useState(false);
@@ -9,22 +10,34 @@ export default function MiniProfile() {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const { userId, logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!userId) return;
+  if (!userId) return;
 
-    async function fetchUser() {
-      const res = await api.get(`/user/${userId}`);
-      const u = res.data;
+  async function fetchUser() {
+    try {
+      const res = await api.get('/users/me');
+      const u = res.data.data;
       setUserName(u.name);
       setUserEmail(u.email);
+    } catch (err) {
+      console.error(err);
+      // logout(); // optional
     }
-    fetchUser();
-  }, [userId]);
+  }
+
+  fetchUser();
+}, [userId, logout]);
+
   const initials = userName
-    .split(' ')
-    .map((n) => n[0])
-    .join('');
+  ? userName
+      .split(' ')
+      .filter(Boolean)
+      .map((n) => n[0].toUpperCase())
+      .join('')
+  : 'U';
+
 
   useEffect(() => {
     function handleClickOutSide(event) {
@@ -65,7 +78,9 @@ export default function MiniProfile() {
           <p className="text-[12px] text-gray-600">{userEmail}</p>
         </div>
         <div className="m-2 flex flex-col space-y-1">
-          <div className="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
+          <div 
+          onClick={()=>navigate("/user/me")}
+          className="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
             <User className="h-4 w-4" />
             <p className="mx-2">Profile</p>
           </div>

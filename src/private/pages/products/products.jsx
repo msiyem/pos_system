@@ -1,27 +1,30 @@
 import Product from './productCard';
 import Pagination from '../../../ui/pagination';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate, useOutletContext } from 'react-router';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import API from '../../../api/api';
 import {useCart} from '../../cart/useCart.jsx';
+import { useAuth } from '../../../context/useAuth.jsx';
 
-export default function Products({
+export default function Products() {
+  const {
   products,
-  page,
-  total,
-  limit,
-  search,
-  setPage,
-  setsearch,
+  P_page:page,
+  p_total:total,
+  p_limit:limit,
+  p_search:search,
+  setP_page:setPage,
+  setP_search:setsearch,
   fetchProducts,
-  stock,
-  category,
-  brand,
-  setcategory,
-  setstock,
-  setbrand,
-}) {
+  Pstock:stock,
+  Pcategory:category,
+  Pbrand:brand,
+  setPcategory:setcategory,
+  setPstock:setstock,
+  setPbrand:setbrand,
+}=useOutletContext();
+  const {role} = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const totalPages = Math.ceil(total / limit);
@@ -55,6 +58,7 @@ export default function Products({
       try {
         const res = await API.get('/brands');
         setBrands(res.data);
+        console.log('brand');
       } catch (err) {
         console.error('Error fetching brands', err);
       }
@@ -137,12 +141,14 @@ export default function Products({
           </span>
         </div>
 
-        <button
+        {role === 'admin' && (
+          <button
           onClick={() => navigate('/product/add')}
           className="mr-8 bg-red-500/90 hover:bg-red-500 rounded-lg flex justify-center items-center text-white p-1 px-2.5 cursor-pointer"
         >
           + Add Product
         </button>
+        )}
       </div>
 
       {/* Search + Filters */}
