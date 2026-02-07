@@ -20,7 +20,7 @@ import Reports from '../private/pages/reports/reports.jsx';
 import Selling from '../private/pages/sellings/selling.jsx';
 import Purchase from '../private/pages/purchases/purchase';
 
-import Shopkeeper from '../private/pages/users/shopkeepers.jsx';
+import Users from '../private/pages/users/users.jsx';
 import AddUser from '../private/pages/users/addUser.jsx';
 import EditUser from '../private/pages/users/editUser.jsx';
 import UserProfile from '../private/pages/users/userProfile.jsx';
@@ -30,6 +30,11 @@ import AddCategory from '../private/component/addCategory.jsx';
 import IndexRedirect from './IndexRedirect.jsx';
 import Unauthorized from '../private/pages/unauthorized.jsx';
 import Error from '../error.jsx';
+import UserHistory from '../private/pages/users/userHistory.jsx';
+import FinancialAnalysis from '../private/pages/deshboard/financialAnalysis.jsx';
+import ProductAnalysis from '../private/pages/deshboard/productAnalysis.jsx';
+import InventoryAnalysis from '../private/pages/deshboard/inventoryAnaysis.jsx';
+import CustomersAnalysis from '../private/pages/deshboard/customersAnalysis.jsx';
 
 const ROLES = {
   ADMIN: 'admin',
@@ -44,11 +49,27 @@ export const routes = [
     children: [
       {
         index: true,
-        element: IndexRedirect,
+        element: Deshboard,
+        roles: [ROLES.ADMIN],
       },
       {
-        path: 'dashboard',
-        element: Deshboard,
+        path: 'deshboard/financial-analysis',
+        element: FinancialAnalysis,
+        roles: [ROLES.ADMIN],
+      },
+      {
+        path: 'deshboard/customer-analysis',
+        element: CustomersAnalysis,
+        roles: [ROLES.ADMIN],
+      },
+      {
+        path: 'deshboard/product-analysis',
+        element: ProductAnalysis,
+        roles: [ROLES.ADMIN],
+      },
+      {
+        path: 'deshboard/inventory-analysis',
+        element: InventoryAnalysis,
         roles: [ROLES.ADMIN],
       },
 
@@ -126,7 +147,12 @@ export const routes = [
       // -------- Users --------
       {
         path: 'users',
-        element: Shopkeeper,
+        element: Users,
+        roles: [ROLES.ADMIN],
+      },
+      {
+        path: 'user/:id',
+        element: UserHistory,
         roles: [ROLES.ADMIN],
       },
       {
@@ -179,9 +205,8 @@ export const routes = [
       {
         path: '*',
         element: Error,
-        roles:[],
+        roles: [],
       },
-
     ],
   },
 ];

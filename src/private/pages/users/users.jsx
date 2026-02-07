@@ -1,54 +1,25 @@
 import { Plus, Search } from 'lucide-react';
-import Supplier from './supplierCard';
-import { useNavigate } from 'react-router';
+import { useNavigate, useOutletContext } from 'react-router';
 import Pagination from '../../../ui/pagination';
-import API from '../../../api/api';
-import { useCallback, useEffect, useState } from 'react';
-import useToast from '../../../toast/useToast';
+import UserCard from './userCard';
 
-export default function Suppliers() {
+export default function Customers() {
+  const {
+  users,
+  user_page:page,
+  user_total:total,
+  user_limit:limit,
+  user_search:search,
+  role,
+  setUserPage,
+  setUserSearch,
+}=useOutletContext();
   const navigate = useNavigate();
-  const [suppliers, setSuppliers] = useState([]);
-  const [page, setPage] = useState(1);
-  // const [limit,setLimit]=useState(9);
-  const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState('');
-  const toast = useToast();
-
-  const totalPages = Math.ceil(total / 9);
-
-  const fetchSuppliersData = useCallback(async () => {
-    try {
-      const res = await API.get('suppliers', {
-        params: {
-          page,
-          limit: 9,
-          search,
-        },
-      });
-
-      setSuppliers(res.data.data);
-      // console.log("suppliers data:", res.data);
-      setPage(res.data.page);
-      setTotal(res.data.total);
-    } catch (err) {
-      console.log(err);
-      toast.error('Error fetching suppliers data!', 3500);
-    }
-  }, [page, search, toast]);
-
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchSuppliersData();
-    }, 350);
-
-    return () => clearTimeout(delayDebounce);
-  }, [fetchSuppliersData]);
-
+  const totalPages = Math.ceil(total / limit);
 
   const handleSearchChange = (e) => {
-    setSearch(e.target.value);
-    setPage(1);
+    setUserSearch(e.target.value);
+    setUserPage(1);
   };
 
   return (
@@ -60,15 +31,15 @@ export default function Suppliers() {
             onClick={() => navigate(0)}
             className="text-[32px] font-semibold font-serif cursor-pointer"
           >
-            Supplier
+            Users
           </span>
           <div className="">
             <button
-              onClick={() => navigate('/supplier/add')}
+              onClick={() => navigate('/user/add')}
               className="flex items-center gap-1 ring-0 border rounded-lg bg-red-600/85 hover:bg-red-600 text-white p-1"
             >
               <Plus className="h-4 w-4" />
-              <span>Add Supplier</span>
+              <span>Add User</span>
             </button>
           </div>
         </div>
@@ -79,35 +50,37 @@ export default function Suppliers() {
               type="text"
               value={search}
               onChange={handleSearchChange}
-              placeholder="Supplier Search ..."
+              placeholder="Customers Search ..."
               className="outline-0 flex-1"
             />
           </div>
           <div className="border border-gray-300 px-2 rounded-lg shadow text-gray-700 text-[15px] font-mono py-1">
-            Total Supplier:{' '}
-            <span className="border px-1 border-gray-200/80  rounded-lg shadow">
+            Total Users:{' '}
+            <span className="border px-1 border-gray-200/80 rounded-lg shadow">
               {total}
             </span>
           </div>
         </div>
       </div>
+      
 
       {/* Customer List  */}
       <div className="grid grid-cols-1 @min-[740px]:grid-cols-2 @min-[1200px]:grid-cols-3  items-stretch gap-4">
-        {suppliers.map((user) => (
-          <Supplier
+        {users.map((user) => (
+          <UserCard
             key={user.id}
             id={user.id}
             name={user.name}
             gmail={user.email}
             address={user.district}
-            image={user.image_url}
             phone={user.phone}
-            lastVisit={user.last_transition}
-            fetchCustomers={fetchSuppliersData}
+            lastVisit={user.last_purchased}
+            status={user.status}
+            image={user.image_url}
             page={page}
             search={search}
-            payable={user.payable}
+            role = {role}
+
           />
         ))}
       </div>
@@ -117,7 +90,7 @@ export default function Suppliers() {
           currentPage={page}
           totalPages={totalPages}
           onPageChange={(newPage) => {
-            setPage(newPage);
+            setUserPage(newPage);
           }}
         />
       </div>

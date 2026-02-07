@@ -7,8 +7,7 @@ import { useNavigate } from 'react-router';
 export default function MiniProfile() {
   const [openProfile, setOpenProfile] = useState(false);
   const miniprofileRef = useRef(null);
-  const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
+  const [user,setUser] =useState(null);
   const { userId, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -18,9 +17,7 @@ export default function MiniProfile() {
   async function fetchUser() {
     try {
       const res = await api.get('/users/me');
-      const u = res.data.data;
-      setUserName(u.name);
-      setUserEmail(u.email);
+      setUser(res.data.data);
     } catch (err) {
       console.error(err);
       // logout(); // optional
@@ -30,8 +27,8 @@ export default function MiniProfile() {
   fetchUser();
 }, [userId, logout]);
 
-  const initials = userName
-  ? userName
+  const initials = user
+  ? user.name
       .split(' ')
       .filter(Boolean)
       .map((n) => n[0].toUpperCase())
@@ -61,7 +58,7 @@ export default function MiniProfile() {
         className="cursor-pointer relative"
       >
         <p className="flex ring-0 rounded-full bg-[rgb(88,50,138)] h-10 w-10 text-center items-center justify-center font-semibold text-blue-200">
-          {initials}
+          {user?.image_url ? (<img src={user.image_url} alt="User Avatar" className="h-10 w-10 rounded-full" />) : initials}
         </p>
       </button>
 
@@ -74,12 +71,15 @@ export default function MiniProfile() {
         `}
       >
         <div className="flex flex-col p-2 border-b">
-          <p>{userName}</p>
-          <p className="text-[12px] text-gray-600">{userEmail}</p>
+          <p>{user?.name}</p>
+          <p className="text-[12px] text-gray-600">{user?.email}</p>
         </div>
         <div className="m-2 flex flex-col space-y-1">
           <div 
-          onClick={()=>navigate("/user/me")}
+          onClick={()=>{
+            setOpenProfile(false);
+            navigate("/user/me");
+          }}
           className="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded">
             <User className="h-4 w-4" />
             <p className="mx-2">Profile</p>

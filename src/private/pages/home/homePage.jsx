@@ -7,8 +7,12 @@ import ShoppingCard from './shoppingCard';
 import { useEffect, useRef, useState } from 'react';
 import api from '../../../api/api';
 import useToast from '../../../toast/useToast';
+import { useAuth } from '../../../context/useAuth';
+import PageLoader from '../../../ui/PageLoader';
+import { set } from 'zod';
 
 export default function HomePage() {
+  const {role,loading} = useAuth();
   const [open, setOpen] = useState(true);
   const [isSmallDevice, setSmallDive] = useState(false);
   const [cart, setCart] = useState([]);
@@ -29,6 +33,15 @@ export default function HomePage() {
   const [Pcategory, setPcategory] = useState('all');
   const [Pbrand, setPbrand] = useState('all');
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  
+  const [users, setUsers] = useState([]);
+  const [user_role,setUserRole] = useState('All');
+  const [user_page, setUserPage] = useState(1);
+  const [user_total, setUserTotal] = useState(0);
+  const [user_limit] = useState(9);
+  const [user_search, setUserSearch] = useState('');
+
   const toast = useToast();
 
   useEffect(() => {
@@ -117,6 +130,34 @@ export default function HomePage() {
     return () => clearTimeout(delayDebounce);
   }, [p_page, p_search, Pstock, Pcategory, Pbrand]);
 
+  const fetchUsers = async () => {
+    try {
+      const res = await api.get('/users', {
+        params: {
+          page: user_page,
+          limit: user_limit,
+          search: user_search,
+          role: user_role === 'All' ? null : user_role,
+        },
+      });
+      
+      setUsers(res.data.data);
+      setUserPage(res.data.page);
+      setUserTotal(res.data.total);
+    } catch (err) {
+      console.log(err);
+      toast.error('Error fetching users data!');
+    }
+  };
+
+  useEffect(()=>{
+    if(!loading && role === "admin"){
+      setTimeout(() => {
+        fetchUsers();
+      }, 450);
+    }
+  },[role,user_page,user_limit,user_search,user_role])
+  if(loading) return  <PageLoader/>;
   return (
     <div>
       <div ref={homeRef} className="flex bg-white h-[100dvh] w-full fixed">
@@ -182,6 +223,7 @@ export default function HomePage() {
                 cart,
                 setCart,
                 products,
+                setProducts,
                 p_page,
                 setP_page,
                 p_total,
@@ -209,7 +251,20 @@ export default function HomePage() {
                 setSearch,
                 selectedCustomer,
                 setSelectedCustomer,
-                fetchCustomers
+                fetchCustomers,
+                users,
+                setUsers,
+                user_page,
+                setUserPage,
+                user_total,
+                setUserTotal,
+                user_limit,
+                user_search,
+                setUserSearch,
+                user_role,
+                setUserRole,
+                fetchUsers,
+                role,
               }}
             />
           </div>

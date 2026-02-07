@@ -73,12 +73,6 @@ export default function Products() {
   };
 
   useEffect(() => {
-    if (location.state?.refresh) {
-      fetchProducts();
-    }
-  }, [location.state]);
-
-  useEffect(() => {
     const handleClickOutside = (e) => {
       if (categoryRef.current && !categoryRef.current.contains(e.target))
         setOpenCategory(false);

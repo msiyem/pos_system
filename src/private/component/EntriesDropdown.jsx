@@ -10,7 +10,6 @@ export default function EntriesDropdown({
 }) {
   const ref = useRef(null);
 
-  // click outside to close
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
@@ -30,7 +29,7 @@ export default function EntriesDropdown({
           onClick={() => setOpen(!open)}
           className="flex items-center gap-1 border border-gray-400 rounded-lg mt-1 px-2 cursor-pointer select-none"
         >
-          <span className="w-[3ch] text-center">{value}</span>
+          <span className="min-w-[3ch] text-center">{value}</span>
           {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </div>
 

@@ -64,6 +64,7 @@ export default function CustomerHistory() {
   const [openElipse, setOpenElipse] = useState(false);
   const navigate = useNavigate();
   const customerId = parseInt(id);
+  const elipseRef = useRef(null);
 
   //transaction states
   const [transactions, setTransactions] = useState([]);
@@ -91,6 +92,18 @@ export default function CustomerHistory() {
   const [endDateTan, setEndDateTan] = useState('');
   const [startDatePsh, setStartDatePsh] = useState('');
   const [endDatePsh, setEndDatePsh] = useState('');
+
+    useEffect(()=>{
+    function handleElipseClick(e){
+      if(elipseRef.current && !elipseRef.current.contains(e.target)){ 
+        setOpenElipse(false);
+      }
+    }
+    document.addEventListener('mousedown', handleElipseClick);
+    return () => {
+      document.removeEventListener('mousedown', handleElipseClick);
+    };
+  },[openElipse])
 
   useEffect(() => {
     function handleTypeRef(e) {
@@ -608,7 +621,7 @@ export default function CustomerHistory() {
                 <span>Gender: {customer.gender} </span>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative" ref={elipseRef}>
               <button
                 className="cursor-pointer p-1"
                 onClick={() => setOpenElipse(!openElipse)}
