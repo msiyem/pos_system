@@ -10,6 +10,11 @@ A modern POS and inventory dashboard built with React and Vite. The UI focuses o
 - Form validation with Zod + React Hook Form
 - Clean, modular UI and route protection
 
+## Stakeholders
+
+- Store owner / Admin: overall control, reports, and settings
+- Sales staff (POS operator): day-to-day selling and checkout
+
 ## Features (Short)
 
 - POS flow: add items, manage cart, and complete sales
@@ -19,15 +24,34 @@ A modern POS and inventory dashboard built with React and Vite. The UI focuses o
 - Dashboard insights with charts and summaries
 - Role-based route protection for private pages
 
-## Screenshots and Demo
+## Screenshots and Demo (Admin View)
 
-- Add screenshots to show key screens (dashboard, sales, products, customers)
-- Add a short demo GIF for the main flow
+### Dashboard Screenshots
+#### Main Dashboard
+![Dashboard](https://i.postimg.cc/YS9nTYFy/main-dashboard.jpg)
+#### Customer Analysis
+[![customer-dashboard.jpg](https://i.postimg.cc/CKhT5RqH/customer-dashboard.jpg)](https://postimg.cc/jDFkkdvL)
+#### Product Analysis
+[![product-dashboard.jpg](https://i.postimg.cc/K8ZxkpXf/product-dashboard.jpg)](https://postimg.cc/nCw6Nkh9)
+#### Financial Analysis
+[![financial-dashboard.jpg](https://i.postimg.cc/15BbT9TK/financial-dashboard.jpg)](https://postimg.cc/GHBMT1bB)
+#### Inventory Analysis
+[![inventory-dashboard.jpg](https://i.postimg.cc/15bDyFbr/inventory-dashboard.jpg)](https://postimg.cc/8jB7H7p7)
 
-Example placeholders (replace with real files):
+### Customers Screenshots
+#### Customers list
+[![customers.jpg](https://i.postimg.cc/HxPVBDms/customers.jpg)](https://postimg.cc/JDZrzFt9)
+#### Customer Profile
+[![customer-profile.jpg](https://i.postimg.cc/3wtjpxL8/customer-profile.jpg)](https://postimg.cc/5HFFWbdT)
 
-![Dashboard](public/images/demo/dashboard.png)
-![Sales Flow](public/images/demo/sales-flow.gif)
+### Products Screenshots
+[![products-card.jpg](https://i.postimg.cc/dVvGxypK/products-card.jpg)](https://postimg.cc/jLgWWLR8)
+
+### Supplier Profile
+[![supplier-profile.jpg](https://i.postimg.cc/L8X854Zt/supplier-profile.jpg)](https://postimg.cc/Yh5HyHR0)
+
+### User Profile
+[![user-profile.jpg](https://i.postimg.cc/HxGY6QvB/user-profile.jpg)](https://postimg.cc/R3RxFnBH)
 
 ## Tech Stack
 
