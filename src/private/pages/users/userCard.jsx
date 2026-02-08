@@ -84,7 +84,7 @@ export default function UserCard({
                   if (id) navigate(`/user/${id}`);
                   else toast.error('user id not found!');
                 }}
-                className="border-b flex gap-2 items-center border-gray-300 m-1 p-1 text-center cursor-pointer hover:bg-gray-50 hover:shadow mt-0"
+                className="flex gap-2 items-center border-gray-300 m-1 p-1 text-center cursor-pointer hover:bg-gray-50  mt-0"
               >
                 <UserRound className="h-4 w-4" />
                 <span className="">Profile</span>

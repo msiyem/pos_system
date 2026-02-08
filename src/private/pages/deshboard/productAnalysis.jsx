@@ -34,6 +34,7 @@ import SummaryCard from '../../component/SummaryCard';
 import DataTable from '../../component/DataTable';
 import api from '../../../api/api';
 import Loading from '../../component/Loading';
+import PageLoader from '../../../ui/PageLoader';
 
 export default function ProductAnalysis() {
   const [loading, setLoading] = useState(true);
@@ -241,7 +242,7 @@ export default function ProductAnalysis() {
 
   if (loading) {
     return (
-      <Loading/>
+      <PageLoader/>
     );
   }
 

@@ -33,6 +33,7 @@ import api from '../../../api/api';
 import Loading from '../../component/Loading';
 import SummaryCard from '../../component/SummaryCard';
 import DataTable from '../../component/DataTable';
+import PageLoader from '../../../ui/PageLoader';
 
 export default function CustomersAnalysis() {
   const [loading, setLoading] = useState(true);
@@ -357,7 +358,7 @@ export default function CustomersAnalysis() {
   ];
 
   if (loading) {
-    return <Loading />;
+    return <PageLoader />;
   }
 
   if (error) {

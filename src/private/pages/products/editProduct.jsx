@@ -14,6 +14,8 @@ import { productUpdateSchema } from '../../../forms/product.schema';
 import { useEnterNavigation } from '../../../forms/utils/useEnterNavigation';
 import { focusFirstError } from '../../../forms/utils/focusFirstError';
 import { set } from 'zod';
+import PageLoader from '../../../ui/PageLoader';
+
 
 export default function EditProduct() {
   const { setProducts } = useOutletContext();
@@ -28,6 +30,7 @@ export default function EditProduct() {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageError, setImageError] = useState(null);
   const [existingImage, setExistingImage] = useState(null);
+  const [loading, setLoading] = useState(true); 
 
   const {
     register,
@@ -49,6 +52,7 @@ export default function EditProduct() {
   useEffect(() => {
     async function fetchData() {
       try {
+        setLoading(true);
         const [catRes, brandRes] = await Promise.all([
           API.get('/categories'),
           API.get('/brands'),
@@ -57,6 +61,8 @@ export default function EditProduct() {
         setBrands(brandRes.data);
       } catch (err) {
         console.error('Error fetching data:', err);
+      }finally{
+        setLoading(false);
       }
     }
     fetchData();
@@ -65,6 +71,7 @@ export default function EditProduct() {
   useEffect(() => {
     async function fetchProduct() {
       try {
+        setLoading(true);
         const res = await API.get(`/products/${productId}`);
         const product = res.data?.data || res.data;
 
@@ -96,6 +103,8 @@ export default function EditProduct() {
           toast.error('Product not found');
           navigate(-1);
         }
+      }finally{
+        setLoading(false);
       }
     }
 
@@ -161,7 +170,9 @@ export default function EditProduct() {
   const onError = (formErrors) => {
     focusFirstError(formErrors);
   };
-
+  if(loading){
+    return <PageLoader/>;
+  }
   return (
     <div className="bg-gray-100 w-full min-h-screen flex justify-center items-center text-[#030006]">
       <div className="flex flex-col gap-5 sm:gap-15 bg-[#ffffff] m-3 p-5 shadow-xl ring-0 rounded-lg w-full max-w-[1000px] mt-5 border-2 border-gray-200">

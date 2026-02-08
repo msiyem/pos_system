@@ -32,7 +32,7 @@ import {
   Cell,
 } from 'recharts';
 import api from '../../../api/api';
-import Loading from '../../component/Loading';
+import PageLoader from '../../../ui/PageLoader';
 
 export default function FinancialAnalysis() {
   const [loading, setLoading] = useState(true);
@@ -148,7 +148,7 @@ export default function FinancialAnalysis() {
   };
 
   if (loading) {
-    return <Loading />;
+    return <PageLoader />;
   }
 
   return (

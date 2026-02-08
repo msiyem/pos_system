@@ -35,7 +35,7 @@ import DataTable from '../../component/DataTable';
 import InfoTable from '../../component/InfoTable';
 import EntriesDropdown from '../../component/EntriesDropdown';
 import api from '../../../api/api';
-import Loading from '../../component/Loading';
+import PageLoader from '../../../ui/PageLoader';
 
 export default function InventoryAnalysis() {
   const [loading, setLoading] = useState(true);
@@ -304,7 +304,7 @@ export default function InventoryAnalysis() {
 
   if (loading) {
     return (
-      <Loading size={44} />
+      <PageLoader size={44} />
     );
   }
 

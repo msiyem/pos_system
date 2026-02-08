@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../../../api/api';
 import useToast from '../../../toast/useToast';
-import { Mail, Phone, User, Shield } from 'lucide-react';
+import { Mail, Phone, User, Shield, UserRound } from 'lucide-react';
 import PageLoader from '../../../ui/PageLoader.jsx';
 import BackButton from '../../../ui/backButton.jsx';
 
@@ -36,11 +36,15 @@ export default function UserProfile() {
       <div className="bg-white rounded-2xl shadow-md border border-gray-300 p-6 ">
         {/* Header */}
         <div className="flex flex-col items-center gap-6 border-b pb-8">
-          <img
+          {user.image_url ? (
+            <img
             src={user.image_url || '/default-avatar.png'}
             alt="User Avatar"
             className="w-24 h-24 sm:w-28 sm:h-28 md:32 md:32 rounded-full object-cover border border-gray-200"
           />
+          ):(
+            <UserRound size={96} className="text-gray-400 rounded-full border-2"/>
+          )}
           <div>
             <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">
               {user.name}
@@ -75,7 +79,7 @@ export default function UserProfile() {
 
           <div>
             <p className="text-sm text-gray-500 flex items-center gap-1">
-              <Shield size={15}/>
+              <Shield size={15} />
               Role</p>
             <p className="font-medium capitalize">{user.role}</p>
           </div>

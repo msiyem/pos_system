@@ -79,7 +79,7 @@ export default function Customers() {
             image={user.image_url}
             page={page}
             search={search}
-            role = {role}
+            role = {user.role}
 
           />
         ))}

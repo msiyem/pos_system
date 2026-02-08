@@ -49,6 +49,11 @@ export const routes = [
     children: [
       {
         index: true,
+        element: IndexRedirect,
+        roles: [ROLES.ADMIN, ROLES.STAFF],
+      },
+      {
+        path: 'deshboard',
         element: Deshboard,
         roles: [ROLES.ADMIN],
       },

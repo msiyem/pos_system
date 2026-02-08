@@ -10,6 +10,7 @@ import useToast from '../../../toast/useToast';
 import { useAuth } from '../../../context/useAuth';
 import PageLoader from '../../../ui/PageLoader';
 import { set } from 'zod';
+import { se } from 'date-fns/locale/se';
 
 export default function HomePage() {
   const {role,loading} = useAuth();
@@ -43,6 +44,7 @@ export default function HomePage() {
   const [user_search, setUserSearch] = useState('');
 
   const toast = useToast();
+  const [apiLoading, setApiLoading] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -75,6 +77,7 @@ export default function HomePage() {
   
   const fetchCustomers = async () => {
     try {
+      setApiLoading(true);
       const res = await api.get('/customers', {
         params: {
           page: cus_page,
@@ -89,6 +92,8 @@ export default function HomePage() {
     } catch (err) {
       console.log(err);
       toast.error('Error fetching customers data!');
+    } finally {
+      setApiLoading(false);
     }
   };
 
@@ -103,6 +108,7 @@ export default function HomePage() {
 
   const fetchProducts = async () => {
     try {
+      setApiLoading(true);
       const res = await api.get('/products', {
         params: {
           page: p_page || 1,
@@ -120,6 +126,8 @@ export default function HomePage() {
     } catch (err) {
       console.log(err);
       toast.error('Error fetching products data!');
+    } finally {
+      setApiLoading(false);
     }
   };
 
@@ -132,6 +140,7 @@ export default function HomePage() {
 
   const fetchUsers = async () => {
     try {
+      setApiLoading(true);
       const res = await api.get('/users', {
         params: {
           page: user_page,
@@ -147,6 +156,8 @@ export default function HomePage() {
     } catch (err) {
       console.log(err);
       toast.error('Error fetching users data!');
+    } finally {
+      setApiLoading(false);
     }
   };
 
@@ -157,7 +168,9 @@ export default function HomePage() {
       }, 450);
     }
   },[role,user_page,user_limit,user_search,user_role])
+
   if(loading) return  <PageLoader/>;
+
   return (
     <div>
       <div ref={homeRef} className="flex bg-white h-[100dvh] w-full fixed">

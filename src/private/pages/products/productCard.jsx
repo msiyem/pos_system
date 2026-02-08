@@ -61,7 +61,7 @@ export default function Product({
             <div className="bg-white border border-gray-300 shadow rounded-xl flex flex-col p-1">
               <div
                 onClick={() => navigate(`/products/${id}/edit`)}
-                className="flex items-center gap-2 hover:bg-gray-50 hover:shadow p-2 mx-1 py-1.5 cursor-pointer rounded-0 border-b border-b-gray-300 text-blue-600 "
+                className="flex items-center gap-2 hover:bg-gray-50 hover:shadow p-2 mx-1 py-1.5 cursor-pointer rounded-0  text-blue-600 "
               >
                 <SquarePen className="h-4 w-4" />
                 <span className="">Edit</span>

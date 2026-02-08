@@ -1,11 +1,12 @@
 import Product from './productCard';
 import Pagination from '../../../ui/pagination';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate, useOutletContext } from 'react-router';
+import {  useNavigate, useOutletContext } from 'react-router';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import API from '../../../api/api';
 import {useCart} from '../../cart/useCart.jsx';
 import { useAuth } from '../../../context/useAuth.jsx';
+import PageLoader from '../../../ui/PageLoader.jsx';
 
 export default function Products() {
   const {
@@ -26,7 +27,6 @@ export default function Products() {
 }=useOutletContext();
   const {role} = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const totalPages = Math.ceil(total / limit);
 
   const [categories, setCategories] = useState([]);
@@ -35,20 +35,22 @@ export default function Products() {
   const [openCategory, setOpenCategory] = useState(false);
   const [openStock, setOpenStock] = useState(false);
   const [openBrands, setOpenBrands] = useState(false);
-  // const [stockfilter, setStockfilter] = useState('all');
-  // const [checkCategory, setCheckCategory] = useState('all');
 
   const categoryRef = useRef(null);
   const stockRef = useRef(null);
   const brandsRef = useRef(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchCategories() {
       try {
+        setLoading(true);
         const res = await API.get('/categories');
         setCategories(res.data);
       } catch (err) {
         console.error('Error fetching categories:', err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchCategories();
@@ -56,11 +58,13 @@ export default function Products() {
   useEffect(() => {
     async function fetchBrands() {
       try {
+        setLoading(true);
         const res = await API.get('/brands');
         setBrands(res.data);
-        console.log('brand');
       } catch (err) {
         console.error('Error fetching brands', err);
+      }finally{
+        setLoading(false);
       }
     }
     fetchBrands();
@@ -85,35 +89,7 @@ export default function Products() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // const handleAddToCard = (product) => {
-  //   if (product.stock <= 0) {
-  //   toast.error("Product is out of stock");
-  //   return;
-  // }
-  //   setCart((prevCart) => {
-  //     const existing = prevCart.find((p) => p.id === product.id);
-  //     if (existing) {
-  //       if (existing.count >= product.stock) {
-  //       toast.error("No more stock available");
-  //       return prevCart;
-  //     }
-  //       return prevCart.map((p) =>
-  //         p.id === product.id ? { ...p, count: p.count + 1 } : p
-  //       );
-  //     } else {
-  //       return [
-  //         ...prevCart,
-  //         {
-  //           id: product.id,
-  //           name: product.name,
-  //           price: product.price,
-  //           stock: product.stock,
-  //           count: 1,
-  //         },
-  //       ];
-  //     }
-  //   });
-  // };
+  if(loading) return <PageLoader/>;
 
   return (
     <div className="@container bg-gray-50/50 flex flex-col min-h-dvh w-full">

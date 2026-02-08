@@ -12,6 +12,7 @@ import CustomSelect from '../../../ui/customSelect';
 import { useNavigate, useParams } from 'react-router';
 import { useEffect, useState } from 'react';
 import ImageUploader from '../../../ui/imageUploader';
+import PageLoader from '../../../ui/PageLoader';
 
 const DIVISIONS = [
   { label: 'Dhaka', value: 'Dhaka' },
@@ -133,6 +134,7 @@ export default function EditSupplier() {
   const [imageError, setImageError] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [existingImage, setExistingImage] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const {
     register,
@@ -163,6 +165,7 @@ export default function EditSupplier() {
   useEffect(() => {
     async function fetchSupplier() {
       try {
+        setLoading(true);
         const res = await api.get(`/suppliers/${supplierId}/details`);
         reset(res.data.data);
         const supplier = res.data.data;
@@ -176,6 +179,8 @@ export default function EditSupplier() {
           toast.error('Supplier not found');
           navigate(-1);
         }
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -219,10 +224,12 @@ export default function EditSupplier() {
   const onError = (errors) => {
     focusFirstError(errors);
   };
-
+  if(loading){
+    return <PageLoader/>;
+  }
   return (
     <div className="bg-gray-100 min-h-screen flex justify-center text-[#030006]">
-      <div className="m-5 p-4 w-full max-w-[1000px] rounded-xl bg-gradient-to-r from-red-200/75 to-pink-200">
+      <div className="m-5 p-4 w-full max-w-[1000px] rounded-xl bg-gradient-to-r from-red-50 to-pink-100 border border-gray-200 shadow">
         <h1 className="text-[28px] mb-8 font-semibold text-center font-serif">
           Edit Supplier
         </h1>

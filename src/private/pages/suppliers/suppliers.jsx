@@ -5,6 +5,7 @@ import Pagination from '../../../ui/pagination';
 import API from '../../../api/api';
 import { useCallback, useEffect, useState } from 'react';
 import useToast from '../../../toast/useToast';
+import PageLoader from '../../../ui/PageLoader';
 
 export default function Suppliers() {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ export default function Suppliers() {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const toast = useToast();
+  const [loading, setLoading] = useState(true);  
+
 
   const totalPages = Math.ceil(total / 9);
 
@@ -28,12 +31,13 @@ export default function Suppliers() {
       });
 
       setSuppliers(res.data.data);
-      // console.log("suppliers data:", res.data);
       setPage(res.data.page);
       setTotal(res.data.total);
     } catch (err) {
       console.log(err);
       toast.error('Error fetching suppliers data!', 3500);
+    } finally {
+      setLoading(false);
     }
   }, [page, search, toast]);
 
@@ -50,7 +54,7 @@ export default function Suppliers() {
     setSearch(e.target.value);
     setPage(1);
   };
-
+if (loading) return <PageLoader/>;
   return (
     <div className="@container m-4 flex flex-col gap-5">
       {/* Header  */}

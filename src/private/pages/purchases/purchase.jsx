@@ -200,7 +200,7 @@ export default function Purchase() {
 
   return (
     <div className=" bg-gray-50 w-full min-h-dvh px-[3%] overflow-auto">
-      <div className="w-full px-3  min-w-[820px] from-sky-100 to-cyan-100 bg-gradient-to-r  min-h-dvh rounded-xl flex flex-col border  border-gray-300 ">
+      <div className="w-full px-3  min-w-[820px] from-sky-50 to-cyan-50 bg-gradient-to-r  min-h-dvh rounded-xl flex flex-col border  border-gray-300 ">
         <div className="text-center text-[32px] font-serif font-semibold my-10 mt-5">
           Purchase Product & Stock Update
         </div>
@@ -313,8 +313,8 @@ export default function Purchase() {
               </div>
             </div>
           ) : (
-            <div className="text-sm text-red-400 px-5 text-center ">
-              Please Select Supplier first *
+            <div className="text-sm text-red-400 px-5 text-center animate-pulse ">
+              Please select supplier first 
             </div>
           )}
 
@@ -484,8 +484,8 @@ export default function Purchase() {
               ))}
             </div>
           ) : (
-            <div className="text-sm text-red-400  px-5 text-center ">
-              Please Select Products first *
+            <div className="text-sm text-red-400  px-5 text-center animate-pulse ">
+              Please select products first 
             </div>
           )}
           <div className="flex gap-2 items-baseline mt-10">

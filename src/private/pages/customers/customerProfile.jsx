@@ -45,6 +45,9 @@ import DataTable from '../../component/DataTable.jsx';
 import DateRange from '../../component/DateRange.jsx';
 import EntriesDropdown from '../../component/EntriesDropdown.jsx';
 import SummaryCard from '../../component/SummaryCard.jsx';
+import { set } from 'zod';
+import { finalize } from 'zod/v4/core';
+import PageLoader from '../../../ui/PageLoader.jsx';
 
 export default function CustomerHistory() {
   const {
@@ -65,6 +68,7 @@ export default function CustomerHistory() {
   const navigate = useNavigate();
   const customerId = parseInt(id);
   const elipseRef = useRef(null);
+  const [loading, setLoading] = useState(true);
 
   //transaction states
   const [transactions, setTransactions] = useState([]);
@@ -121,6 +125,7 @@ export default function CustomerHistory() {
   useEffect(() => {
     async function fetchCustomer() {
       try {
+        setLoading(true);
         const res = await api.get(`/customers/${customerId}/details`);
         setCustomer(res.data);
 
@@ -131,6 +136,8 @@ export default function CustomerHistory() {
       } catch (err) {
         console.log(err);
         toast.error('Error fetching customer details');
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -139,6 +146,7 @@ export default function CustomerHistory() {
 
   async function fetchTransactions() {
     try {
+      setLoading(true);
       const res = await api.get(`/customers/${customerId}/transactions`, {
         params: {
           fromDate: startDateTan
@@ -156,11 +164,14 @@ export default function CustomerHistory() {
       setTotalPages(res.data.pagination?.totalPage || 1);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false); 
     }
   }
 
   async function fetchCustomerTransactionSummary() {
     try {
+      setLoading(true);
       const res = await api.get(
         `/customers/${customerId}/transactions/summary`,
         {
@@ -178,6 +189,8 @@ export default function CustomerHistory() {
       setTransactionSummary(res.data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -191,6 +204,7 @@ export default function CustomerHistory() {
 
   async function fetchTransactionsSaleItems(saleId) {
     try {
+      setLoading(true);
       const res = await api.get(
         `/customers/${customerId}/sales/${saleId}/items`,
         {
@@ -203,11 +217,14 @@ export default function CustomerHistory() {
       setViewMode('sale_items');
     } catch (err) {
       console.error(err);
+    }finally{
+      setLoading(false);
     }
   }
 
   async function fetchPurchasedProducts() {
     try {
+      setLoading(true);
       const res = await api.get(`/customers/${customerId}/purchased_products`, {
         params: {
           fromDate: startDatePsh,
@@ -219,11 +236,14 @@ export default function CustomerHistory() {
       setProductItems(res.data.data);
     } catch (err) {
       console.error(err);
+    }finally{
+      setLoading(false);
     }
   }
 
   async function fetchPurchasedProductsSummary() {
     try {
+      setLoading(true);
       const summary = await api.get(
         `/customers/${customerId}/products_summary`,
         {
@@ -238,11 +258,14 @@ export default function CustomerHistory() {
       // setViewMode('sale_items');
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
 
   async function fetchPurchasedProductsHistory(product_id) {
     try {
+      setLoading(true);
       const res = await api.get(
         `/customers/${customerId}/purchased_products/${product_id}`,
         {
@@ -259,6 +282,8 @@ export default function CustomerHistory() {
       setViewMode('product_history');
     } catch (err) {
       console.error(err);
+    }finally{
+      setLoading(false);
     }
   }
 
@@ -268,10 +293,6 @@ export default function CustomerHistory() {
   useEffect(() => {
     fetchPurchasedProducts();
   }, [customerId, startDatePsh, endDatePsh, purchasedLimit]);
-
-  if (!customer || Object.keys(customer).length === 0) {
-    return <div>Loading customer data...</div>;
-  }
 
   const contactRows = [
     {
@@ -580,6 +601,10 @@ export default function CustomerHistory() {
     },
   ];
 
+  if(loading){
+    return <PageLoader/>;
+  }
+
   return (
     <div className="min-w-[1000px] max-w-[1180px] m-auto shrink-0 flex flex-col gap-5 p-5 bg-amber-50/10">
       {/* Customer Info Card */}
@@ -679,21 +704,6 @@ export default function CustomerHistory() {
               <BookmarkMinus className="h-3 w-3 " />
               <span>Due: {customer.debt}</span>
             </div>
-            {/* {customer.status=="active" && (
-              <div className='flex items-center gap-1 border rounded-lg px-2 text-green-500  border-gray-300 shadow'>
-                status : {customer.status}
-              </div>
-            )}
-            {customer.status=="inactive" && (
-              <div className='flex items-center gap-1 border rounded-lg px-2 text-gray-700  border-gray-300 shadow'>
-                status : {customer.status}
-              </div>
-            )}
-            {customer.status=="banned" && (
-              <div className='flex items-center gap-1 border rounded-lg px-2 text-red-500  border-gray-300 shadow'>
-                status : {customer.status}
-              </div>
-            )} */}
 
             <div className="text-[12px] font-semibold text-gray-800 border border-[#e51e5a]/15 px-2 py-1   rounded-lg shadow flex items-center gap-[1px]">
               <ShieldUser className="h-3.5 w-3.5" />

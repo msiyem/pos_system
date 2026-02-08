@@ -41,6 +41,8 @@ import SummaryCard from '../../component/SummaryCard';
 import DateRange from '../../component/DateRange';
 import DataTable from '../../component/DataTable';
 import EntriesDropdown from '../../component/EntriesDropdown';
+import { set } from 'zod';
+import PageLoader from '../../../ui/PageLoader';
 
 export default function SupplierHistory() {
   const { id } = useParams();
@@ -73,6 +75,7 @@ export default function SupplierHistory() {
   const entries = [10, 25, 50, 100];
   const entriesRef = useRef(null);
   const [purchaseItems, setPurchaseItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   //filters
   const [startDateTan, setStartDateTan] = useState('');
@@ -111,6 +114,8 @@ export default function SupplierHistory() {
     } catch (err) {
       console.log(err);
       alert('Error fetching customer details');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -142,6 +147,7 @@ export default function SupplierHistory() {
 
   async function fetchTransactionSummary() {
     try {
+      setLoading(true);
       const res = await api.get(
         `/suppliers/${supplierId}/transactions/summary`,
         {
@@ -159,6 +165,8 @@ export default function SupplierHistory() {
       setTransactionSummary(res.data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -172,6 +180,7 @@ export default function SupplierHistory() {
 
   async function fetchSuppliedProducts() {
     try {
+      setLoading(true);
       const res = await api.get(`/suppliers/${supplierId}/products`, {
         params: {
           fromDate: startDateSup,
@@ -183,10 +192,13 @@ export default function SupplierHistory() {
       setProductItems(res.data.data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
   async function fetchSuppliedProductsSummary() {
     try {
+      setLoading(true);
       const summary = await api.get(
         `/suppliers/${supplierId}/products_summary`,
         {
@@ -200,6 +212,8 @@ export default function SupplierHistory() {
       // setViewMode('sale_items');
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
   useEffect(() => {
@@ -215,6 +229,7 @@ export default function SupplierHistory() {
   // }
   async function fetchSuppliedSpecificProductHistory(product_id) {
     try {
+      setLoading(true);
       const res = await api.get(
         `/suppliers/${supplierId}/supplied/${product_id}`,
         {
@@ -230,11 +245,14 @@ export default function SupplierHistory() {
       setViewMode('product_history');
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
 
   async function fetchTransactionsPurchaseItems(purchaseId) {
     try {
+      setLoading(true);
       const res = await api.get(
         `/suppliers/${supplierId}/purchases/${purchaseId}/items`
       );
@@ -242,6 +260,8 @@ export default function SupplierHistory() {
       setViewMode('purchase_items');
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -500,7 +520,9 @@ export default function SupplierHistory() {
       render: (item) => `${item.total}৳`,
     },
   ];
-
+  if(loading){
+    return <PageLoader/>;
+  }
   return (
     <div className="min-w-[950px] max-w-[1180px] m-auto shrink-0 flex flex-col gap-5 p-5 bg-amber-50/10">
       {/* Customer Info Card */}

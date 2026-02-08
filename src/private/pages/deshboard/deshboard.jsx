@@ -24,6 +24,7 @@ import Loading from '../../component/Loading';
 import SummaryCard from '../../component/SummaryCard';
 import DataTable from '../../component/DataTable';
 import EntriesDropdown from '../../component/EntriesDropdown';
+import PageLoader from '../../../ui/PageLoader';
 
 export default function Deshboard() {
   const location = useLocation();
@@ -51,7 +52,6 @@ export default function Deshboard() {
       });
 
       setDashboardData(response.data);
-      console.log('Dashboard Data:', response.data);
     } catch (err) {
       setError('Failed to fetch dashboard data');
       console.error('Error fetching dashboard:', err);
@@ -63,7 +63,6 @@ export default function Deshboard() {
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]);
-
 
   const handleDaysChange = (days) => {
     setSelectedDays(days);
@@ -77,7 +76,6 @@ export default function Deshboard() {
     });
   };
 
-  
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-BD', {
       style: 'currency',
@@ -86,7 +84,6 @@ export default function Deshboard() {
       maximumFractionDigits: 2,
     }).format(value || 0);
   };
-
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -111,7 +108,6 @@ export default function Deshboard() {
       return 'Invalid Date';
     }
   };
-
 
   const getAlertSeverityColor = (severity) => {
     const colors = {
@@ -309,8 +305,8 @@ export default function Deshboard() {
     },
   ];
 
-  // Check if we're on a child route (analysis page)
-  const isChildRoute = location.pathname !== '/';
+  // Check if we're on a child route under /deshboard
+  const isChildRoute = location.pathname.startsWith('/deshboard/');
 
   // If we're on a child route, only show the Outlet
   if (isChildRoute) {
@@ -318,7 +314,7 @@ export default function Deshboard() {
   }
 
   if (loading) {
-    return <Loading />;
+    return <PageLoader />;
   }
 
   if (error) {
