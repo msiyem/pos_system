@@ -154,7 +154,7 @@ export default function EditProduct() {
       setProducts((prev) =>
         prev.map((p) => (p.id === productId ? { ...p, price: data.price } : p))
       );
-
+      toast.success('Product updated successfully!');
       navigate('/product');
     } catch (err) {
       console.error('Error updating product:', err);
@@ -175,7 +175,7 @@ export default function EditProduct() {
   }
   return (
     <div className="bg-gray-100 w-full min-h-screen flex justify-center items-center text-[#030006]">
-      <div className="flex flex-col gap-5 sm:gap-15 bg-[#ffffff] m-3 p-5 shadow-xl ring-0 rounded-lg w-full max-w-[1000px] mt-5 border-2 border-gray-200">
+      <div className="flex flex-col gap-5 sm:gap-15  m-3 p-5 shadow-xl ring-0 rounded-lg w-full max-w-[1000px] mt-5 bg-gradient-to-r from-sky-100 to-cyan-100 border border-gray-200">
         <div className="flex flex-col gap-2">
           <span className="text-[24px] sm:text-[28px] font-serif font-semibold flex justify-center">
             Edit Product
@@ -188,7 +188,7 @@ export default function EditProduct() {
           className="flex flex-col gap-5 sm:gap-10 w-full"
         >
           <div className="w-full flex justify-between">
-            <div className="w-[45%]">
+            <div className="w-[45%] gap-8 flex flex-col">
               <InputText
                 label="Name"
                 name="name"

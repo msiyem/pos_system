@@ -13,7 +13,7 @@ import { focusFirstError } from '../../../forms/utils/focusFirstError';
 import { PlusIcon } from 'lucide-react';
 import InputRadio from '../../../ui/customRadio';
 import { useNavigate, useParams } from 'react-router';
-
+import { useAuth } from '../../../context/useAuth';
 const DIVISIONS = [
   { label: 'Dhaka', value: 'Dhaka' },
   { label: 'Chattogram', value: 'Chattogram' },
@@ -132,7 +132,8 @@ const ROLES = [
 export default function EditUser() {
   const toast = useToast();
   const { id } = useParams();
-  const userId = parseInt(id);
+  const Id = parseInt(id);
+  const { userId } = useAuth();
   const navigate = useNavigate();
   // const navigate = useNavigate();
   const [imageFile, setImageFile] = useState(null);
@@ -158,11 +159,10 @@ export default function EditUser() {
     reValidateMode: 'onChange',
   });
 
-
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await api.get(`/users/${userId}`);
+        const res = await api.get(`/users/${Id}`);
         const user = res.data;
         reset(res.data);
         if (user.image_url) {
@@ -188,7 +188,6 @@ export default function EditUser() {
     };
   }, [imagePreview]);
 
-
   const onSubmit = async (data) => {
     if (!isDirty) {
       toast.info('No changes detected!');
@@ -208,10 +207,10 @@ export default function EditUser() {
     if (imageFile) formData.append('image', imageFile);
 
     try {
-      const res = await api.put(`/users/${userId}`, formData, {
+      await api.put(`/users/${Id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      toast.success(res.data.message);
+      toast.success("User updated successfully!");
       setTimeout(() => {
         navigate(-1);
       }, 500);
@@ -232,7 +231,7 @@ export default function EditUser() {
 
   return (
     <div className="bg-gray-100 min-h-screen w-full flex justify-center overflow-auto text-[#030006]">
-      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#d8fdfe] ">
+      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#d8fdfe] shadow-lg border border-gray-200">
         <h2 className="text-[28px] mb-10 font-semibold font-serif flex justify-center">
           Edit User
         </h2>
@@ -292,20 +291,22 @@ export default function EditUser() {
                 error={errors.whatsapp?.message}
               />
 
-              <CustomSelect
-                label="Role"
-                name="role"
-                options={ROLES}
-                value={watch('role')}
-                onChange={(v) =>
-                  setValue('role', v, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  })
-                }
-                error={errors.role?.message}
-                required
-              />
+              {!userId === Id && (
+                <CustomSelect
+                  label="Role"
+                  name="role"
+                  options={ROLES}
+                  value={watch('role')}
+                  onChange={(v) =>
+                    setValue('role', v, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
+                  error={errors.role?.message}
+                  required
+                />
+              )}
               <InputText
                 label="Birthday"
                 type="date"

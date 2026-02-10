@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import api from '../../../api/api';
 import useToast from '../../../toast/useToast';
 import PointItems from '../../../ui/point_items';
-import {useCart} from '../../cart/useCart.jsx';
+import { useCart } from '../../cart/useCart.jsx';
 
 export default function ShoppingCard({
   customers = [],
@@ -109,7 +109,7 @@ export default function ShoppingCard({
   // Confirm Sale (Submit data to backend)
   const handleCheckout = async () => {
     if (!cusId && paid_amount < total) {
-      return toast.error('Guest must pay full amount!', 3500);
+      return toast.error('Guest must pay full amount!');
     }
 
     if (cart.length === 0 && paid_amount > 0) {
@@ -117,7 +117,7 @@ export default function ShoppingCard({
     }
 
     try {
-      const res = await api.post('/sales/checkout', {
+      await api.post('/sales/checkout', {
         customer_id: cusId,
         items: itemsData,
         subtotal,
@@ -128,7 +128,7 @@ export default function ShoppingCard({
         payment_method: paymentMethod,
       });
 
-      toast.success(res.data.message, 4000);
+      toast.success('Checkout successful!');
       clearCart();
       setcusName('');
       setPaidAmount(0);
@@ -161,21 +161,21 @@ export default function ShoppingCard({
       </div>
 
       <div
-        className={`fixed right-0 z-50 shadow-2xl min-h-150 bg-white  transform transition-transform duration-300 ease-out ${
+        className={`fixed right-0 z-50 shadow-2xl bg-white transform transition-transform duration-300 ease-out ${
           openShoppingCart ? 'translate-x-0' : 'translate-x-full'
         }`}
-        style={{ top: '4.00rem', height: 'calc(100vh - 4.26rem)' }}
+        style={{ top: '4.00rem', height: 'calc(100vh - 4rem)' }}
       >
-        <div className=" p-3 w-[350px] sm:w-[400px] flex flex-col gap-5 h-full  border border-gray-300 shadow overflow-auto">
+        <div className="px-3 w-screen max-w-[400px] flex flex-col h-full border border-gray-300 shadow overflow-y-auto">
           {/* Header */}
-          <div className="flex justify-between w-full">
-            <p className="text-[24px] sm:text-[28px] font-semibold flex gap-3 items-center">
-              <ShoppingCart className='h-[28px] w-[28px]'/>
-              <span>Shopping Cart</span>
+          <div className="sticky top-0 z-20 flex justify-between w-full bg-white py-2 border-b border-gray-300">
+            <p className="text-[22px] sm:text-[28px] font-semibold flex gap-2 sm:gap-3 items-center">
+              <ShoppingCart className="h-[28px] w-[28px] fill-rose-500 text-red-600 shadow-sm p-0.5 rounded-sm" />
+              <span className="font-serif">Cart</span>
             </p>
             <button
               onClick={() => setOpenShoppingCart(false)}
-              className="flex items-center h-[25px] w-[25px] cursor-pointer"
+              className="flex items-center h-[28px] w-[28px] cursor-pointer"
             >
               <X />
             </button>
@@ -183,13 +183,13 @@ export default function ShoppingCard({
 
           {/* Customer Search */}
           <div className="relative w-full">
-            <div className="my-4">
+            <div className="my-3 sm:my-4">
               <input
                 type="text"
                 value={cus_search}
                 onChange={handleSearchChange}
                 placeholder="Search customer..."
-                className=" border w-full rounded-lg border-gray-300 outline-0 focus:border-gray-400  p-1 px-2 hover:shadow"
+                className="border w-full rounded-lg border-gray-300 outline-0 focus:border-gray-400 p-2 sm:p-1 sm:px-2 hover:shadow"
               />
             </div>
 
@@ -225,7 +225,7 @@ export default function ShoppingCard({
             ) : (
               <>
                 {cusName ? (
-                  <div className="px-2 flex justify-between border-b py-2">
+                  <div className="px-2 flex justify-between border-b text-sm sm:text-base">
                     <span>Name: {cusName}</span>
                     <span>
                       Debt: {cusDebt}{' '}
@@ -233,7 +233,7 @@ export default function ShoppingCard({
                     </span>
                   </div>
                 ) : (
-                  <div className="px-2 border text-red-500 text-center">
+                  <div className="px-2 text-xs animate-pulse text-red-500 text-center">
                     Guest Sale (No previous due)
                   </div>
                 )}
@@ -243,7 +243,7 @@ export default function ShoppingCard({
 
           {/* Items */}
           {cart.length != 0 && (
-            <div className="flex flex-col gap-2 py-2 px-1 min-h-[300px] max-h-[500px] w-full overflow-auto">
+            <div className="flex flex-col gap-2 py-2 px-1 w-full pb-6">
               {cart.map((item) => (
                 <PointItems
                   key={item.id}
@@ -260,11 +260,12 @@ export default function ShoppingCard({
           )}
 
           {/* Totals */}
-          <div className="m-auto w-full">
+          <div className="mt-auto w-full sticky bottom-0 z-20 bg-white pt-2">
             <div className="flex justify-between p-3 border-t border-gray-400">
               <span className="sm:text-lg font-semibold">Subtotal</span>
               <span className="sm:text-lg font-semibold">
-                {subtotal.toFixed(2)} <span className="text-[18px] font-semibold">৳</span>
+                {subtotal.toFixed(2)}{' '}
+                <span className="text-[18px] font-semibold">৳</span>
               </span>
             </div>
 
@@ -287,7 +288,8 @@ export default function ShoppingCard({
             <div className="flex justify-between p-3 border-t border-gray-400">
               <span className="sm:text-lg font-semibold">Total</span>
               <span className="sm:text-lg font-semibold">
-                {total.toFixed(2)} <span className="text-[18px] font-semibold">৳</span>
+                {total.toFixed(2)}{' '}
+                <span className="text-[18px] font-semibold">৳</span>
               </span>
             </div>
 
@@ -323,7 +325,7 @@ export default function ShoppingCard({
             )}
 
             {/* Confirm Button */}
-            <div className="flex justify-end p-3">
+            <div className="flex justify-end p-3 mt-auto">
               {/* <button
                 onClick={handleSavePending}
                 className="flex items-center gap-2 p-2 px-4 bg-gray-400 text-white rounded-md hover:bg-gray-500"
@@ -334,7 +336,7 @@ export default function ShoppingCard({
 
               <button
                 onClick={handleCheckout}
-                className="p-2 px-4 bg-green-500 text-white rounded-md hover:bg-green-600"
+                className="p-2 px-4 bg-green-500 text-white rounded-md hover:bg-green-600 mb-2"
               >
                 Checkout
               </button>

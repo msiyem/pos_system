@@ -196,7 +196,7 @@ export default function AddUser() {
 
   return (
     <div className="bg-gray-100 min-h-screen w-full flex justify-center overflow-auto text-[#030006]">
-      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#d8fdfe] ">
+      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#d8fdfe] shadow-lg border border-gray-200">
         <h2 className="text-[28px] mb-10 font-semibold font-serif flex justify-center">
           Add User
         </h2>

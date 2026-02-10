@@ -10,7 +10,6 @@ export default function Customers() {
   user_total:total,
   user_limit:limit,
   user_search:search,
-  role,
   setUserPage,
   setUserSearch,
 }=useOutletContext();
@@ -23,7 +22,7 @@ export default function Customers() {
   };
 
   return (
-    <div className="@container m-4 flex flex-col gap-5">
+    <div className="@container p-4 flex flex-col gap-5 min-h-[92dvh]">
       {/* Header  */}
       <div className="">
         <div className="flex justify-between">
@@ -85,7 +84,7 @@ export default function Customers() {
         ))}
       </div>
 
-      <div>
+      <div className='mt-auto mb-2'>
         <Pagination
           currentPage={page}
           totalPages={totalPages}

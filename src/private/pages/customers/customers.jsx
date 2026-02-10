@@ -24,7 +24,7 @@ export default function Customers() {
   };
 
   return (
-    <div className="@container m-4 flex flex-col gap-5">
+    <div className="@container p-4 flex flex-col gap-5 min-h-[92dvh]">
       {/* Header  */}
       <div className="">
         <div className="flex justify-between">
@@ -85,7 +85,7 @@ export default function Customers() {
         ))}
       </div>
 
-      <div>
+      <div className='mt-auto mb-3'>
         <Pagination
           currentPage={page}
           totalPages={totalPages}

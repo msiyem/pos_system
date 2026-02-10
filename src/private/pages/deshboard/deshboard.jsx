@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { Outlet, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../../../api/api';
 import Loading from '../../component/Loading';
 import SummaryCard from '../../component/SummaryCard';
@@ -39,10 +39,15 @@ export default function Deshboard() {
   });
   const [dashboardData, setDashboardData] = useState(null);
   const [error, setError] = useState(null);
+  const refreshTimeoutRef = useRef(null);
+  const MIN_REFRESH_SPIN_MS = 350;
 
-  const fetchDashboardData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const fetchDashboardData = useCallback(async (options = {}) => {
+    const { skipLoading = false } = options;
+    if (!skipLoading) {
+      setLoading(true);
+      setError(null);
+    }
     try {
       const response = await api.get('/dashboard/main', {
         params: {
@@ -63,6 +68,24 @@ export default function Deshboard() {
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]);
+
+  useEffect(() => {
+    return () => {
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleRefresh = () => {
+    if (loading) return;
+    setLoading(true);
+    setError(null);
+
+    refreshTimeoutRef.current = setTimeout(() => {
+      fetchDashboardData({ skipLoading: true });
+    }, MIN_REFRESH_SPIN_MS);
+  };
 
   const handleDaysChange = (days) => {
     setSelectedDays(days);
@@ -313,7 +336,7 @@ export default function Deshboard() {
     return <Outlet />;
   }
 
-  if (loading) {
+  if (loading && !dashboardData) {
     return <PageLoader />;
   }
 
@@ -351,10 +374,14 @@ export default function Deshboard() {
             </p>
           </div>
           <button
-            onClick={fetchDashboardData}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+            onClick={handleRefresh}
+            disabled={loading}
+            className={`flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm cursor-pointer ${loading ? 'opacity-80 cursor-none' : ''}`}
           >
-            <RefreshCw size={16} />
+            <RefreshCw
+              size={16}
+              className={`${loading ? 'animate-spin' : ''} inline-block mr-2`}
+            />
             Refresh
           </button>
         </div>

@@ -92,7 +92,7 @@ export default function Products() {
   if(loading) return <PageLoader/>;
 
   return (
-    <div className="@container bg-gray-50/50 flex flex-col min-h-dvh w-full">
+    <div className="@container bg-gray-50/50 flex flex-col min-h-[92dvh] w-full">
       <div className="flex items-center justify-between w-full my-5 mx-3">
         <div className="flex flex-col ">
           <span
@@ -292,7 +292,8 @@ export default function Products() {
       </div>
 
       {/* Pagination */}
-      <Pagination
+      <div className='mt-auto mb-2'>
+        <Pagination
         currentPage={page}
         totalPages={totalPages}
         onPageChange={(newPage) => {
@@ -300,6 +301,7 @@ export default function Products() {
           fetchProducts(newPage, search);
         }}
       />
+      </div>
     </div>
   );
 }

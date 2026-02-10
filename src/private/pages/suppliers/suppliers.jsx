@@ -56,7 +56,7 @@ export default function Suppliers() {
   };
 if (loading) return <PageLoader/>;
   return (
-    <div className="@container m-4 flex flex-col gap-5">
+    <div className="@container p-4 flex flex-col gap-5 min-h-[93dvh]">
       {/* Header  */}
       <div className="">
         <div className="flex justify-between">
@@ -76,7 +76,7 @@ if (loading) return <PageLoader/>;
             </button>
           </div>
         </div>
-        <div className="flex justify-between items-center self-start">
+        <div className="flex justify-between items-center self-start mt-3">
           <div className="ring-0 border rounded-lg border-gray-300 p-1 px-2 shadow w-[30ch] flex items-center gap-1">
             <Search className="h-4 w-4 text-gray-400" />
             <input
@@ -116,7 +116,7 @@ if (loading) return <PageLoader/>;
         ))}
       </div>
 
-      <div>
+      <div className='mt-auto mb-3'>
         <Pagination
           currentPage={page}
           totalPages={totalPages}

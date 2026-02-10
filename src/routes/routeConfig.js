@@ -16,8 +16,6 @@ import AddSupplier from '../private/pages/suppliers/addSupplier.jsx';
 import EditSupplier from '../private/pages/suppliers/editSupplier.jsx';
 import SupplierPayable from '../private/pages/suppliers/supplierPayable.jsx';
 
-import Reports from '../private/pages/reports/reports.jsx';
-import Selling from '../private/pages/sellings/selling.jsx';
 import Purchase from '../private/pages/purchases/purchase';
 
 import Users from '../private/pages/users/users.jsx';
@@ -186,16 +184,6 @@ export const routes = [
         path: 'category/add',
         element: AddCategory,
         roles: [ROLES.ADMIN],
-      },
-      {
-        path: 'reports',
-        element: Reports,
-        roles: [ROLES.ADMIN, ROLES.STAFF],
-      },
-      {
-        path: 'selling',
-        element: Selling,
-        roles: [ROLES.ADMIN, ROLES.STAFF],
       },
       {
         path: 'purchase',

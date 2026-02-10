@@ -206,10 +206,10 @@ export default function EditCustomer() {
     //   console.log(key, value);
     // }
     try {
-      const res = await api.put(`/customers/${cusId}`, formData, {
+      await api.put(`/customers/${cusId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      toast.success(res.data.message);
+      toast.success("Customer updated successfully!");
       navigate(-1);
     } catch (err) {
       console.error(err);
@@ -229,7 +229,7 @@ export default function EditCustomer() {
 
   return (
     <div className="bg-gray-100 overflow-y-auto w-full min-h-screen flex justify-center text-[#030006]">
-      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#f3eafe] ">
+      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-gradient-to-r from-sky-100 to-cyan-100 shadow-lg border border-gray-200">
         <div className="text-[28px] mb-10 font-semibold font-serif flex justify-center ">
           Edit Customer
         </div>

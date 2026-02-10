@@ -166,10 +166,10 @@ export default function AddSupplier() {
     }
 
     try {
-      const res = await api.post('/suppliers', formData, {
+      await api.post('/suppliers', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      toast.success(res.data.message);
+      toast.success("Supplier added successfully!");
       reset();
       setImageError(null);
       setImagePreview(null);
@@ -390,7 +390,7 @@ export default function AddSupplier() {
                         hover:bg-red-600 disabled:opacity-60 cursor-pointer from-indigo-700 to-blue-600 bg-gradient-to-b hover:bg-gradient-to-r
                           disabled:cursor-not-allowed"
             >
-              <PlusIcon size={16} />
+              {!isSubmitting && <PlusIcon size={16} />}
               {isSubmitting ? 'Saving...' : 'Add Supplier'}
             </button>
           </div>

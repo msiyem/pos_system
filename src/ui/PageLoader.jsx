@@ -9,7 +9,7 @@ export default function PageLoader({
   size = 44,
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-[0.8px] bg-white/5">
       <div className="flex flex-col items-center gap-4">
         <CircleLoader size={size} circleStyle={circleStyle} />
 
