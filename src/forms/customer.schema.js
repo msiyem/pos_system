@@ -5,11 +5,11 @@ export const customerSchema = z.object({
   gender: z.enum(['male', 'female', 'other'], {
     error: () => ({ message: 'please select gender!' }),
   }),
-  birthday: z.string().min(1, 'Birthday is required!'),
+  birthday: z.string().min(1, 'Birthday is required!').optional(),
   division: z.string().min(1, 'Division is required!'),
   district: z.string().min(1, 'District is required!'),
 
-  post_code: z.string().min(1, 'Post code is required'),
+  post_code: z.string().min(4, 'Post code must be 4 characters').max(4, 'Post code must be at most 4 characters').optional(),
   city: z.string().optional().nullable().or(z.literal('')),
   area: z.string().optional().nullable().or(z.literal('')),
   sector: z.string().optional().nullable().or(z.literal('')),

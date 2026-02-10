@@ -167,17 +167,17 @@ export default function AddCustomer() {
       if(imageFile) formdata.append('image',imageFile);
     try {
       
-      const res = await api.post('/customers', formdata,{
+      await api.post('/customers', formdata,{
         headers: { 'Content-Type': 'multipart/form-data'},
       });
-      toast.success(res.data.message);
+      toast.success("Customer added successfully!");
       reset();
       setImageFile(null);
       setImageError(null);
       setImagePreview(null);
     } catch (err) {
       console.error(err);
-      toast.error('Customer added failed!');
+      toast.error('Customer addition failed!');
     }
   };
 
@@ -192,7 +192,7 @@ export default function AddCustomer() {
 
   return (
     <div className="bg-gray-100 overflow-y-auto w-full min-h-screen flex justify-center text-[#030006]">
-      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-[#f0e9f9] ">
+      <div className="m-5 mb-10 p-3 w-full max-w-[1000px] rounded-xl bg-gradient-to-r from-sky-100 to-cyan-100 shadow-lg border border-gray-200">
         <div className="text-[28px] mb-10 font-semibold font-serif flex justify-center ">
           Add Customer
         </div>
@@ -398,7 +398,7 @@ export default function AddCustomer() {
                         hover:bg-red-600 disabled:opacity-60 cursor-pointer from-indigo-700 to-blue-600 bg-gradient-to-b hover:bg-gradient-to-r
                           disabled:cursor-not-allowed"
             >
-              <PlusIcon size={16}/>
+              {!isSubmitting && <PlusIcon size={16}/>}
               {isSubmitting ? 'Saving...' : 'Add Customer'}
             </button>
           </div>

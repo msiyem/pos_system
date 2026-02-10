@@ -204,10 +204,10 @@ export default function EditSupplier() {
       formData.append('removeImage','true');
     }
     try {
-      const res = await api.put(`/suppliers/${supplierId}`, formData,{
+      await api.put(`/suppliers/${supplierId}`, formData,{
         headers: {'Content-Type': 'multipart/form-data'},
       });
-      toast.success(res.data.message);
+      toast.success("Supplier updated successfully!");
       reset();
       navigate(-1);
     } catch (err) {

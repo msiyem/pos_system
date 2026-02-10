@@ -24,7 +24,7 @@ export const supplierSchema = z.object({
   district: z.string().min(1,"District is required!"),
   city: z.string().optional(),
   area: z.string().optional(),
-  post_code: z.string().min(1, 'Post code is required'),
+  post_code: z.string().min(4, 'Post code must be 4 characters').max(4, 'Post code must be at most 4 characters').optional(),
   sector: z.string().optional(),
   road: z.string().optional(),
   house: z.string().optional(),

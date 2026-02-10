@@ -3,6 +3,9 @@ import api from '../api/api';
 import { useAuth } from '../context/useAuth.jsx';
 import { useNavigate } from 'react-router-dom';
 import useToast from '../toast/useToast.jsx';
+import { set } from 'zod';
+import { fi } from 'date-fns/locale/fi';
+import { RefreshCcw } from 'lucide-react';
 
 export default function Login() {
   const toast = useToast();
@@ -11,10 +14,12 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setSubmitting(true);
       const res = await api.post('/auth/login', {
         email,
         password,
@@ -45,6 +50,8 @@ export default function Login() {
       }
 
       setError(message || 'Login failed. Please try again.');
+    }finally {      
+      setSubmitting(false);
     }
   };
 
@@ -84,7 +91,12 @@ export default function Login() {
             type="submit"
             className="w-full bg-indigo-600 from-indigo-500 to-purple-600 bg-gradient-to-br hover:bg-gradient-to-bl text-white py-2 rounded-lg  transition cursor-pointer"
           >
-            Login
+            {submitting ? (
+              <div>
+                <RefreshCcw size={16} className='animate-spin inline-block mr-2'/>
+                {'Logging in...'}
+              </div>
+            ) : 'Login'}
           </button>
         </form>
       </div>

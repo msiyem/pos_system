@@ -177,20 +177,20 @@ export default function Purchase() {
     }
 
     try {
-      const res = await API.post('/purchase', {
+      await API.post('/purchase', {
         supplier_id: supId,
         items: items,
         total_amount: total_amount,
         paid_amount: paid,
         payment_method: paymentMethod,
       });
-      toast.success(res.data?.message);
+      toast.success("Purchase successful!");
       setItems([]);
       setpaid('');
       setSupId(null);
     } catch (err) {
       console.log(err);
-      toast.error('Purchase Failed!');
+      toast.error('Purchase failed!');
     }
   }
   const handleRemoveItem = (index) => {
